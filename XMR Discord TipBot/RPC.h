@@ -16,6 +16,7 @@ namespace RPC
 	// Vars
 #define RPC_JSON								"/json_rpc"
 #define ITNS_OFFSET								100000000.0
+#define DEFAULT_MIXIN							4
 
 	// Methods
 #define RPC_METHOD_GET_BALANCE					"getbalance"

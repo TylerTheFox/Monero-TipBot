@@ -9,7 +9,7 @@ int main()
 	std::cout << "Current Block Height: " << RPC::getBlockHeight(0) << '\n';
 	std::cout << "My Address: " << RPC::getAddress(0) << '\n';
 
-	std::cout << "Testing Transfering of 100 ITNS\n\n";
+	std::cout << "Testing Transfering of 10 ITNS\n\n";
 	auto trx = RPC::tranfer(0, 10, "iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf");
 
 	std::cout

@@ -77,6 +77,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\Extern\cereal-1.2.2\include;$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\Extern\poco-1.9.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -99,6 +100,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\Extern\cereal-1.2.2\include;$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

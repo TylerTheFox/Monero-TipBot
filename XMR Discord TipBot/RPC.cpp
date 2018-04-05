@@ -111,7 +111,7 @@ namespace RPC
 		destinations.push_back(object);
 
 		params["destinations"] = destinations;
-		params["mixin"] = 4;
+		params["mixin"] = Poco::format("%d", DEFAULT_MIXIN);
 		params["get_tx_key"] = true;
 
 		auto json = getDataFromRPC(id, RPC_METHOD_TRANSFER, params);
