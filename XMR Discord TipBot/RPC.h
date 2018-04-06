@@ -27,7 +27,8 @@
 #define RPC_METHOD_GET_TRANSFERS				"get_transfers"
 #define RPC_METHOD_CREATE_WALLET				"create_wallet"
 #define RPC_METHOD_OPEN_WALLET					"open_wallet"
-#define RPC_METHOD_CLOSE_WALLET					"stop_wallet"
+#define RPC_METHOD_CLOSE_RPC					"stop_wallet"
+#define RPC_METHOD_STORE						"store"
 
 struct BalanceRet
 {
@@ -69,6 +70,7 @@ public:
 	bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0) const;
 	bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;
 	void								stopWallet(int id = 0) const;
+	void								store(int id = 0) const;
 
 private:
 	static void							handleNetworkError(const std::string & msg);

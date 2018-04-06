@@ -138,7 +138,7 @@ TransferRet RPC::tranfer(unsigned long long payment_id, unsigned long long amoun
 	object["address"] = address;
 	destinations.push_back(object);
 
-	params["payment_id"] = Poco::format("%064d", payment_id);
+	params["payment_id"] = Poco::format("%064Lu", payment_id);
 	params["destinations"] = destinations;
 	params["mixin"] = DEFAULT_MIXIN;
 	params["get_tx_key"] = true;
@@ -170,9 +170,9 @@ TransferRet RPC::sweepAll(unsigned long long payment_id, const std::string & add
 	Poco::DynamicStruct params;
 
 	params["address"] = address;
-	params["payment_id"] = Poco::format("%064d", payment_id);
+	params["payment_id"] = Poco::format("%064Lu", payment_id);
 	params["mixin"] = DEFAULT_MIXIN;
-	params["get_tx_key"] = true;
+	params["get_tx_keys"] = true;
 	params["unlock_time"] = 0;
 
 	auto json = getDataFromRPC(RPC_METHOD_SWEEP_ALL, params, id);
@@ -186,9 +186,12 @@ TransferRet RPC::sweepAll(unsigned long long payment_id, const std::string & add
 
 	auto result = json["result"].extract<Poco::DynamicStruct>();
 
-	ret.fee = result["fee"].convert<unsigned long long>();
-	ret.tx_hash = result["tx_hash"].toString();
-	ret.tx_key = result["tx_key"].toString();
+	auto tx_hash_list = result["tx_hash_list"].extract<Poco::Dynamic::Array>();
+	auto tx_key_list = result["tx_key_list"].extract<Poco::Dynamic::Array>();
+
+	ret.fee			= 0;
+	ret.tx_hash		= tx_hash_list[0].toString();
+	ret.tx_key		= tx_hash_list[0].toString();
 
 	return ret;
 }
@@ -293,7 +296,17 @@ bool RPC::openWallet(const std::string & name, const std::string & password, int
 void RPC::stopWallet(int id) const
 // This doesn't close the wallet but the RPC.
 {
-	auto json = getDataFromRPC(RPC_METHOD_CLOSE_WALLET, {}, id);
+	auto json = getDataFromRPC(RPC_METHOD_CLOSE_RPC, {}, id);
+
+	if (!json["error"].isEmpty())
+	{
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+	}
+}
+
+void RPC::store(int id) const
+{
+	auto json = getDataFromRPC(RPC_METHOD_STORE, {}, id);
 
 	if (!json["error"].isEmpty())
 	{
