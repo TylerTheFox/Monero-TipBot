@@ -62,7 +62,7 @@ public:
 	struct BalanceRet					getBalance(int id = 0) const;
 	std::string							getAddress(int id = 0) const;
 	unsigned int						getBlockHeight(int id = 0) const;
-	TransferRet							tranfer(int payment_id, unsigned long long amount, const std::string & address, int id = 0) const;
+	TransferRet							tranfer(unsigned long long payment_id, unsigned long long amount, const std::string & address, int id = 0) const;
 	TransferList						getTransfers(int id = 0);
 	bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0) const;
 	bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;

@@ -32,7 +32,7 @@ const std::string & Account::getMyAddress() const
 	return MyAddress;
 }
 
-TransferRet Account::transferMoneytoAnotherDiscordUser(unsigned long long amount, unsigned int DIS_ID) const
+TransferRet Account::transferMoneytoAnotherDiscordUser(unsigned long long amount, unsigned long long DIS_ID) const
 {
 	if (amount > Balance)
 	{
@@ -56,6 +56,7 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(unsigned long long amount
 
 	// Now they we got the address reopen my account so we can send the money.
 	Wallet_Name = Poco::format(DISCORD_WALLET_MASK, Discord_ID);
+	assert(RPCServ.openWallet(Wallet_Name));
 
 	// Send the money
 	return RPCServ.tranfer(Discord_ID, amount, DiscordUserAddress);

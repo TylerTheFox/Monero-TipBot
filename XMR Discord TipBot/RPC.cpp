@@ -125,7 +125,7 @@ unsigned int RPC::getBlockHeight(int id) const
 	return result["height"].convert<unsigned int>();
 }
 
-TransferRet RPC::tranfer(int payment_id, unsigned long long amount, const std::string & address, int id) const
+TransferRet RPC::tranfer(unsigned long long payment_id, unsigned long long amount, const std::string & address, int id) const
 {
 	TransferRet ret;
 
@@ -138,7 +138,7 @@ TransferRet RPC::tranfer(int payment_id, unsigned long long amount, const std::s
 	object["address"] = address;
 	destinations.push_back(object);
 
-	params["payment_id"] = Poco::format("%016d", payment_id);
+	params["payment_id"] = Poco::format("%064d", payment_id);
 	params["destinations"] = destinations;
 	params["mixin"] = DEFAULT_MIXIN;
 	params["get_tx_key"] = true;
