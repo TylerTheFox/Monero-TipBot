@@ -1,6 +1,7 @@
 #include "AccountException.h"
+#include <utility>
 
-InsufficientBalance::InsufficientBalance(const std::string & general_error) : genErr(general_error)
+InsufficientBalance::InsufficientBalance(std::string general_error) : genErr(std::move(general_error))
 {
 }
 
@@ -14,7 +15,7 @@ const char * InsufficientBalance::what()
 	return "Insufficient Balance";
 }
 
-ZeroTransferAmount::ZeroTransferAmount(const std::string & general_error) : genErr(general_error)
+ZeroTransferAmount::ZeroTransferAmount(std::string general_error) : genErr(std::move(general_error))
 {
 }
 
@@ -28,7 +29,7 @@ const char * ZeroTransferAmount::what()
 	return "Transfer Error";
 }
 
-GeneralAccountError::GeneralAccountError(const std::string & general_error) : genErr(general_error)
+GeneralAccountError::GeneralAccountError(std::string general_error) : genErr(std::move(general_error))
 {
 }
 

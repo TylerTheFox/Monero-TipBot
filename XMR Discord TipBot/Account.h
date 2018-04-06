@@ -16,14 +16,14 @@ public:
 	unsigned long long		getUnlockedBalance() const;
 	const std::string &		getMyAddress() const;
 
-	void					transferMoneytoAnotherDiscordUser(unsigned long long amount, unsigned int Discord_ID);
-	void					transferMoneyToAddress(unsigned long long amount, const std::string & address);
+	TransferRet				transferMoneytoAnotherDiscordUser(unsigned long long amount, unsigned int Discord_ID) const;
+	TransferRet				transferMoneyToAddress(unsigned long long amount, const std::string & address) const;
 private:
 	RPC						RPCServ;
 	unsigned int			Discord_ID;
 	std::string				MyAddress;
-	unsigned long long		Balance;
-	unsigned long long		UnlockedBalance;
+	unsigned long long		Balance{};
+	unsigned long long		UnlockedBalance{};
 
 	void					resyncAccount();
 };

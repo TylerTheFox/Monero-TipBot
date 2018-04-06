@@ -1,6 +1,7 @@
 #include "RPCException.h"
+#include <utility>
 
-RPCConnectionError::RPCConnectionError(const std::string & general_error) : genErr(general_error)
+RPCConnectionError::RPCConnectionError(std::string general_error) : genErr(std::move(general_error))
 {
 }
 
@@ -14,7 +15,7 @@ const char * RPCConnectionError::what()
 	return "Connection to the RPC Failed! Ensure RPC is running and the port is correct. Contact @Admins for help.";
 }
 
-RPCGeneralError::RPCGeneralError(const std::string& code, const std::string & general_error) : genErr(general_error)
+RPCGeneralError::RPCGeneralError(const std::string& code, std::string general_error) : genErr(std::move(general_error))
 {
 }
 

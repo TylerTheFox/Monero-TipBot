@@ -9,26 +9,19 @@
 #include "Poco/Net/HTTPClientSession.h"
 #include "Poco/Net/HTTPRequest.h"
 #include <Poco/Net/HTTPResponse.h>
-#include "Poco/Random.h"
-#include "Poco/RandomStream.h"
-#include "Poco/File.h"
-#include <assert.h>
-
-#include <fstream>
+#include <cassert>
 
 void RPC::handleNetworkError(const std::string & msg)
 {
-	RPCConnectionError exp(msg);
-	throw exp;
+	throw RPCConnectionError(msg);
 }
 
 void RPC::handleRPCError(Poco::DynamicStruct error)
 {
-	RPCGeneralError exp(error["code"].toString(), error["message"].toString());
-	throw exp;
+	throw RPCGeneralError(error["code"].toString(), error["message"].toString());
 }
 
-const Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id)
+Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id) const
 {
 	// Building JSON string
 	Poco::DynamicStruct data;
@@ -69,7 +62,8 @@ const Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const 
 	return {};
 }
 
-BalanceRet RPC::getBalance(int id) /* Global Wallet Balance */
+BalanceRet RPC::getBalance(int id) const
+/* Global Wallet Balance */
 {
 	BalanceRet ret;
 	auto json = getDataFromRPC(RPC_METHOD_GET_BALANCE, {}, id);
@@ -93,7 +87,7 @@ BalanceRet RPC::getBalance(int id) /* Global Wallet Balance */
 	return ret;
 }
 
-std::string RPC::getAddress(int id)
+std::string RPC::getAddress(int id) const
 {
 	auto json = getDataFromRPC(RPC_METHOD_GET_ADDRESS, {}, id);
 
@@ -112,7 +106,7 @@ std::string RPC::getAddress(int id)
 	return result["address"].toString();
 }
 
-unsigned int RPC::getBlockHeight(int id)
+unsigned int RPC::getBlockHeight(int id) const
 {
 	auto json = getDataFromRPC(RPC_METHOD_GET_BLK_HEIGHT, {}, id);
 
@@ -131,7 +125,7 @@ unsigned int RPC::getBlockHeight(int id)
 	return result["height"].convert<unsigned int>();
 }
 
-TransferRet RPC::tranfer(int payment_id, unsigned long long amount, const std::string & address, int id)
+TransferRet RPC::tranfer(int payment_id, unsigned long long amount, const std::string & address, int id) const
 {
 	TransferRet ret;
 
@@ -188,13 +182,13 @@ TransferList RPC::getTransfers(int id)
 
 	// Loop though the IN and OUT transaction list and add it to the 
 	// tx_in and tx_out vector.
-	auto processList = [&](const std::string & inout)
+	const auto processList = [&](const std::string & inout)
 	{
 		if (!json["result"][inout].isEmpty())
 		{
 			auto result = json["result"][inout].extract<Poco::Dynamic::Array>();
 
-			struct TransferItem ts;
+			struct TransferItem ts = {};
 			for (auto it : result)
 			{
 				ts.payment_id = it["payment_id"].convert<unsigned int>();
@@ -218,7 +212,7 @@ TransferList RPC::getTransfers(int id)
 	return incomingTransactions;
 }
 
-bool RPC::createWallet(const std::string & name, const std::string & password, const std::string & language, int id)
+bool RPC::createWallet(const std::string & name, const std::string & password, const std::string & language, int id) const
 {
 	// Ensure we dont overwrite a wallet.
 	assert(!Util::doesWalletExist(WALLET_PATH + name));
@@ -242,11 +236,11 @@ bool RPC::createWallet(const std::string & name, const std::string & password, c
 	return Util::doesWalletExist(WALLET_PATH + name);
 }
 
-bool RPC::openWallet(const std::string & name, const std::string & password, int id)
+bool RPC::openWallet(const std::string & name, const std::string & password, int id) const
 {
 	// Ensure Wallet Exists
 	if (!Util::doesWalletExist(WALLET_PATH + name))
-		createWallet(name, password);
+		assert(createWallet(name, password));
 
 	Poco::DynamicStruct data;
 
@@ -264,7 +258,8 @@ bool RPC::openWallet(const std::string & name, const std::string & password, int
 	return true;
 }
 
-void RPC::stopWallet(int id) // This doesn't close the wallet but the RPC.
+void RPC::stopWallet(int id) const
+// This doesn't close the wallet but the RPC.
 {
 	auto json = getDataFromRPC(RPC_METHOD_CLOSE_WALLET, {}, id);
 

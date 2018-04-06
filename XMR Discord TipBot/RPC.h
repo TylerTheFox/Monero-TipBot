@@ -2,11 +2,9 @@
 #include <string>
 #include <vector>
 #include <string>
-#include <sstream>
 
 #include <Poco/JSON/Parser.h>
 #include <Poco/JSON/Object.h>
-#include <Poco/Dynamic/Var.h>
 
 // Server Settings
 #define RPC_FILENAME							"intense-wallet-rpc.exe"
@@ -61,17 +59,17 @@ class RPC
 public:
 	RPC() = default;
 
-	struct BalanceRet					getBalance(int id = 0);
-	std::string							getAddress(int id = 0);
-	unsigned int						getBlockHeight(int id = 0);
-	TransferRet							tranfer(int payment_id, unsigned long long amount, const std::string & address, int id = 0);
+	struct BalanceRet					getBalance(int id = 0) const;
+	std::string							getAddress(int id = 0) const;
+	unsigned int						getBlockHeight(int id = 0) const;
+	TransferRet							tranfer(int payment_id, unsigned long long amount, const std::string & address, int id = 0) const;
 	TransferList						getTransfers(int id = 0);
-	bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0);
-	bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0);
-	void								stopWallet(int id = 0);
+	bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0) const;
+	bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;
+	void								stopWallet(int id = 0) const;
 
 private:
-	void								handleNetworkError(const std::string & msg);
-	void								handleRPCError(Poco::DynamicStruct error);
-	const Poco::DynamicStruct			getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0);
+	static void								handleNetworkError(const std::string & msg);
+	static void								handleRPCError(Poco::DynamicStruct error);
+	Poco::DynamicStruct			getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0) const;
 };

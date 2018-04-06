@@ -5,9 +5,9 @@
 class InsufficientBalance : public AppGeneralException
 {
 public:
-	InsufficientBalance(const std::string & general_error);
-	const std::string & getGeneralError();
-	const char* what();
+	InsufficientBalance(std::string general_error);
+	const std::string & getGeneralError() override;
+	const char* what() override;
 private:
 	std::string code;
 	std::string genErr;
@@ -16,9 +16,9 @@ private:
 class ZeroTransferAmount : public AppGeneralException
 {
 public:
-	ZeroTransferAmount(const std::string & general_error);
-	const std::string & getGeneralError();
-	const char* what();
+	ZeroTransferAmount(std::string general_error);
+	const std::string & getGeneralError() override;
+	const char* what() override;
 private:
 	std::string code;
 	std::string genErr;
@@ -27,9 +27,9 @@ private:
 class GeneralAccountError : public AppGeneralException
 {
 public:
-	GeneralAccountError(const std::string & general_error);
-	const std::string & getGeneralError();
-	const char* what();
+	GeneralAccountError(std::string general_error);
+	const std::string & getGeneralError() override;
+	const char* what() override;
 private:
 	std::string code;
 	std::string genErr;
