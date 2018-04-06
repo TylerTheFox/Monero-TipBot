@@ -71,7 +71,7 @@ public:
 	void								stopWallet(int id = 0) const;
 
 private:
-	static void								handleNetworkError(const std::string & msg);
-	static void								handleRPCError(Poco::DynamicStruct error);
-	Poco::DynamicStruct			getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0) const;
+	static void							handleNetworkError(const std::string & msg);
+	static void							handleRPCError(Poco::DynamicStruct error);
+	Poco::DynamicStruct					getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0) const;
 };

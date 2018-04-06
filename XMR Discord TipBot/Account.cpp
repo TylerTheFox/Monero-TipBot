@@ -35,19 +35,13 @@ const std::string & Account::getMyAddress() const
 TransferRet Account::transferMoneytoAnotherDiscordUser(unsigned long long amount, unsigned long long DIS_ID) const
 {
 	if (amount > Balance)
-	{
 		throw InsufficientBalance(Poco::format("You are trying to send %Lu while only having %Lu!", amount, Balance));
-	}
 
 	if (amount == 0)
-	{
 		throw ZeroTransferAmount("You are trying to transfer a zero amount");
-	}
 
 	if (DIS_ID == 0)
-	{
 		throw GeneralAccountError("You need to specify an account to send to.");
-	}
 
 	// Open (or create) other Discord User account to get the address
 	std::string Wallet_Name = Poco::format(DISCORD_WALLET_MASK, DIS_ID);
@@ -65,19 +59,13 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(unsigned long long amount
 TransferRet Account::transferMoneyToAddress(unsigned long long amount, const std::string & address) const
 {	
 	if (amount > Balance)
-	{
 		throw InsufficientBalance(Poco::format("You are trying to send %Lu while only having %Lu!", amount, Balance));
-	}
 
 	if (amount == 0)
-	{
 		throw ZeroTransferAmount("You are trying to transfer a zero amount");
-	}
 
 	if (address.empty())
-	{
 		throw GeneralAccountError("You need to specify an address to send to.");
-	}
 
 	// Send the money
 	return RPCServ.tranfer(Discord_ID, amount, address);
@@ -86,14 +74,10 @@ TransferRet Account::transferMoneyToAddress(unsigned long long amount, const std
 TransferRet Account::transferAllMoneyToAddress(const std::string& address) const
 {
 	if (Balance > 0)
-	{
 		throw InsufficientBalance(Poco::format("You are trying to send all your money to an address while only having %Lu!", Balance));
-	}
 
 	if (address.empty())
-	{
 		throw GeneralAccountError("You need to specify an address to send to.");
-	}
 
 	// Send the money
 	return RPCServ.sweepAll(Discord_ID, address);

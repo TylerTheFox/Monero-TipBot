@@ -1,9 +1,22 @@
 #include "Account.h"
 #include "RPCException.h"
 #include <iostream>
+#include "sleepy_discord/websocketpp_websocket.h"
+
+class myClientClass : public SleepyDiscord::DiscordClient {
+public:
+	using SleepyDiscord::DiscordClient::DiscordClient;
+	void onMessage(SleepyDiscord::Message message) {
+		if (message.startsWith("hello"))
+			sendMessage(message.channelID, "Sup " + message.author.username);
+	}
+};
 
 int main()
 {
+	myClientClass client("token", 2);
+	client.run();
+
 	try
 	{
 		Account Discord_User(206430811430322176/* Brandan */);

@@ -6,3 +6,4 @@
 /link.read.1.tlog
 /link.write.1.tlog
 *.tlog
+/unsuccessfulbuild
