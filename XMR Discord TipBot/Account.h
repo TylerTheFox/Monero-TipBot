@@ -10,7 +10,6 @@ class Account
 public:
 	Account() = delete;
 	Account(unsigned long long Discord_ID);
-	~Account();
 
 	unsigned long long		getBalance() const;
 	unsigned long long		getUnlockedBalance() const;
