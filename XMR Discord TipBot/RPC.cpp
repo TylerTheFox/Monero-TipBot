@@ -16,47 +16,6 @@
 
 #include <fstream>
 
-#if RPC_AUTO_START
-bool RPC::RPC_RUNNING = false;
-#endif
-
-RPC::RPC(const std::string & wallet)
-{
-#if RPC_AUTO_START
-	if (!RPC_RUNNING)
-	{
-		RPC_RUNNING = true;
-
-		std::vector<std::string> args;
-		args.push_back("--wallet-dir");
-		args.push_back(WALLET_PATH);
-		args.push_back("--rpc-bind-port");
-		args.push_back("8333");
-		args.push_back("--daemon-address");
-		args.push_back("127.0.0.1:48782");
-		args.push_back("--disable-rpc-login");
-		args.push_back("--trusted-daemon");
-
-		Poco::ProcessHandle rpc_handle = Poco::Process::launch("intense-wallet-rpc.exe", args, 0, &rpc_pipe, 0);
-		rpc_pid = rpc_handle.id();
-		assert(rpc_pid > 0);
-	}
-#endif
-}
-
-RPC::~RPC()
-{
-#if RPC_AUTO_START
-	if (!RPC_RUNNING)
-	{
-		assert(rpc_pid);
-		Poco::Process::requestTermination(rpc_pid);
-		rpc_pid = 0;
-		RPC_RUNNING = false;
-	}
-#endif
-}
-
 void RPC::handleNetworkError(const std::string & msg)
 {
 	RPCConnectionFailed exp(msg);
@@ -73,7 +32,6 @@ const Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const 
 {
 	// Building JSON string
 	Poco::DynamicStruct data;
-	Poco::Dynamic::Array objects;
 
 	data["jsonrpc"] = "2.0";
 	data["id"] = Poco::format("%d", id);
@@ -186,7 +144,7 @@ TransferRet RPC::tranfer(int payment_id, double amount, const std::string addres
 	object["address"] = address;
 	destinations.push_back(object);
 
-	params["payment_id"] = Poco::format("%016d", payment_id/* Discord ID */);;
+	params["payment_id"] = Poco::format("%016d", payment_id);
 	params["destinations"] = destinations;
 	params["mixin"] = DEFAULT_MIXIN;
 	params["get_tx_key"] = true;
@@ -228,6 +186,8 @@ TransferList RPC::getTransfers(int id)
 	// Check if id is valid
 	assert(json["id"].convert<int>() == id);
 
+	// Loop though the IN and OUT transaction list and add it to the 
+	// tx_in and tx_out vector.
 	auto processList = [&](const std::string & inout)
 	{
 		if (!json["result"][inout].isEmpty())
@@ -278,7 +238,6 @@ bool RPC::createWallet(const std::string & name, const std::string & password, c
 		return false;
 	}
 
-
 	// Ensure Wallet Exists
 	return Util::doesWalletExist(WALLET_PATH + name);
 }
@@ -305,7 +264,7 @@ bool RPC::openWallet(const std::string & name, const std::string & password, int
 	return true;
 }
 
-void RPC::closeWallet(int id)
+void RPC::stopWallet(int id) // This doesn't close the wallet but the RPC.
 {
 	auto json = getDataFromRPC(RPC_METHOD_CLOSE_WALLET, {}, id);
 

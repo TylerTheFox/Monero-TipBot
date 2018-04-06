@@ -7,19 +7,18 @@
 #include <Poco/JSON/Parser.h>
 #include <Poco/JSON/Object.h>
 #include <Poco/Dynamic/Var.h>
-#include "Poco/Process.h"
-#include "Poco/Pipe.h"
 
 // Server Settings
+#define RPC_FILENAME							"intense-wallet-rpc.exe"
 #define RPC_HOSTNAME							"127.0.0.1"
 #define RPC_PORT								8333
+#define DAEMON_ADDRESS							"127.0.0.1:48782"
 
 // Vars
 #define RPC_JSON								"/json_rpc"
 #define WALLET_PATH								"./Wallets/"
 #define ITNS_OFFSET								100000000.0 // 1 x 10^8, Store as a double
 #define DEFAULT_MIXIN							4
-#define RPC_AUTO_START							true
 
 // Methods
 #define RPC_METHOD_GET_BALANCE					"getbalance"
@@ -57,13 +56,10 @@ struct TransferList
 	std::vector<struct TransferItem> tx_out;
 };
 
-extern bool RPC_RUNNING;
-
 class RPC
 {
 public:
-	RPC(const std::string & wallet);
-	~RPC();
+	RPC() = default;
 
 	struct BalanceRet					getBalance(int id = 0);
 	std::string							getAddress(int id = 0);
@@ -72,15 +68,9 @@ public:
 	TransferList						getTransfers(int id = 0);
 	bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0);
 	bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0);
-	void								closeWallet(int id = 0);
+	void								stopWallet(int id = 0);
 
 private:
-#if RPC_AUTO_START
-	static bool RPC_RUNNING;
-	Poco::Pipe	rpc_pipe;
-	int			rpc_pid;
-#endif 
-
 	void								handleNetworkError(const std::string & msg);
 	void								handleRPCError(Poco::DynamicStruct error);
 	const Poco::DynamicStruct			getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0);
