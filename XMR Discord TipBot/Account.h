@@ -20,6 +20,8 @@ public:
 	TransferRet				transferAllMoneytoAnotherDiscordUser(unsigned long long Discord_ID) const;
 	TransferRet				transferMoneyToAddress(unsigned long long amount, const std::string & address) const;
 	TransferRet				transferAllMoneyToAddress(const std::string & address) const;
+
+	TransferList			getTransactions();
 private:
 	static bool				FirstTime;
 	RPC						RPCServ;

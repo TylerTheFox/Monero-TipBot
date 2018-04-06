@@ -114,10 +114,13 @@ TransferRet Account::transferAllMoneyToAddress(const std::string& address) const
 	return RPCServ.sweepAll(Discord_ID, address);
 }
 
+TransferList Account::getTransactions()
+{
+	return RPCServ.getTransfers();
+}
+
 void Account::resyncAccount()
 {
-	RPCServ.getBalance();
-
 	const auto Bal = RPCServ.getBalance();
 	Balance = Bal.Balance;
 	UnlockedBalance = Bal.UnlockedBalance;
