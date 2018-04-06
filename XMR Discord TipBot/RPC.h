@@ -19,6 +19,7 @@
 #define WALLET_PATH								"./Wallets/"
 #define ITNS_OFFSET								100000000.0 // 1 x 10^8, Store as a double
 #define DEFAULT_MIXIN							4
+#define RPC_AUTO_START							true
 
 // Methods
 #define RPC_METHOD_GET_BALANCE					"getbalance"
@@ -74,9 +75,11 @@ public:
 	void								closeWallet(int id = 0);
 
 private:
+#if RPC_AUTO_START
 	static bool RPC_RUNNING;
 	Poco::Pipe	rpc_pipe;
 	int			rpc_pid;
+#endif 
 
 	void								handleNetworkError(const std::string & msg);
 	void								handleRPCError(Poco::DynamicStruct error);

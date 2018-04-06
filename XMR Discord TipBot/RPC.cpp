@@ -16,10 +16,13 @@
 
 #include <fstream>
 
-bool RPC::RPC_RUNNING = true;
+#if RPC_AUTO_START
+bool RPC::RPC_RUNNING = false;
+#endif
 
 RPC::RPC(const std::string & wallet)
 {
+#if RPC_AUTO_START
 	if (!RPC_RUNNING)
 	{
 		RPC_RUNNING = true;
@@ -38,10 +41,12 @@ RPC::RPC(const std::string & wallet)
 		rpc_pid = rpc_handle.id();
 		assert(rpc_pid > 0);
 	}
+#endif
 }
 
 RPC::~RPC()
 {
+#if RPC_AUTO_START
 	if (!RPC_RUNNING)
 	{
 		assert(rpc_pid);
@@ -49,6 +54,7 @@ RPC::~RPC()
 		rpc_pid = 0;
 		RPC_RUNNING = false;
 	}
+#endif
 }
 
 void RPC::handleNetworkError(const std::string & msg)
