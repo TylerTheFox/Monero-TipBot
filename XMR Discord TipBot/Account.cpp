@@ -83,6 +83,22 @@ TransferRet Account::transferMoneyToAddress(unsigned long long amount, const std
 	return RPCServ.tranfer(Discord_ID, amount, address);
 }
 
+TransferRet Account::transferAllMoneyToAddress(const std::string& address) const
+{
+	if (Balance > 0)
+	{
+		throw InsufficientBalance(Poco::format("You are trying to send all your money to an address while only having %Lu!", Balance));
+	}
+
+	if (address.empty())
+	{
+		throw GeneralAccountError("You need to specify an address to send to.");
+	}
+
+	// Send the money
+	return RPCServ.sweepAll(Discord_ID, address);
+}
+
 void Account::resyncAccount()
 {
 	const auto Bal = RPCServ.getBalance();

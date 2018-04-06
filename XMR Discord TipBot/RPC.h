@@ -23,6 +23,7 @@
 #define RPC_METHOD_GET_ADDRESS					"getaddress"
 #define RPC_METHOD_GET_BLK_HEIGHT				"getheight"
 #define RPC_METHOD_TRANSFER						"transfer"
+#define RPC_METHOD_SWEEP_ALL					"sweep_all"
 #define RPC_METHOD_GET_TRANSFERS				"get_transfers"
 #define RPC_METHOD_CREATE_WALLET				"create_wallet"
 #define RPC_METHOD_OPEN_WALLET					"open_wallet"
@@ -63,6 +64,7 @@ public:
 	std::string							getAddress(int id = 0) const;
 	unsigned int						getBlockHeight(int id = 0) const;
 	TransferRet							tranfer(unsigned long long payment_id, unsigned long long amount, const std::string & address, int id = 0) const;
+	TransferRet							sweepAll(unsigned long long payment_id, const std::string & address, int id = 0) const;
 	TransferList						getTransfers(int id = 0);
 	bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0) const;
 	bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;

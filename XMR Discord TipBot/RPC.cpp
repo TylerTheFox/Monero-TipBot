@@ -142,8 +142,40 @@ TransferRet RPC::tranfer(unsigned long long payment_id, unsigned long long amoun
 	params["destinations"] = destinations;
 	params["mixin"] = DEFAULT_MIXIN;
 	params["get_tx_key"] = true;
+	params["unlock_time"] = 0;
 
 	auto json = getDataFromRPC(RPC_METHOD_TRANSFER, params, id);
+
+	// Ensure RPC is happy.
+	if (!json["error"].isEmpty())
+	{
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+		return {};
+	}
+
+	auto result = json["result"].extract<Poco::DynamicStruct>();
+
+	ret.fee = result["fee"].convert<unsigned long long>();
+	ret.tx_hash = result["tx_hash"].toString();
+	ret.tx_key = result["tx_key"].toString();
+
+	return ret;
+}
+
+TransferRet RPC::sweepAll(unsigned long long payment_id, const std::string & address, int id) const
+{
+	TransferRet ret;
+
+	// Building JSON string
+	Poco::DynamicStruct params;
+
+	params["address"] = address;
+	params["payment_id"] = Poco::format("%064d", payment_id);
+	params["mixin"] = DEFAULT_MIXIN;
+	params["get_tx_key"] = true;
+	params["unlock_time"] = 0;
+
+	auto json = getDataFromRPC(RPC_METHOD_SWEEP_ALL, params, id);
 
 	// Ensure RPC is happy.
 	if (!json["error"].isEmpty())

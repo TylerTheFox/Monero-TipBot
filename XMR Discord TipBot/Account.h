@@ -18,6 +18,7 @@ public:
 
 	TransferRet				transferMoneytoAnotherDiscordUser(unsigned long long amount, unsigned long long Discord_ID) const;
 	TransferRet				transferMoneyToAddress(unsigned long long amount, const std::string & address) const;
+	TransferRet				transferAllMoneyToAddress(const std::string & address) const;
 private:
 	RPC						RPCServ;
 	unsigned long long		Discord_ID;
