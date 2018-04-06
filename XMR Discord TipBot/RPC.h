@@ -45,15 +45,23 @@ struct TransferRet
 
 struct TransferItem
 {
+	std::string tx_hash;
 	unsigned long long amount;
-	unsigned int payment_id;
+	unsigned long long payment_id;
 	unsigned int block_height;
+};
+
+struct TransferItemCmp {
+	bool operator() (const struct TransferItem & lhs, const struct TransferItem & rhs) const
+	{
+		return lhs.block_height < rhs.block_height;
+	}
 };
 
 struct TransferList
 {
-	std::vector<struct TransferItem> tx_in;
-	std::vector<struct TransferItem> tx_out;
+	std::set<struct TransferItem, TransferItemCmp> tx_in;
+	std::set<struct TransferItem, TransferItemCmp> tx_out;
 };
 
 class RPC

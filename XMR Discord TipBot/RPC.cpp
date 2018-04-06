@@ -226,7 +226,8 @@ TransferList RPC::getTransfers(int id)
 			struct TransferItem ts = {};
 			for (auto it : result)
 			{
-				ts.payment_id = it["payment_id"].convert<unsigned int>();
+				ts.tx_hash = it["txid"].toString();
+				ts.payment_id = it["payment_id"].convert<unsigned long long>();
 				ts.block_height = it["height"].convert<unsigned int>();
 				if (it["amount"].isInteger())
 				{
@@ -234,9 +235,9 @@ TransferList RPC::getTransfers(int id)
 				}
 				else ts.amount = 0;
 				if (inout == "in")
-					incomingTransactions.tx_in.push_back(ts);
+					incomingTransactions.tx_in.insert(ts);
 				else
-					incomingTransactions.tx_out.push_back(ts);
+					incomingTransactions.tx_out.insert(ts);
 			}
 		}
 	};
