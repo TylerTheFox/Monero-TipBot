@@ -79,10 +79,13 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\Extern\cereal-1.2.2\include;$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;$(SolutionDir)\Extern\sleepy-discord\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <BrowseInformation>true</BrowseInformation>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\Extern\poco-1.9.0\lib;$(SolutionDir)\Extern\sleepy-discord\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sleepy_discord.lib;libcurl_a.lib;libsslMT.lib;libcryptoMT.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sleepy_discord_d.lib;libcurl_a.lib;libsslMT.lib;libcryptoMT.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:MSVCRT %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -110,6 +113,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\Extern\cereal-1.2.2\include;$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;$(SolutionDir)\Extern\sleepy-discord\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

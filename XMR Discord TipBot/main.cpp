@@ -1,20 +1,46 @@
 #include "Account.h"
 #include "RPCException.h"
 #include <iostream>
+#include "Poco/NumberParser.h"
 #include "sleepy_discord/websocketpp_websocket.h"
 
-class myClientClass : public SleepyDiscord::DiscordClient {
+class ITNS_TIPBOT : public SleepyDiscord::DiscordClient {
 public:
 	using SleepyDiscord::DiscordClient::DiscordClient;
+
+	static unsigned long long convertSnowflakeToInt64(SleepyDiscord::Snowflake<SleepyDiscord::User> id)
+	{
+		return Poco::NumberParser::parseUnsigned64(static_cast<std::string>(id));
+	}
+
 	void onMessage(SleepyDiscord::Message message) {
-		if (message.startsWith("hello"))
-			sendMessage(message.channelID, "Sup " + message.author.username);
+		try
+		{
+
+			if (message.content == "!balance")
+			{
+				Account usr(convertSnowflakeToInt64(message.author.ID));
+				sendMessage(message.channelID, Poco::format("%s#%s: Your Balance is %Lu ITNS and your Unlocked Balance is %Lu ITNS", message.author.username, message.author.discriminator, usr.getBalance(), usr.getUnlockedBalance()));
+			} else if (message.content == "!myaddress")
+			{
+				Account usr(convertSnowflakeToInt64(message.author.ID));
+				sendMessage(message.channelID, Poco::format("%s#%s: Your ITNS Address is: %s", message.author.username, message.author.discriminator, usr.getMyAddress()));
+			}
+
+			if (message.startsWith("hello"))
+				sendMessage(message.channelID, "Sup " + message.author.username);
+
+		}
+		catch (AppGeneralException & exp)
+		{ 
+			sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError());
+		}
 	}
 };
 
 int main()
 {
-	myClientClass client("token", 2);
+	ITNS_TIPBOT client("DISCORD BOT TOKEN GOES HERE", 2);
 	client.run();
 
 	try
