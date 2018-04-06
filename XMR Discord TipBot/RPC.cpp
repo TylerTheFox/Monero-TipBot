@@ -18,7 +18,7 @@
 
 void RPC::handleNetworkError(const std::string & msg)
 {
-	RPCConnectionFailed exp(msg);
+	RPCConnectionError exp(msg);
 	throw exp;
 }
 
@@ -131,7 +131,7 @@ unsigned int RPC::getBlockHeight(int id)
 	return result["height"].convert<unsigned int>();
 }
 
-TransferRet RPC::tranfer(int payment_id, double amount, const std::string address, int id)
+TransferRet RPC::tranfer(int payment_id, unsigned long long amount, const std::string & address, int id)
 {
 	TransferRet ret;
 
@@ -162,7 +162,7 @@ TransferRet RPC::tranfer(int payment_id, double amount, const std::string addres
 
 	ret.fee = result["fee"].convert<unsigned long long>();
 	ret.tx_hash = result["tx_hash"].toString();
-	ret.tx_hash = result["tx_key"].toString();
+	ret.tx_key = result["tx_key"].toString();
 
 	return ret;
 }

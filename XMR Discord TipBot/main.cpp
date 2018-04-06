@@ -9,8 +9,10 @@ int main()
 	{
 		Account Discord_User(9781/* Brandan */);
 		std::cout << "My Address: " << Discord_User.getMyAddress() << "\nCurrent Balance: " << Discord_User.getBalance() << "\nCurrent Unlocked Balance: " << Discord_User.getUnlockedBalance() << '\n';
+		Discord_User.transferMoneytoAnotherDiscordUser(0, 9781);
+		Discord_User.transferMoneyToAddress(2000000000, "");
 	}
-	catch (RPCExceptiion & exp)
+	catch (AppGeneralException & exp)
 	{
 		std::cerr << exp.what() << " -- " << exp.getGeneralError();
 	}

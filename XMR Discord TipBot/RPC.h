@@ -17,7 +17,7 @@
 // Vars
 #define RPC_JSON								"/json_rpc"
 #define WALLET_PATH								"./Wallets/"
-#define ITNS_OFFSET								100000000.0 // 1 x 10^8, Store as a double
+#define ITNS_OFFSET								100000000.0 // 1 x 10^8
 #define DEFAULT_MIXIN							4
 
 // Methods
@@ -45,8 +45,8 @@ struct TransferRet
 
 struct TransferItem
 {
-	unsigned int payment_id;
 	unsigned long long amount;
+	unsigned int payment_id;
 	unsigned int block_height;
 };
 
@@ -64,7 +64,7 @@ public:
 	struct BalanceRet					getBalance(int id = 0);
 	std::string							getAddress(int id = 0);
 	unsigned int						getBlockHeight(int id = 0);
-	TransferRet							tranfer(int payment_id, double amount, const std::string address, int id = 0);
+	TransferRet							tranfer(int payment_id, unsigned long long amount, const std::string & address, int id = 0);
 	TransferList						getTransfers(int id = 0);
 	bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0);
 	bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0);
