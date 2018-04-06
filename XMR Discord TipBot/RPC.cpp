@@ -1,4 +1,6 @@
 #include "RPC.h"
+#include "Util.h"
+#include "RPCException.h"
 
 #include "Poco/Net/SocketAddress.h"
 #include "Poco/Net/StreamSocket.h"
@@ -14,22 +16,17 @@
 
 #include <fstream>
 
-bool RPC::RPC_RUNNING = false;
+bool RPC::RPC_RUNNING = true;
 
 RPC::RPC(const std::string & wallet)
 {
-	// Auto start causing problems because RPC has to sync first
-	// And we cannot detect if RPC is syncing or not (ie we crash).
-
-	/*if (!RPC_RUNNING)
+	if (!RPC_RUNNING)
 	{
 		RPC_RUNNING = true;
 
 		std::vector<std::string> args;
-		args.push_back("--wallet-file");
-		args.push_back(wallet);
-		args.push_back("--password");
-		args.push_back("EJmM5rtrj8n0KKwMqTE0GgLgWhHmrMQLK8PRxmMJnmRkkk0BaIs4udAxr9KbgcMLc20LnEhwx7zpzKjTmSYfx5BMtyMKQMQqHjj8UsJGz8wgqU1n1hGbF6EDSfGX2j5cPUvGpi0BaZ45kgHTdwU4a76s3HRtXhZLMb4dX33bb2WEKqMjXk0VF73OZ77nTewBhXDtRXfU");
+		args.push_back("--wallet-dir");
+		args.push_back(WALLET_PATH);
 		args.push_back("--rpc-bind-port");
 		args.push_back("8333");
 		args.push_back("--daemon-address");
@@ -40,56 +37,82 @@ RPC::RPC(const std::string & wallet)
 		Poco::ProcessHandle rpc_handle = Poco::Process::launch("intense-wallet-rpc.exe", args, 0, &rpc_pipe, 0);
 		rpc_pid = rpc_handle.id();
 		assert(rpc_pid > 0);
-	}*/
+	}
 }
 
 RPC::~RPC()
 {
-	assert(rpc_pid);
-	Poco::Process::requestTermination(rpc_pid);
-	rpc_pid = 0;
-	RPC_RUNNING = false;
+	if (!RPC_RUNNING)
+	{
+		assert(rpc_pid);
+		Poco::Process::requestTermination(rpc_pid);
+		rpc_pid = 0;
+		RPC_RUNNING = false;
+	}
 }
 
-const Poco::DynamicStruct RPC::getDataFromRPC(unsigned int id, const std::string & method, const Poco::DynamicStruct & args)
+void RPC::handleNetworkError(const std::string & msg)
+{
+	RPCConnectionFailed exp(msg);
+	throw exp;
+}
+
+void RPC::handleRPCError(Poco::DynamicStruct error)
+{
+	RPCGeneralError exp(error["code"].toString(), error["message"].toString());
+	throw exp;
+}
+
+const Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id)
 {
 	// Building JSON string
 	Poco::DynamicStruct data;
 	Poco::Dynamic::Array objects;
 
 	data["jsonrpc"] = "2.0";
-	data["id"] = Poco::format("%u", id);
+	data["id"] = Poco::format("%d", id);
 	data["method"] = method;
 	data["params"] = args;
 
-	// Networking
-	std::string body = data.toString();
-	std::cout << body;
-	Poco::Net::HTTPClientSession s(RPC_HOSTNAME, RPC_PORT);
-	Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, RPC_JSON);
-	Poco::Net::HTTPResponse res;
-	Poco::JSON::Parser parser;
-	std::stringstream ss;
+	try
+	{
+		// Networking
+		std::string body = data.toString();
+		Poco::Net::HTTPClientSession s(RPC_HOSTNAME, RPC_PORT);
+		Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, RPC_JSON);
+		Poco::Net::HTTPResponse res;
+		Poco::JSON::Parser parser;
+		std::stringstream ss;
 
-	// Setup Request
-	request.setContentType("application/json");
-	request.setContentLength(body.length());
-	s.sendRequest(request) << body; // Send POST body
+		// Setup Request
+		request.setContentType("application/json");
+		request.setContentLength(body.length());
+		s.sendRequest(request) << body; // Send POST body
 
-	// Recieve Return Data
-	std::istream &is = s.receiveResponse(res);
-	Poco::StreamCopier::copyStream(is, ss);
+		// Recieve Return Data
+		std::istream &is = s.receiveResponse(res);
+		Poco::StreamCopier::copyStream(is, ss);
 
-	// Parse JSON and return
-	auto JSONResult = parser.parse(ss.str());
-	Poco::JSON::Object::Ptr object = JSONResult.extract<Poco::JSON::Object::Ptr>();
-	return Poco::DynamicStruct(*object);
+		// Parse JSON and return
+		auto JSONResult = parser.parse(ss.str());
+		Poco::JSON::Object::Ptr object = JSONResult.extract<Poco::JSON::Object::Ptr>();
+		return Poco::DynamicStruct(*object);
+	}
+	catch (const Poco::Exception & exp)
+	{
+		handleNetworkError(exp.what());
+	}
+	return {};
 }
 
 BalanceRet RPC::getBalance(int id) /* Global Wallet Balance */
 {
 	BalanceRet ret;
-	auto json = getDataFromRPC(id, RPC_METHOD_GET_BALANCE, {});
+	auto json = getDataFromRPC(RPC_METHOD_GET_BALANCE, {}, id);
+
+	// Ensure RPC is happy.
+	if (!json["error"].isEmpty())
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
 
 	// Check if we returned a result
 	assert(json["result"].isStruct());
@@ -106,10 +129,13 @@ BalanceRet RPC::getBalance(int id) /* Global Wallet Balance */
 	return ret;
 }
 
-
 std::string RPC::getAddress(int id)
 {
-	auto json = getDataFromRPC(id, RPC_METHOD_GET_ADDRESS, {});
+	auto json = getDataFromRPC(RPC_METHOD_GET_ADDRESS, {}, id);
+
+	// Ensure RPC is happy.
+	if (!json["error"].isEmpty())
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
 
 	// Check if we returned a result
 	assert(json["result"].isStruct());
@@ -124,7 +150,11 @@ std::string RPC::getAddress(int id)
 
 unsigned int RPC::getBlockHeight(int id)
 {
-	auto json = getDataFromRPC(id, RPC_METHOD_GET_BLK_HEIGHT, {});
+	auto json = getDataFromRPC(RPC_METHOD_GET_BLK_HEIGHT, {}, id);
+
+	// Ensure RPC is happy.
+	if (!json["error"].isEmpty())
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
 
 	// Check if we returned a result
 	assert(json["result"].isStruct());
@@ -132,12 +162,12 @@ unsigned int RPC::getBlockHeight(int id)
 	// Check if id is valid
 	assert(json["id"].convert<int>() == id);
 
-	// Get Balance / Unlocked Balance.
+	// Get Block Height
 	auto result = json["result"].extract<Poco::DynamicStruct>();
 	return result["height"].convert<unsigned int>();
 }
 
-TransferRet RPC::tranfer(int id, int payment_id, double amount, const std::string address)
+TransferRet RPC::tranfer(int payment_id, double amount, const std::string address, int id)
 {
 	TransferRet ret;
 
@@ -155,7 +185,15 @@ TransferRet RPC::tranfer(int id, int payment_id, double amount, const std::strin
 	params["mixin"] = DEFAULT_MIXIN;
 	params["get_tx_key"] = true;
 
-	auto json = getDataFromRPC(id, RPC_METHOD_TRANSFER, params);
+	auto json = getDataFromRPC(RPC_METHOD_TRANSFER, params, id);
+
+	// Ensure RPC is happy.
+	if (!json["error"].isEmpty())
+	{
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+		return {};
+	}
+
 	auto result = json["result"].extract<Poco::DynamicStruct>();
 
 	ret.fee = result["fee"].convert<unsigned long long>();
@@ -165,14 +203,18 @@ TransferRet RPC::tranfer(int id, int payment_id, double amount, const std::strin
 	return ret;
 }
 
-std::vector<struct TransferList> RPC::getTransfers(int id)
+TransferList RPC::getTransfers(int id)
 {
-	std::vector<struct TransferList> incomingTransactions;
+	struct TransferList incomingTransactions;
 
 	Poco::DynamicStruct params;
 	params["in"] = true;
-	//params["out"] = true;
-	auto json = getDataFromRPC(id, RPC_METHOD_GET_TRANSFERS, params);
+	params["out"] = true;
+	auto json = getDataFromRPC(RPC_METHOD_GET_TRANSFERS, params, id);
+
+	// Ensure RPC is happy.
+	if (!json["error"].isEmpty())
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
 
 	// Check if we returned a result
 	assert(json["result"].isStruct());
@@ -180,16 +222,89 @@ std::vector<struct TransferList> RPC::getTransfers(int id)
 	// Check if id is valid
 	assert(json["id"].convert<int>() == id);
 
-	auto result = json["result"]["in"].extract<Poco::Dynamic::Array>();
-
-	struct TransferList ts;
-	for (auto it : result)
+	auto processList = [&](const std::string & inout)
 	{
-		ts.payment_id = it["payment_id"].convert<unsigned int>();
-		ts.block_height = it["height"].convert<unsigned int>();
-		ts.amount = it["amount"].convert<unsigned long long>();
-		incomingTransactions.push_back(ts);
-	}
+		if (!json["result"][inout].isEmpty())
+		{
+			auto result = json["result"][inout].extract<Poco::Dynamic::Array>();
+
+			struct TransferItem ts;
+			for (auto it : result)
+			{
+				ts.payment_id = it["payment_id"].convert<unsigned int>();
+				ts.block_height = it["height"].convert<unsigned int>();
+				if (it["amount"].isInteger())
+				{
+					ts.amount = it["amount"].convert<unsigned long long>();
+				}
+				else ts.amount = 0;
+				if (inout == "in")
+					incomingTransactions.tx_in.push_back(ts);
+				else
+					incomingTransactions.tx_out.push_back(ts);
+			}
+		}
+	};
+
+	processList("in");
+	processList("out");
 
 	return incomingTransactions;
+}
+
+bool RPC::createWallet(const std::string & name, const std::string & password, const std::string & language, int id)
+{
+	// Ensure we dont overwrite a wallet.
+	assert(!Util::doesWalletExist(WALLET_PATH + name));
+
+	Poco::DynamicStruct data;
+
+	data["filename"] = name;
+	data["password"] = password;
+	data["language"] = language;
+
+	auto json = getDataFromRPC(RPC_METHOD_CREATE_WALLET, data, id);
+
+	// Ensure RPC is happy.
+	if (!json["error"].isEmpty())
+	{
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+		return false;
+	}
+
+
+	// Ensure Wallet Exists
+	return Util::doesWalletExist(WALLET_PATH + name);
+}
+
+bool RPC::openWallet(const std::string & name, const std::string & password, int id)
+{
+	// Ensure Wallet Exists
+	if (!Util::doesWalletExist(WALLET_PATH + name))
+		createWallet(name, password);
+
+	Poco::DynamicStruct data;
+
+	data["filename"] = name;
+	data["password"] = password;
+
+	auto json = getDataFromRPC(RPC_METHOD_OPEN_WALLET, data, id);
+
+	if (!json["error"].isEmpty())
+	{
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+		return false;
+	}
+
+	return true;
+}
+
+void RPC::closeWallet(int id)
+{
+	auto json = getDataFromRPC(RPC_METHOD_CLOSE_WALLET, {}, id);
+
+	if (!json["error"].isEmpty())
+	{
+		handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+	}
 }
