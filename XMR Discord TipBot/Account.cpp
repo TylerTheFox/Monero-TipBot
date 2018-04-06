@@ -4,7 +4,7 @@
 #include "Poco/Format.h"
 #include <cassert>
 
-Account::Account(unsigned int DIS_ID) : Discord_ID(DIS_ID)
+Account::Account(unsigned long long DIS_ID) : Discord_ID(DIS_ID)
 {
 	const std::string Wallet_Name = Poco::format(DISCORD_WALLET_MASK, DIS_ID);
 	assert(RPCServ.openWallet(Wallet_Name));
