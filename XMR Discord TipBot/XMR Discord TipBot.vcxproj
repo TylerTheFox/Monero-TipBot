@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Extern\cereal-1.2.2\include;$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;$(SolutionDir)\Extern\sleepy-discord\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;$(SolutionDir)\Extern\sleepy-discord\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <BrowseInformation>true</BrowseInformation>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -98,7 +98,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Extern\cereal-1.2.2\include;$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;$(SolutionDir)\Extern\sleepy-discord\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\Extern\poco-1.9.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -112,7 +113,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Extern\cereal-1.2.2\include;$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;$(SolutionDir)\Extern\sleepy-discord\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;$(SolutionDir)\Extern\sleepy-discord\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
@@ -132,7 +133,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Extern\cereal-1.2.2\include;$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;$(SolutionDir)\Extern\sleepy-discord\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
