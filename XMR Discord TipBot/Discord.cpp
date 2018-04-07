@@ -21,7 +21,7 @@ unsigned long long ITNS_TIPBOT::convertSnowflakeToInt64(SleepyDiscord::Snowflake
 	return Poco::NumberParser::parseUnsigned64(static_cast<std::string>(id));
 }
 
-void ITNS_TIPBOT::onMessage(const SleepyDiscord::Message & message)
+void ITNS_TIPBOT::onMessage(SleepyDiscord::Message message)
 {
 	DiscordCommands::ProcessCommand(this, message);
 }
