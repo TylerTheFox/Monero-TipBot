@@ -32,7 +32,7 @@ Unzip the folder and run
 `intense-wallet-rpc.exe` with the arguments `--wallet-dir ./Wallets/  --rpc-bind-port 8333 --daemon-address 127.0.0.1:48782 --disable-rpc-login --trusted-daemon`
 
 ## Application Setup
-The program working directory set to the folder RPC is in.
+The program working directory needs to be set to the folder RPC is in.
 
 ## Discord Token Setup
 Navigate to "My Apps" on Discord (https://discordapp.com/developers/applications/me). 
