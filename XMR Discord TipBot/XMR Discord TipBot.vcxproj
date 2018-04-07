@@ -81,6 +81,7 @@
       <BrowseInformation>true</BrowseInformation>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\Extern\poco-1.9.0\lib;$(SolutionDir)\Extern\sleepy-discord\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -114,6 +115,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\Extern\cereal-1.2.2\include;$(SolutionDir)\Extern\poco-1.9.0\Foundation\include;$(SolutionDir)\Extern\poco-1.9.0\JSON\include;$(SolutionDir)\Extern\poco-1.9.0\Net\include;$(SolutionDir)\Extern\poco-1.9.0\Util\include;$(SolutionDir)\Extern\sleepy-discord\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -141,6 +143,8 @@
   <ItemGroup>
     <ClCompile Include="Account.cpp" />
     <ClCompile Include="AccountException.cpp" />
+    <ClCompile Include="Discord.cpp" />
+    <ClCompile Include="DiscordCommands.cpp" />
     <ClCompile Include="RPCException.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="main.cpp" />
@@ -149,6 +153,8 @@
   <ItemGroup>
     <ClInclude Include="Account.h" />
     <ClInclude Include="AccountException.h" />
+    <ClInclude Include="Discord.h" />
+    <ClInclude Include="DiscordCommands.h" />
     <ClInclude Include="RPCException.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="RPC.h" />
