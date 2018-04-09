@@ -182,5 +182,5 @@ void DiscordCommands::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Mes
 
 void DiscordCommands::CommandParseError(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
-	DiscordPtr->sendMessage(message.channelID, Poco::format("Command Error --- Correct Usage: !%s %s", me.name, me.params));
+	DiscordPtr->sendMessage(message.channelID, Poco::format("Command Error --- Correct Usage: %s %s", me.name, me.params));
 }
