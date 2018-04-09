@@ -10,6 +10,7 @@ addons:
       - build-essential
       - g++-5
       - libcurl4-openssl-dev
+      - libssl-dev
 
 script:
   - ls extern/sleepy-discord/lib/linux
