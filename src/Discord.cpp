@@ -16,7 +16,7 @@ GNU General Public License for more details.
 #include "Poco/StringTokenizer.h"
 #include "RPCException.h"
 #include "DiscordCommands.h"
-unsigned long long ITNS_TIPBOT::convertSnowflakeToInt64(SleepyDiscord::Snowflake<SleepyDiscord::User> id)
+std::uint64_t ITNS_TIPBOT::convertSnowflakeToInt64(SleepyDiscord::Snowflake<SleepyDiscord::User> id)
 {
 	return Poco::NumberParser::parseUnsigned64(static_cast<std::string>(id));
 }

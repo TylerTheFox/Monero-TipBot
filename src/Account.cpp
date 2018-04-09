@@ -19,7 +19,7 @@ GNU General Public License for more details.
 
 bool Account::FirstTime = true;
 
-Account::Account(unsigned long long DIS_ID) : Discord_ID(DIS_ID)
+Account::Account(std::uint64_t DIS_ID) : Discord_ID(DIS_ID)
 {
 	// This is require to save any previous wallets blockchain.
 	if (!FirstTime)
@@ -34,12 +34,12 @@ Account::Account(unsigned long long DIS_ID) : Discord_ID(DIS_ID)
 	FirstTime = false;
 }
 
-unsigned long long Account::getBalance() const
+std::uint64_t Account::getBalance() const
 {
 	return Balance;
 }
 
-unsigned long long Account::getUnlockedBalance() const
+std::uint64_t Account::getUnlockedBalance() const
 {
 	return UnlockedBalance;
 }
@@ -49,7 +49,7 @@ const std::string & Account::getMyAddress() const
 	return MyAddress;
 }
 
-TransferRet Account::transferMoneytoAnotherDiscordUser(unsigned long long amount, unsigned long long DIS_ID) const
+TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, std::uint64_t DIS_ID) const
 {
 	if (amount > Balance)
 		throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, Balance / ITNS_OFFSET));
@@ -73,7 +73,7 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(unsigned long long amount
 	return RPCServ.tranfer(Discord_ID, amount, DiscordUserAddress);
 }
 
-TransferRet Account::transferAllMoneytoAnotherDiscordUser(unsigned long long DIS_ID) const
+TransferRet Account::transferAllMoneytoAnotherDiscordUser(std::uint64_t DIS_ID) const
 {
 	if (!Balance)
 		throw InsufficientBalance("You have an empty balance!");
@@ -94,7 +94,7 @@ TransferRet Account::transferAllMoneytoAnotherDiscordUser(unsigned long long DIS
 	return RPCServ.sweepAll(Discord_ID, DiscordUserAddress);
 }
 
-TransferRet Account::transferMoneyToAddress(unsigned long long amount, const std::string & address) const
+TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::string & address) const
 {	
 	if (amount > Balance)
 		throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, Balance / ITNS_OFFSET));

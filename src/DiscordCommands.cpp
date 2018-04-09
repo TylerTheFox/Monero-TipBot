@@ -126,7 +126,7 @@ void DiscordCommands::Withdraw(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Me
 	{
 		const auto amount = Poco::NumberParser::parseFloat(cmd[1]);
 		const auto& address = cmd[2];
-		const auto tx = usr.transferMoneyToAddress(static_cast<unsigned long long>(amount * ITNS_OFFSET), address);
+		const auto tx = usr.transferMoneyToAddress(static_cast<std::uint64_t>(amount * ITNS_OFFSET), address);
 		DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, tx.tx_hash));
 	}
 }
@@ -159,7 +159,7 @@ void DiscordCommands::Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Messag
 		const auto amount = Poco::NumberParser::parseFloat(cmd[1]);
 		for (const auto& user : message.mentions)
 		{
-			const auto tx = usr.transferMoneytoAnotherDiscordUser(static_cast<unsigned long long>(amount * ITNS_OFFSET), DiscordPtr->convertSnowflakeToInt64(user.ID));
+			const auto tx = usr.transferMoneytoAnotherDiscordUser(static_cast<std::uint64_t>(amount * ITNS_OFFSET), DiscordPtr->convertSnowflakeToInt64(user.ID));
 			DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, user.username, tx.tx_hash));
 		}
 	}

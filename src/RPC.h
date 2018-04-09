@@ -45,13 +45,13 @@ GNU General Public License for more details.
 
 struct BalanceRet
 {
-	unsigned long long Balance;
-	unsigned long long UnlockedBalance;
+	std::uint64_t Balance;
+	std::uint64_t UnlockedBalance;
 };
 
 struct TransferRet
 {
-	unsigned long long	fee;
+	std::uint64_t	fee;
 	std::string			tx_hash;
 	std::string			tx_key;
 };
@@ -59,8 +59,8 @@ struct TransferRet
 struct TransferItem
 {
 	std::string tx_hash;
-	unsigned long long amount;
-	unsigned long long payment_id;
+	std::uint64_t amount;
+	std::uint64_t payment_id;
 	unsigned int block_height;
 };
 
@@ -85,8 +85,8 @@ public:
 	struct BalanceRet					getBalance(int id = 0) const;
 	std::string							getAddress(int id = 0) const;
 	unsigned int						getBlockHeight(int id = 0) const;
-	TransferRet							tranfer(unsigned long long payment_id, unsigned long long amount, const std::string & address, int id = 0) const;
-	TransferRet							sweepAll(unsigned long long payment_id, const std::string & address, int id = 0) const;
+	TransferRet							tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id = 0) const;
+	TransferRet							sweepAll(std::uint64_t payment_id, const std::string & address, int id = 0) const;
 	TransferList						getTransfers(int id = 0);
 	bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0) const;
 	bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;

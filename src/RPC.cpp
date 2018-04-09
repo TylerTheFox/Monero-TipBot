@@ -94,8 +94,8 @@ BalanceRet RPC::getBalance(int id) const
 	// Get Balance / Unlocked Balance.
 	auto result = json["result"].extract<Poco::DynamicStruct>();
 
-	ret.Balance = result["balance"].convert<unsigned long long>();
-	ret.UnlockedBalance = result["unlocked_balance"].convert<unsigned long long>();
+	ret.Balance = result["balance"].convert<std::uint64_t>();
+	ret.UnlockedBalance = result["unlocked_balance"].convert<std::uint64_t>();
 
 	return ret;
 }
@@ -138,7 +138,7 @@ unsigned int RPC::getBlockHeight(int id) const
 	return result["height"].convert<unsigned int>();
 }
 
-TransferRet RPC::tranfer(unsigned long long payment_id, unsigned long long amount, const std::string & address, int id) const
+TransferRet RPC::tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id) const
 {
 	TransferRet ret;
 
@@ -168,14 +168,14 @@ TransferRet RPC::tranfer(unsigned long long payment_id, unsigned long long amoun
 
 	auto result = json["result"].extract<Poco::DynamicStruct>();
 
-	ret.fee = result["fee"].convert<unsigned long long>();
+	ret.fee = result["fee"].convert<std::uint64_t>();
 	ret.tx_hash = result["tx_hash"].toString();
 	ret.tx_key = result["tx_key"].toString();
 
 	return ret;
 }
 
-TransferRet RPC::sweepAll(unsigned long long payment_id, const std::string & address, int id) const
+TransferRet RPC::sweepAll(std::uint64_t payment_id, const std::string & address, int id) const
 {
 	TransferRet ret;
 
@@ -240,11 +240,11 @@ TransferList RPC::getTransfers(int id)
 			for (auto it : result)
 			{
 				ts.tx_hash = it["txid"].toString();
-				ts.payment_id = it["payment_id"].convert<unsigned long long>();
+				ts.payment_id = it["payment_id"].convert<std::uint64_t>();
 				ts.block_height = it["height"].convert<unsigned int>();
 				if (it["amount"].isInteger())
 				{
-					ts.amount = it["amount"].convert<unsigned long long>();
+					ts.amount = it["amount"].convert<std::uint64_t>();
 				}
 				else ts.amount = 0;
 				if (inout == "in")

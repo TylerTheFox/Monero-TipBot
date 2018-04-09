@@ -22,24 +22,24 @@ class Account
 {
 public:
 	Account() = delete;
-	Account(unsigned long long Discord_ID);
+	Account(std::uint64_t Discord_ID);
 
-	unsigned long long		getBalance() const;
-	unsigned long long		getUnlockedBalance() const;
+	std::uint64_t		getBalance() const;
+	std::uint64_t		getUnlockedBalance() const;
 	const std::string &		getMyAddress() const;
 
-	TransferRet				transferMoneytoAnotherDiscordUser(unsigned long long amount, unsigned long long Discord_ID) const;
-	TransferRet				transferAllMoneytoAnotherDiscordUser(unsigned long long Discord_ID) const;
-	TransferRet				transferMoneyToAddress(unsigned long long amount, const std::string & address) const;
+	TransferRet				transferMoneytoAnotherDiscordUser(std::uint64_t amount, std::uint64_t Discord_ID) const;
+	TransferRet				transferAllMoneytoAnotherDiscordUser(std::uint64_t Discord_ID) const;
+	TransferRet				transferMoneyToAddress(std::uint64_t amount, const std::string & address) const;
 	TransferRet				transferAllMoneyToAddress(const std::string & address) const;
 
 	TransferList			getTransactions();
 private:
 	static bool				FirstTime;
 	RPC						RPCServ;
-	unsigned long long		Discord_ID;
-	unsigned long long		Balance{};
-	unsigned long long		UnlockedBalance{};
+	std::uint64_t		Discord_ID;
+	std::uint64_t		Balance{};
+	std::uint64_t		UnlockedBalance{};
 	std::string				MyAddress;
 
 	void					resyncAccount();
