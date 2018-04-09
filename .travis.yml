@@ -9,7 +9,7 @@ addons:
     packages:
       - g++-5
       - libcurl4-openssl-dev
-      - libssl-dev
+      - openssl
 
 script:
   - ls extern/sleepy-discord/lib/linux
