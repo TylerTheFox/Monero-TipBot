@@ -25,7 +25,7 @@ const struct Command Commands[] =
 	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	""									},
 	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),	""									},
 	{	"!withdraw",		reinterpret_cast<void*>(&DiscordCommands::Withdraw),	"[amount] [address]"				},
-	{	"!withdrawall",		reinterpret_cast<void*>(&DiscordCommands::Withdraw),	"[amount]"							},
+	{	"!withdrawall",		reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),	"[address]"							},
 	{	"!give",			reinterpret_cast<void*>(&DiscordCommands::Give),		"[amount] [@User1 @User2...]"		},
 	{	"!giveall",			reinterpret_cast<void*>(&DiscordCommands::GiveAll),	"[@User]"							},
 };
