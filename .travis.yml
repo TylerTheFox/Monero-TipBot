@@ -7,9 +7,13 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
+      - build-essential
       - g++-5
+      - libcurl4-openssl-dev
 
 script:
+  - ls extern/sleepy-discord/lib/linux
+  - ls extern/poco-1.9.0/lib/linux
   - CXX=/usr/bin/g++-5 CC=/usr/bin/gcc-5
   - cmake .
   - make VERBOSE=1
