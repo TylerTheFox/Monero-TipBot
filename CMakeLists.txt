@@ -38,11 +38,11 @@ else()
     )
 
 	add_executable(TIPBOT ${sources})
-	link_libraries(			      			"libPocoJSON.a"
-											"libPocoUtil.a"
-											"libPocoNet.a"
-											"libPocoFoundation.a"
-											"libsleepy_discord.a"
+	target_link_libraries(TIPBOT			      				"PocoJSON"
+											"PocoUtil"
+											"PocoNet"
+											"PocoFoundation"
+											"sleepy_discord"
 											"pthread"
 											"curl"
 											"ssl"

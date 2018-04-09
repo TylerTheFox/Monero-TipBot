@@ -15,7 +15,7 @@ GNU General Public License for more details.
 
 int main()
 {
-	ITNS_TIPBOT client("NDMxNjgyMzY1ODMyNjkxNzIy.Danosw.Ol5nIG2DTeZcSMFia8XWpkLy3R0", 2);
+	ITNS_TIPBOT client("TOKEN", 2);
 	client.run();
 	return 0;
 }
