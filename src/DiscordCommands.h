@@ -35,6 +35,7 @@ namespace DiscordCommands
 	void WithdrawAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 	void Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 	void GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+	void About(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 
 	void CommandParseError(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me);
 };

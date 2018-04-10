@@ -20,8 +20,9 @@ GNU General Public License for more details.
 
 const struct Command Commands[] =
 {
+	{  "!about",				reinterpret_cast<void*>(&DiscordCommands::About),	"" },
 	{	"!help",			reinterpret_cast<void*>(&DiscordCommands::Help),		""									},
-	{	"!balance",		reinterpret_cast<void*>(&DiscordCommands::Balance),	""									},
+	{	"!balance",			reinterpret_cast<void*>(&DiscordCommands::Balance),	""									},
 	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	""									},
 	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),	""									},
 	{	"!withdraw",		reinterpret_cast<void*>(&DiscordCommands::Withdraw),	"[amount] [address]"				},
@@ -29,6 +30,18 @@ const struct Command Commands[] =
 	{	"!give",			reinterpret_cast<void*>(&DiscordCommands::Give),		"[amount] [@User1 @User2...]"		},
 	{	"!giveall",			reinterpret_cast<void*>(&DiscordCommands::GiveAll),	"[@User]"							},
 };
+
+#define		VERSION_MAJOR 1
+#define		VERSION_MINOR 0
+
+const char *aboutStr =
+				"```ITNS TipBot v%d.%d\\n"
+				"(C) Brandan Tyler Lasley 2018\\n"
+				"Github: https://github.com/Brandantl/IntenseCoin-TipBot \\n"
+				"BTC: 1KsX66J98WMgtSbFA5UZhVDn1iuhN5B6Hm\\n"
+				"ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf\\n"
+				"XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS\\n```";
+
 
 void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message)
 {
@@ -178,6 +191,11 @@ void DiscordCommands::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Mes
 		const auto tx = usr.transferAllMoneytoAnotherDiscordUser(DiscordPtr->convertSnowflakeToInt64(message.mentions[0].ID));
 		DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, static_cast<double>(usr.getBalance() / ITNS_OFFSET), message.mentions[0].username, tx.tx_hash));
 	}
+}
+
+void DiscordCommands::About(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+{
+	DiscordPtr->sendMessage(message.channelID, Poco::format(aboutStr, VERSION_MAJOR, VERSION_MINOR));
 }
 
 void DiscordCommands::CommandParseError(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
