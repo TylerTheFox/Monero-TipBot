@@ -2,7 +2,13 @@
 Discord Tipbot built in C++ for IntenseCoin/Monero
 
 ## Compile
-It should compile without issue in Visual Studio 2017, however, the externals are only compiled for x86 mode. Should run on Windows, Mac, Linux but the external libraries will need to be recompiled for that platform.
+
+### Windows
+* Visual Studio 2017: File -> Open -> CMake -> Click CMakeLists.txt
+
+### Linux
+* cmake .
+* make 
 
 ## Commands
 * !help
@@ -10,7 +16,7 @@ It should compile without issue in Visual Studio 2017, however, the externals ar
 * !myaddress
 * !history
 * !withdraw [amount] [address]
-* !withdrawall [amount]
+* !withdrawall [address]
 * !give [amount] [@User1 @User2...]
 * !giveall [@User]
 
@@ -20,8 +26,14 @@ It should compile without issue in Visual Studio 2017, however, the externals ar
 * Discord Token 
 
 ## Dependencies (included)
+
+### Windows/Linux
 * Poco C++ - https://github.com/pocoproject
 * Sleepy Discord - https://github.com/yourWaifu/sleepy-discord
+
+### Linux Packages
+* libcurl4-openssl-dev
+* libssl-dev
 
 ## IntenseCoin Deamon setup
 Just open `intensecoind.exe` by double clicking on it.
@@ -43,3 +55,8 @@ To add a bot user to your account you'll need to get the client id for the bot w
 Then navigate to this url (https://discordapp.com/oauth2/authorize?client_id=CLIENTID&scope=bot) and replace CLIENTID in the url with the client url on the page.
 
 The bot should now be ready to run. Launch it and type `!balance` and if it returns a balance of 0 then the communication between the bot and the RPC is working correctly. 
+
+Author: Brandan Tyler Lasley
+* BTC: 1KsX66J98WMgtSbFA5UZhVDn1iuhN5B6Hm
+* ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf
+* XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS
