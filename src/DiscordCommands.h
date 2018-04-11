@@ -26,6 +26,7 @@ typedef void(*CommandFunc)(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Messag
 namespace DiscordCommands
 {
 	void ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message);
+	void CommandParseError(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me);
 
 	void Help(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 	void Balance(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
@@ -36,6 +37,4 @@ namespace DiscordCommands
 	void Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 	void GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 	void About(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-
-	void CommandParseError(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me);
 };

@@ -21,11 +21,12 @@ GNU General Public License for more details.
 class Account
 {
 public:
-	Account() = delete;
-	Account(std::uint64_t Discord_ID);
+	Account();
+	
+	void					open(std::uint64_t Discord_ID);
 
-	std::uint64_t		getBalance() const;
-	std::uint64_t		getUnlockedBalance() const;
+	std::uint64_t			getBalance() const;
+	std::uint64_t			getUnlockedBalance() const;
 	const std::string &		getMyAddress() const;
 
 	TransferRet				transferMoneytoAnotherDiscordUser(std::uint64_t amount, std::uint64_t Discord_ID) const;
@@ -35,11 +36,10 @@ public:
 
 	TransferList			getTransactions();
 private:
-	static bool				FirstTime;
 	RPC						RPCServ;
-	std::uint64_t		Discord_ID;
-	std::uint64_t		Balance{};
-	std::uint64_t		UnlockedBalance{};
+	std::uint64_t			Discord_ID;
+	std::uint64_t			Balance;
+	std::uint64_t			UnlockedBalance;
 	std::string				MyAddress;
 
 	void					resyncAccount();

@@ -14,7 +14,6 @@ GNU General Public License for more details.
 #include "Discord.h"
 #include "Poco/NumberParser.h"
 #include "Poco/StringTokenizer.h"
-#include "RPCException.h"
 #include "DiscordCommands.h"
 std::uint64_t ITNS_TIPBOT::convertSnowflakeToInt64(SleepyDiscord::Snowflake<SleepyDiscord::User> id)
 {

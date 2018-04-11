@@ -16,19 +16,20 @@ GNU General Public License for more details.
 #include "Discord.h"
 #include <Poco/Exception.h>
 #include <Poco/StringTokenizer.h>
+#include <Poco/Stopwatch.h>
 #include "Account.h"
 
 const struct Command Commands[] =
 {
-	{  "!about",				reinterpret_cast<void*>(&DiscordCommands::About),	"" },
+	{   "!about",			reinterpret_cast<void*>(&DiscordCommands::About),		""									},
 	{	"!help",			reinterpret_cast<void*>(&DiscordCommands::Help),		""									},
-	{	"!balance",			reinterpret_cast<void*>(&DiscordCommands::Balance),	""									},
+	{	"!balance",			reinterpret_cast<void*>(&DiscordCommands::Balance),		""									},
 	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	""									},
-	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),	""									},
+	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),		""									},
 	{	"!withdraw",		reinterpret_cast<void*>(&DiscordCommands::Withdraw),	"[amount] [address]"				},
 	{	"!withdrawall",		reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),	"[address]"							},
 	{	"!give",			reinterpret_cast<void*>(&DiscordCommands::Give),		"[amount] [@User1 @User2...]"		},
-	{	"!giveall",			reinterpret_cast<void*>(&DiscordCommands::GiveAll),	"[@User]"							},
+	{	"!giveall",			reinterpret_cast<void*>(&DiscordCommands::GiveAll),		"[@User]"							},
 };
 
 #define		VERSION_MAJOR 1
@@ -42,6 +43,11 @@ const char *aboutStr =
 				"ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf\\n"
 				"XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS\\n```";
 
+std::uint64_t		currentDiscordID		= 0;
+std::uint64_t		PrevDiscordID			= 0;
+Poco::Stopwatch		timeSinceLastCommand;
+Account				MyAccount;
+#define				DISCORD_USER_BOT_TIME	120
 
 void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message)
 {
@@ -55,7 +61,21 @@ void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDisco
 			{
 				if (command.name == cmd[0])
 				{
-					reinterpret_cast<CommandFunc>(command.func)(DiscordPtr, message, command);
+					currentDiscordID = DiscordPtr->convertSnowflakeToInt64(message.author.ID);
+					if (PrevDiscordID != currentDiscordID || PrevDiscordID == 0)
+					{
+						if ((timeSinceLastCommand.elapsedSeconds() < DISCORD_USER_BOT_TIME) && PrevDiscordID != 0)
+						{
+							DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Only one user at a time. Next user can issue commands in %d seconds.", message.author.username, message.author.discriminator, DISCORD_USER_BOT_TIME - timeSinceLastCommand.elapsedSeconds()));
+							break;
+						}
+						DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Opening wallet: It may take 15-30 seconds to sync transactions and show !balance correctly.", message.author.username, message.author.discriminator));
+						timeSinceLastCommand.reset();
+						timeSinceLastCommand.start();
+					}
+					MyAccount.open(currentDiscordID);
+					reinterpret_cast<CommandFunc>(command.func)(DiscordPtr, message, command);	
+					PrevDiscordID = currentDiscordID;
 				}
 			}
 		}
@@ -88,20 +108,17 @@ void DiscordCommands::Help(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message
 
 void DiscordCommands::Balance(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-	Account usr(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
-	DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your Balance is %f ITNS and your Unlocked Balance is %f ITNS", message.author.username, message.author.discriminator, usr.getBalance() / ITNS_OFFSET, usr.getUnlockedBalance() / ITNS_OFFSET));
+	DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your Balance is %f ITNS and your Unlocked Balance is %f ITNS", message.author.username, message.author.discriminator, MyAccount.getBalance() / ITNS_OFFSET, MyAccount.getUnlockedBalance() / ITNS_OFFSET));
 }
 
 void DiscordCommands::MyAddress(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-	Account usr(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
-	DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your ITNS Address is: %s", message.author.username, message.author.discriminator, usr.getMyAddress()));
+	DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your ITNS Address is: %s", message.author.username, message.author.discriminator, MyAccount.getMyAddress()));
 }
 
 void DiscordCommands::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-	Account usr(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
-	const auto trxs = usr.getTransactions();
+	const auto trxs = MyAccount.getTransactions();
 
 	std::stringstream ss;
 
@@ -131,7 +148,6 @@ void DiscordCommands::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Mes
 void DiscordCommands::Withdraw(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
 	Poco::StringTokenizer cmd(message.content, " ");
-	Account usr(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
 
 	if (cmd.count() != 3)
 		CommandParseError(DiscordPtr, message, me);
@@ -139,7 +155,7 @@ void DiscordCommands::Withdraw(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Me
 	{
 		const auto amount = Poco::NumberParser::parseFloat(cmd[1]);
 		const auto& address = cmd[2];
-		const auto tx = usr.transferMoneyToAddress(static_cast<std::uint64_t>(amount * ITNS_OFFSET), address);
+		const auto tx = MyAccount.transferMoneyToAddress(static_cast<std::uint64_t>(amount * ITNS_OFFSET), address);
 		DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, tx.tx_hash));
 	}
 }
@@ -147,23 +163,20 @@ void DiscordCommands::Withdraw(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Me
 void DiscordCommands::WithdrawAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
 	Poco::StringTokenizer cmd(message.content, " ");
-	Account usr(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
 
 	if (cmd.count() != 2)
 		CommandParseError(DiscordPtr, message, me);
 	else
 	{
 		const auto& address = cmd[1];
-		const auto tx = usr.transferAllMoneyToAddress(address);
-		DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, usr.getBalance() / ITNS_OFFSET, tx.tx_hash));
+		const auto tx = MyAccount.transferAllMoneyToAddress(address);
+		DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, MyAccount.getBalance() / ITNS_OFFSET, tx.tx_hash));
 	}
-
 }
 
 void DiscordCommands::Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
 	Poco::StringTokenizer cmd(message.content, " ");
-	Account usr(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
 
 	if (cmd.count() < 2 || message.mentions.empty())
 		CommandParseError(DiscordPtr, message, me);
@@ -172,7 +185,7 @@ void DiscordCommands::Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Messag
 		const auto amount = Poco::NumberParser::parseFloat(cmd[1]);
 		for (const auto& user : message.mentions)
 		{
-			const auto tx = usr.transferMoneytoAnotherDiscordUser(static_cast<std::uint64_t>(amount * ITNS_OFFSET), DiscordPtr->convertSnowflakeToInt64(user.ID));
+			const auto tx = MyAccount.transferMoneytoAnotherDiscordUser(static_cast<std::uint64_t>(amount * ITNS_OFFSET), DiscordPtr->convertSnowflakeToInt64(user.ID));
 			DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, user.username, tx.tx_hash));
 		}
 	}
@@ -182,14 +195,13 @@ void DiscordCommands::Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Messag
 void DiscordCommands::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
 	Poco::StringTokenizer cmd(message.content, " ");
-	Account usr(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
 
 	if (cmd.count() != 2 || message.mentions.empty())
 		CommandParseError(DiscordPtr, message, me);
 	else
 	{
-		const auto tx = usr.transferAllMoneytoAnotherDiscordUser(DiscordPtr->convertSnowflakeToInt64(message.mentions[0].ID));
-		DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, static_cast<double>(usr.getBalance() / ITNS_OFFSET), message.mentions[0].username, tx.tx_hash));
+		const auto tx = MyAccount.transferAllMoneytoAnotherDiscordUser(DiscordPtr->convertSnowflakeToInt64(message.mentions[0].ID));
+		DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, static_cast<double>(MyAccount.getBalance() / ITNS_OFFSET), message.mentions[0].username, tx.tx_hash));
 	}
 }
 
