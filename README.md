@@ -45,15 +45,15 @@ Note: `--wallet-dir ./Wallets/` is required and to change the dir you must chang
 It should complain about the deamon not running. Thats normal see the next step.
 
 ## IntenseCoin Deamon setup
-Just open `intensecoin` normally.
+Just open `intensecoind` normally.
 
 ## Application Setup
 The program needs to be in the folder with RPC or have the working directory set to the folder RPC is in.
 
-The file structure should look like this.
-intense-wallet-rpc
-TIPBOT
-Wallets/ <-- this is a directory. 
+The file structure should look like this:
+* intense-wallet-rpc
+* TIPBOT
+* Wallets/ <-- this is a directory. 
 
 ## Discord Token Setup
 Navigate to "My Apps" on Discord (https://discordapp.com/developers/applications/me). 
