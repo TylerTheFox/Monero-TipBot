@@ -74,7 +74,7 @@ void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDisco
 						timeSinceLastCommand.start();
 					}
 
-					if (!command.opensWallet)
+					if (command.opensWallet)
 					{
 						MyAccount.open(currentDiscordID);
 						PrevDiscordID = currentDiscordID;
