@@ -40,13 +40,20 @@ First you need to download the RPC from IntenseCoin if you haven't already (http
 Unzip the folder and run 
 `intense-wallet-rpc` with the arguments `--wallet-dir ./Wallets/  --rpc-bind-port 8333 --daemon-address 127.0.0.1:48782 --disable-rpc-login --trusted-daemon`
 
+Note: `--wallet-dir ./Wallets/` is required and to change the dir you must change RPC.h
+
 It should complain about the deamon not running. Thats normal see the next step.
 
 ## IntenseCoin Deamon setup
 Just open `intensecoin` normally.
 
 ## Application Setup
-The program working directory needs to be set to the folder RPC is in.
+The program needs to be in the folder with RPC or have the working directory set to the folder RPC is in.
+
+The file structure should look like this.
+intense-wallet-rpc
+TIPBOT
+Wallets/ <-- this is a directory. 
 
 ## Discord Token Setup
 Navigate to "My Apps" on Discord (https://discordapp.com/developers/applications/me). 
