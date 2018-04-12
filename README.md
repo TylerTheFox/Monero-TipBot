@@ -35,13 +35,15 @@ Discord Tipbot built in C++ for IntenseCoin/Monero
 * libcurl4-openssl-dev
 * libssl-dev
 
-## IntenseCoin Deamon setup
-Just open `intensecoind.exe` by double clicking on it.
-
 ## RPC Setup
 First you need to download the RPC from IntenseCoin if you haven't already (https://github.com/valiant1x/intensecoin/releases). 
 Unzip the folder and run 
-`intense-wallet-rpc.exe` with the arguments `--wallet-dir ./Wallets/  --rpc-bind-port 8333 --daemon-address 127.0.0.1:48782 --disable-rpc-login --trusted-daemon`
+`intense-wallet-rpc` with the arguments `--wallet-dir ./Wallets/  --rpc-bind-port 8333 --daemon-address 127.0.0.1:48782 --disable-rpc-login --trusted-daemon`
+
+It should complain about the deamon not running. Thats normal see the next step.
+
+## IntenseCoin Deamon setup
+Just open `intensecoin` normally.
 
 ## Application Setup
 The program working directory needs to be set to the folder RPC is in.
