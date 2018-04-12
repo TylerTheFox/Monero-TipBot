@@ -20,6 +20,7 @@ struct Command
 	std::string		name;
 	void *			func;
 	std::string		params;
+	bool			opensWallet;
 };
 typedef void(*CommandFunc)(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me);
 

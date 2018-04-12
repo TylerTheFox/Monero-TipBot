@@ -15,16 +15,7 @@ GNU General Public License for more details.
 
 int main()
 {
-	while (true)
-	{
-		try
-		{
 			ITNS_TIPBOT client("TOKEN", 2);
 			client.run();
-		} catch (...) // Buggy sleepy discord fix
-		{
-			
-		}
-	}
 	return 0;
 }

@@ -21,15 +21,15 @@ GNU General Public License for more details.
 
 const struct Command Commands[] =
 {
-	{   "!about",			reinterpret_cast<void*>(&DiscordCommands::About),		""									},
-	{	"!help",			reinterpret_cast<void*>(&DiscordCommands::Help),		""									},
-	{	"!balance",			reinterpret_cast<void*>(&DiscordCommands::Balance),		""									},
-	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	""									},
-	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),		""									},
-	{	"!withdraw",		reinterpret_cast<void*>(&DiscordCommands::Withdraw),	"[amount] [address]"				},
-	{	"!withdrawall",		reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),	"[address]"							},
-	{	"!give",			reinterpret_cast<void*>(&DiscordCommands::Give),		"[amount] [@User1 @User2...]"		},
-	{	"!giveall",			reinterpret_cast<void*>(&DiscordCommands::GiveAll),		"[@User]"							},
+	{   "!about",			reinterpret_cast<void*>(&DiscordCommands::About),		"",								false	},
+	{	"!help",			reinterpret_cast<void*>(&DiscordCommands::Help),		"",								false	},
+	{	"!balance",			reinterpret_cast<void*>(&DiscordCommands::Balance),		"",								true	},
+	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	"",								true	},
+	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),		"",								true	},
+	{	"!withdraw",		reinterpret_cast<void*>(&DiscordCommands::Withdraw),	"[amount] [address]",			true	},
+	{	"!withdrawall",		reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),	"[address]"	,					true	},
+	{	"!give",			reinterpret_cast<void*>(&DiscordCommands::Give),		"[amount] [@User1 @User2...]",	true	},
+	{	"!giveall",			reinterpret_cast<void*>(&DiscordCommands::GiveAll),		"[@User]",						true	},
 };
 
 #define		VERSION_MAJOR 1
@@ -62,7 +62,7 @@ void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDisco
 				if (command.name == cmd[0])
 				{
 					currentDiscordID = DiscordPtr->convertSnowflakeToInt64(message.author.ID);
-					if (PrevDiscordID != currentDiscordID || PrevDiscordID == 0)
+					if (command.opensWallet && (PrevDiscordID != currentDiscordID || PrevDiscordID == 0))
 					{
 						if ((timeSinceLastCommand.elapsedSeconds() < DISCORD_USER_BOT_TIME) && PrevDiscordID != 0)
 						{
@@ -73,9 +73,14 @@ void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDisco
 						timeSinceLastCommand.reset();
 						timeSinceLastCommand.start();
 					}
-					MyAccount.open(currentDiscordID);
-					reinterpret_cast<CommandFunc>(command.func)(DiscordPtr, message, command);	
-					PrevDiscordID = currentDiscordID;
+
+					if (!command.opensWallet)
+					{
+						MyAccount.open(currentDiscordID);
+						PrevDiscordID = currentDiscordID;
+					}
+
+					reinterpret_cast<CommandFunc>(command.func)(DiscordPtr, message, command);
 				}
 			}
 		}
