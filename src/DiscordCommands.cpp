@@ -50,7 +50,7 @@ std::uint64_t		currentDiscordID = 0;
 std::uint64_t		PrevDiscordID = 0;
 Poco::Stopwatch		timeSinceLastCommand;
 Account				MyAccount;
-#define				DISCORD_USER_BOT_TIME	120
+#define				DISCORD_USER_BOT_TIME	30
 
 void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message)
 {
