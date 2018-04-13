@@ -59,7 +59,7 @@ The file structure should look like this:
 Navigate to "My Apps" on Discord (https://discordapp.com/developers/applications/me). 
 Click new app, give it a name and description. 
 Click create a bot user.
-Copy the token generated on that page and paste into main.cpp where it says `DISCORD TOKEN`.
+Copy the token generated on that page and open TIPBOT and when prompted enter the token.
 To add a bot user to your account you'll need to get the client id for the bot which is also on that page. 
 Then navigate to this url (https://discordapp.com/oauth2/authorize?client_id=CLIENTID&scope=bot) and replace CLIENTID in the url with the client url on the page.
 
