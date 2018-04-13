@@ -230,10 +230,10 @@ void DiscordCommands::About(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Messag
 
 void DiscordCommands::BlockHeight(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
-	DiscordPtr->sendMessage(message.channelID, Poco::format("The current block height is: %?i", RPC::getBlockHeight()));
+	DiscordPtr->sendMessage(message.channelID, Poco::format("The current block height is: %?i :cold_sweat:", RPC::getBlockHeight()));
 }
 
 void DiscordCommands::CommandParseError(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
-	DiscordPtr->sendMessage(message.channelID, Poco::format("Command Error --- Correct Usage: %s %s", me.name, me.params));
+	DiscordPtr->sendMessage(message.channelID, Poco::format("Command Error --- Correct Usage: %s %s :cold_sweat:", me.name, me.params));
 }
