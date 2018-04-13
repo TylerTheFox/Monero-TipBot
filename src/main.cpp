@@ -44,7 +44,7 @@ void setup()
 	out << myToken;
 	out.close();
 
-	std::cout << "Token saved to " << TOKEN_FILE << " delete this file to rerun setup. \n";
+	std::cout << "Token saved to " << TOKEN_FILE << ", delete this file to rerun setup. \n";
 }
 
 int main()
