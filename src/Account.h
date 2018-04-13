@@ -15,7 +15,6 @@ GNU General Public License for more details.
 #include "RPC.h"
 #include <string>
 
-#define DISCORD_WALLET_MASK "Discord-User-%Lu"
 #define VOID_WALLET			"VOID_WALLET" // This is opened when the account is closed.
 
 class Account
@@ -36,7 +35,6 @@ public:
 
 	TransferList			getTransactions();
 private:
-	RPC						RPCServ;
 	std::uint64_t			Discord_ID;
 	std::uint64_t			Balance;
 	std::uint64_t			UnlockedBalance;

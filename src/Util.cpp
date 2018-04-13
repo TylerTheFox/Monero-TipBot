@@ -58,3 +58,13 @@ bool Util::doesWalletExist(const std::string & name)
 {
 	return Poco::File(name).exists();
 }
+
+bool Util::doesWalletExist(std::uint64_t DIS_ID)
+{
+	return Util::doesWalletExist(Util::getWalletStrFromIID(DIS_ID));
+}
+
+std::string Util::getWalletStrFromIID(std::uint64_t DIS_ID)
+{
+	return Poco::format(DISCORD_WALLET_MASK, DIS_ID);
+}

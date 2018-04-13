@@ -18,14 +18,16 @@ GNU General Public License for more details.
 #include <Poco/StringTokenizer.h>
 #include <Poco/Stopwatch.h>
 #include "Account.h"
+#include "Util.h"
+#include <fstream>
 
 const struct Command Commands[] =
 {
 	{   "!about",			reinterpret_cast<void*>(&DiscordCommands::About),		"",								false	},
 	{	"!help",			reinterpret_cast<void*>(&DiscordCommands::Help),		"",								false	},
 	{	"!blockheight",		reinterpret_cast<void*>(&DiscordCommands::BlockHeight),	"",								false	},
+	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	"",								false	},
 	{	"!balance",			reinterpret_cast<void*>(&DiscordCommands::Balance),		"",								true	},
-	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	"",								true	},
 	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),		"",								true	},
 	{	"!withdraw",		reinterpret_cast<void*>(&DiscordCommands::Withdraw),	"[amount] [address]",			true	},
 	{	"!withdrawall",		reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),	"[address]"	,					true	},
@@ -37,15 +39,15 @@ const struct Command Commands[] =
 #define		VERSION_MINOR 0
 
 const char *aboutStr =
-				"```ITNS TipBot v%d.%d\\n"
-				"(C) Brandan Tyler Lasley 2018\\n"
-				"Github: https://github.com/Brandantl/IntenseCoin-TipBot \\n"
-				"BTC: 1KsX66J98WMgtSbFA5UZhVDn1iuhN5B6Hm\\n"
-				"ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf\\n"
-				"XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS\\n```";
+"```ITNS TipBot v%d.%d\\n"
+"(C) Brandan Tyler Lasley 2018\\n"
+"Github: https://github.com/Brandantl/IntenseCoin-TipBot \\n"
+"BTC: 1KsX66J98WMgtSbFA5UZhVDn1iuhN5B6Hm\\n"
+"ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf\\n"
+"XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS\\n```";
 
-std::uint64_t		currentDiscordID		= 0;
-std::uint64_t		PrevDiscordID			= 0;
+std::uint64_t		currentDiscordID = 0;
+std::uint64_t		PrevDiscordID = 0;
 Poco::Stopwatch		timeSinceLastCommand;
 Account				MyAccount;
 #define				DISCORD_USER_BOT_TIME	120
@@ -119,7 +121,18 @@ void DiscordCommands::Balance(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Mes
 
 void DiscordCommands::MyAddress(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-	DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your ITNS Address is: %s", message.author.username, message.author.discriminator, MyAccount.getMyAddress()));
+	const std::string & walletStr = Util::getWalletStrFromIID(currentDiscordID);
+
+	if (!Util::doesWalletExist(WALLET_PATH + walletStr))
+		RPC::createWallet(walletStr);
+
+	const auto addressStr = WALLET_PATH + walletStr + ".address.txt";
+	
+	std::ifstream infile(addressStr);
+	assert(infile.is_open());
+	const std::string myaddress{std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>()};
+	infile.close();
+	DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your ITNS Address is: %s", message.author.username, message.author.discriminator, myaddress));
 }
 
 void DiscordCommands::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
@@ -195,7 +208,6 @@ void DiscordCommands::Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Messag
 			DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, user.username, tx.tx_hash));
 		}
 	}
-
 }
 
 void DiscordCommands::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
@@ -218,9 +230,7 @@ void DiscordCommands::About(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Messag
 
 void DiscordCommands::BlockHeight(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
-	RPC RPCserv;
-	auto height = RPCserv.getBlockHeight();
-	DiscordPtr->sendMessage(message.channelID, Poco::format("The current block height is: %?i", height));
+	DiscordPtr->sendMessage(message.channelID, Poco::format("The current block height is: %?i", RPC::getBlockHeight()));
 }
 
 void DiscordCommands::CommandParseError(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)

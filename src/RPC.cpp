@@ -34,7 +34,7 @@ void RPC::handleRPCError(Poco::DynamicStruct error)
 	throw RPCGeneralError(error["code"].toString(), error["message"].toString());
 }
 
-Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id) const
+Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id)
 {
 	// Building JSON string
 	Poco::DynamicStruct data;
@@ -75,7 +75,7 @@ Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const Poco::
 	return {};
 }
 
-BalanceRet RPC::getBalance(int id) const
+BalanceRet RPC::getBalance(int id)
 /* Global Wallet Balance */
 {
 	BalanceRet ret;
@@ -100,7 +100,7 @@ BalanceRet RPC::getBalance(int id) const
 	return ret;
 }
 
-std::string RPC::getAddress(int id) const
+std::string RPC::getAddress(int id)
 {
 	auto json = getDataFromRPC(RPC_METHOD_GET_ADDRESS, {}, id);
 
@@ -119,7 +119,7 @@ std::string RPC::getAddress(int id) const
 	return result["address"].toString();
 }
 
-unsigned int RPC::getBlockHeight(int id) const
+unsigned int RPC::getBlockHeight(int id)
 {
 	auto json = getDataFromRPC(RPC_METHOD_GET_BLK_HEIGHT, {}, id);
 
@@ -138,7 +138,7 @@ unsigned int RPC::getBlockHeight(int id) const
 	return result["height"].convert<unsigned int>();
 }
 
-TransferRet RPC::tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id) const
+TransferRet RPC::tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id)
 {
 	TransferRet ret;
 
@@ -175,7 +175,7 @@ TransferRet RPC::tranfer(std::uint64_t payment_id, std::uint64_t amount, const s
 	return ret;
 }
 
-TransferRet RPC::sweepAll(std::uint64_t payment_id, const std::string & address, int id) const
+TransferRet RPC::sweepAll(std::uint64_t payment_id, const std::string & address, int id)
 {
 	TransferRet ret;
 
@@ -261,7 +261,7 @@ TransferList RPC::getTransfers(int id)
 	return incomingTransactions;
 }
 
-bool RPC::createWallet(const std::string & name, const std::string & password, const std::string & language, int id) const
+bool RPC::createWallet(const std::string & name, const std::string & password, const std::string & language, int id)
 {
 	// Ensure we dont overwrite a wallet.
 	assert(!Util::doesWalletExist(WALLET_PATH + name));
@@ -285,7 +285,7 @@ bool RPC::createWallet(const std::string & name, const std::string & password, c
 	return Util::doesWalletExist(WALLET_PATH + name);
 }
 
-bool RPC::openWallet(const std::string & name, const std::string & password, int id) const
+bool RPC::openWallet(const std::string & name, const std::string & password, int id)
 {
 	// Ensure Wallet Exists
 	if (!Util::doesWalletExist(WALLET_PATH + name))
@@ -307,7 +307,7 @@ bool RPC::openWallet(const std::string & name, const std::string & password, int
 	return true;
 }
 
-void RPC::stopWallet(int id) const
+void RPC::stopWallet(int id)
 // This doesn't close the wallet but the RPC.
 {
 	auto json = getDataFromRPC(RPC_METHOD_CLOSE_RPC, {}, id);
@@ -318,7 +318,7 @@ void RPC::stopWallet(int id) const
 	}
 }
 
-void RPC::store(int id) const
+void RPC::store(int id)
 {
 	auto json = getDataFromRPC(RPC_METHOD_STORE, {}, id);
 

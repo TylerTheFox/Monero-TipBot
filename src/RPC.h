@@ -80,21 +80,21 @@ struct TransferList
 class RPC
 {
 public:
-	RPC() = default;
+	RPC() = delete;
 
-	struct BalanceRet					getBalance(int id = 0) const;
-	std::string							getAddress(int id = 0) const;
-	unsigned int						getBlockHeight(int id = 0) const;
-	TransferRet							tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id = 0) const;
-	TransferRet							sweepAll(std::uint64_t payment_id, const std::string & address, int id = 0) const;
-	TransferList						getTransfers(int id = 0);
-	bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0) const;
-	bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;
-	void								stopWallet(int id = 0) const;
-	void								store(int id = 0) const;
+	static struct BalanceRet				getBalance(int id = 0);
+	static std::string						getAddress(int id = 0);
+	static unsigned int						getBlockHeight(int id = 0);
+	static TransferRet						tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id = 0);
+	static TransferRet						sweepAll(std::uint64_t payment_id, const std::string & address, int id = 0);
+	static TransferList						getTransfers(int id = 0);
+	static bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0);
+	static bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0);
+	static void								stopWallet(int id = 0);
+	static void								store(int id = 0);
 
 private:
-	static void							handleNetworkError(const std::string & msg);
-	static void							handleRPCError(Poco::DynamicStruct error);
-	Poco::DynamicStruct					getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0) const;
+	static void								handleNetworkError(const std::string & msg);
+	static void								handleRPCError(Poco::DynamicStruct error);
+	static Poco::DynamicStruct				getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0);
 };

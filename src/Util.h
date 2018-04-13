@@ -16,6 +16,8 @@ GNU General Public License for more details.
 #include "Poco/Process.h"
 #include "Poco/Pipe.h"
 
+#define DISCORD_WALLET_MASK "Discord-User-%Lu"
+
 class Util
 {
 public:
@@ -26,6 +28,10 @@ public:
 	static void stop_RPC();
 
 	static bool doesWalletExist(const std::string & name);
+	static bool doesWalletExist(std::uint64_t DIS_ID);
+
+	static std::string getWalletStrFromIID(std::uint64_t DIS_ID);
+
 private:
 	static bool			RPC_RUNNING;
 	static Poco::Pipe	rpc_pipe;
