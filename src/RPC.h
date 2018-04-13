@@ -67,7 +67,7 @@ struct TransferItem
 struct TransferItemCmp {
 	bool operator() (const struct TransferItem & lhs, const struct TransferItem & rhs) const
 	{
-		return lhs.block_height < rhs.block_height;
+		return lhs.block_height > rhs.block_height;
 	}
 };
 
