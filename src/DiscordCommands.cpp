@@ -23,6 +23,7 @@ const struct Command Commands[] =
 {
 	{   "!about",			reinterpret_cast<void*>(&DiscordCommands::About),		"",								false	},
 	{	"!help",			reinterpret_cast<void*>(&DiscordCommands::Help),		"",								false	},
+	{	"!blockheight",		reinterpret_cast<void*>(&DiscordCommands::BlockHeight),	"",								false	},
 	{	"!balance",			reinterpret_cast<void*>(&DiscordCommands::Balance),		"",								true	},
 	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	"",								true	},
 	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),		"",								true	},
@@ -213,6 +214,13 @@ void DiscordCommands::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Mes
 void DiscordCommands::About(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
 	DiscordPtr->sendMessage(message.channelID, Poco::format(aboutStr, VERSION_MAJOR, VERSION_MINOR));
+}
+
+void DiscordCommands::BlockHeight(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+{
+	RPC RPCserv;
+	auto height = RPCserv.getBlockHeight();
+	DiscordPtr->sendMessage(message.channelID, Poco::format("The current block height is: %?i", height));
 }
 
 void DiscordCommands::CommandParseError(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
