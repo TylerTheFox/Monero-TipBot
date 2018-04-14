@@ -11,9 +11,10 @@ include_directories(
 	extern/poco-1.9.0/JSON/include
 	extern/poco-1.9.0/Net/include
 	extern/poco-1.9.0/Util/include
+	extern/cereal-1.2.2/include
     )
 
-if (MSVC)
+if (MSVC) 
   link_directories(
 	extern/sleepy-discord/lib/win32
 	extern/poco-1.9.0/lib/win32
