@@ -156,6 +156,7 @@ const RPC & RPCManager::getGlobalBotRPC()
 
 void RPCManager::save()
 {
+	mu.lock();
 	std::ofstream out(RPC_DATABASE_FILENAME, std::ios::trunc);
 	if (out.is_open())
 	{
@@ -166,6 +167,7 @@ void RPCManager::save()
 		}
 		out.close();
 	}
+	mu.unlock();
 }
 
 void RPCManager::load()
@@ -219,11 +221,13 @@ RPCProc& RPCManager::FindOldestRPC()
 
 void RPCManager::SaveWallets()
 {
+	mu.lock();
 	std::cout << "Saving blockchain...\n";
 
 	// Save blockchain on exit.
 	for (auto account : this->RPCMap)
 		account.second.MyRPC.store();
+	mu.unlock();
 }
 
 void RPCManager::ReloadSavedRPCs()
