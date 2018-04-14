@@ -5,6 +5,7 @@
 #include "Util.h"
 #include <cassert>
 #include "Discord.h"
+#include "RPCException.h"
 
 RPCManager			 RPCMan;
 RPCProc* RPCManager::BotRPCProc;
@@ -69,15 +70,28 @@ void RPCManager::run()
 	{
 		Poco::Timespan timer(Poco::Timestamp() - timeStarted);
 
-		if ((timer.seconds() % SEARCH_FOR_NEW_TRANSACTIONS_TIME) == 0)
+		try
 		{
 
-			processNewTransactions();
+
+			if ((timer.seconds() % SEARCH_FOR_NEW_TRANSACTIONS_TIME) == 0)
+			{
+
+				processNewTransactions();
+			}
+
+			if ((timer.seconds() > 0) && (timer.seconds() % (SAVE_TO_DISK_TIME * 60)) == 0)
+			{
+				SaveWallets();
+			}
+		} 
+		catch (const Poco::Exception & exp)
+		{
+			std::cout << "Poco Error: " << exp.what();
 		}
-
-		if ((timer.seconds() > 0) && (timer.seconds() % (SAVE_TO_DISK_TIME*60)) == 0)
+		catch (AppGeneralException & exp)
 		{
-			SaveWallets();
+			std::cout << "App Error: " << exp.what();
 		}
 
 		Poco::Thread::sleep(1000);
@@ -125,7 +139,6 @@ void RPCManager::processNewTransactions()
 				diff.clear();
 			}
 		}
-		Poco::Thread::sleep(10);
 	}
 	mu.unlock();
 }
