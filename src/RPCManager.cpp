@@ -74,7 +74,7 @@ void RPCManager::run()
 			processNewTransactions();
 		}
 
-		if (timer.minutes() > 0 && (timer.minutes() % SAVE_TO_DISK_TIME) == 0)
+		if (timer.minutes() > 0 && (timer.minutes() % SAVE_TO_DISK_TIME) == 0 && timer.seconds() == 0)
 		{
 			SaveWallets();
 		}
