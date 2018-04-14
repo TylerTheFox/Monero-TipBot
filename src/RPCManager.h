@@ -21,9 +21,10 @@ GNU General Public License for more details.
 #include "Poco/Runnable.h"
 #include "Discord.h"
 
-#define						STARTING_PORT_NUMBER	10000
-#define						MAX_RPC_LIMIT			100
-
+#define						STARTING_PORT_NUMBER				10000
+#define						MAX_RPC_LIMIT						100
+#define						SAVE_TO_DISK_TIME					15 // in minutes.
+#define						SEARCH_FOR_NEW_TRANSACTIONS_TIME	10 // in seconds
 class ITNS_TIPBOT;
 
 struct RPCProc

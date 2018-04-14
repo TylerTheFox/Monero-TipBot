@@ -69,12 +69,12 @@ void RPCManager::run()
 	{
 		Poco::Timespan timer(Poco::Timestamp() - timeStarted);
 
-		if (timer.seconds() > 0 && (timer.seconds() % 10) == 0)
+		if (timer.seconds() > 0 && (timer.seconds() % SEARCH_FOR_NEW_TRANSACTIONS_TIME) == 0)
 		{
 			processNewTransactions();
 		}
 
-		if (timer.minutes() > 0 && (timer.minutes() % 15) == 0)
+		if (timer.minutes() > 0 && (timer.minutes() % SAVE_TO_DISK_TIME) == 0)
 		{
 			SaveWallets();
 		}
