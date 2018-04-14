@@ -45,21 +45,21 @@ Account& RPCManager::getAccount(DiscordID id)
 			RPCMap[id] = SpinUpNewRPC(id);
 		else
 			RPCMap[id] = FindOldestRPC();
-		RPCMap[id].Account.open(id, &RPCMap[id].RPC);
+		RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
 
 		// Open Wallet
-		assert(RPCMap[id].RPC.openWallet(Util::getWalletStrFromIID(id)));
+		assert(RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id)));
 
 		// Get transactions
-		RPCMap[id].Transactions = RPCMap[id].RPC.getTransfers();
+		RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
 	}
 
 	// Account Resync
-	RPCMap[id].Account.resyncAccount();
+	RPCMap[id].MyAccount.resyncAccount();
 
 	mu.unlock();
 
-	return RPCMap[id].Account;
+	return RPCMap[id].MyAccount;
 }
 
 void RPCManager::run()
@@ -93,7 +93,7 @@ void RPCManager::processNewTransactions()
 
 	for (auto & account : this->RPCMap)
 	{
-		newTransactions = account.second.RPC.getTransfers();
+		newTransactions = account.second.MyRPC.getTransfers();
 
 		std::set_difference(newTransactions.tx_in.begin(), newTransactions.tx_in.end(), account.second.Transactions.tx_in.begin(), account.second.Transactions.tx_in.end(),
 			std::inserter(diff, diff.begin()));
@@ -129,7 +129,7 @@ void RPCManager::processNewTransactions()
 
 const RPC & RPCManager::getGlobalBotRPC()
 {
-	return BotRPCProc->RPC;
+	return BotRPCProc->MyRPC;
 }
 
 RPCProc RPCManager::SpinUpNewRPC(DiscordID id)
@@ -149,8 +149,8 @@ RPCProc RPCManager::SpinUpNewRPC(DiscordID id)
 
 	RPC_DATA.myID = id;
 	RPC_DATA.pid = rpc_handle.id();
-	RPC_DATA.Account.open(id, &RPC_DATA.RPC);
-	RPC_DATA.RPC.open(currPortNum);
+	RPC_DATA.MyAccount.open(id, &RPC_DATA.MyRPC);
+	RPC_DATA.MyRPC.open(currPortNum);
 
 	currPortNum++;
 	return RPC_DATA;
@@ -158,7 +158,7 @@ RPCProc RPCManager::SpinUpNewRPC(DiscordID id)
 
 void RPCManager::SpinDownRPC(DiscordID id)
 {
-	RPCMap[id].RPC.stopWallet();
+	RPCMap[id].MyRPC.stopWallet();
 	RPCMap.erase(id);
 }
 
@@ -180,7 +180,7 @@ void RPCManager::SaveWallets()
 
 	// Save blockchain on exit.
 	for (auto account : this->RPCMap)
-		account.second.RPC.store();
+		account.second.MyRPC.store();
 
 	mu.unlock();
 }

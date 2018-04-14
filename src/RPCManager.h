@@ -37,8 +37,8 @@ struct RPCProc
 	DiscordID											myID;
 	Poco::Timestamp										timestamp;
 	unsigned int										pid;
-	RPC													RPC;
-	Account												Account;
+	RPC													MyRPC;
+	Account												MyAccount;
 	struct TransferList									Transactions;
 	SleepyDiscord::Snowflake<SleepyDiscord::Channel>	ChannelID;
 
@@ -47,8 +47,8 @@ struct RPCProc
 		myID = obj.myID;
 		timestamp = obj.timestamp;
 		pid = obj.pid;
-		RPC = obj.RPC;
-		Account = obj.Account;
+		MyRPC = obj.MyRPC;
+		MyAccount = obj.MyAccount;
 		Transactions = obj.Transactions;
 		ChannelID = obj.ChannelID;
 		return *this;
