@@ -126,9 +126,16 @@ TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
 	return RPCPtr->sweepAll(Discord_ID, DiscordUserAddress);
 }
 
-TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::string & address) const
+TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::string & address)
 {
 	assert(RPCPtr);
+
+	// Resync account.
+	resyncAccount();
+
+	if (amount == Balance)
+		throw InsufficientBalance("You do not have enough money for the fee, try !giveall instead");
+
 	if (amount > Balance)
 		throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, Balance / ITNS_OFFSET));
 
@@ -145,9 +152,13 @@ TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::str
 	return RPCPtr->tranfer(Discord_ID, amount, address);
 }
 
-TransferRet Account::transferAllMoneyToAddress(const std::string& address) const
+TransferRet Account::transferAllMoneyToAddress(const std::string& address)
 {
 	assert(RPCPtr);
+
+	// Resync account.
+	resyncAccount();
+
 	if (Balance == 0)
 		throw InsufficientBalance(Poco::format("You are trying to send all your money to an address while only having %f!", Balance / ITNS_OFFSET));
 

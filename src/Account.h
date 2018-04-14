@@ -33,8 +33,8 @@ public:
 
 	TransferRet					transferMoneytoAnotherDiscordUser(std::uint64_t amount, DiscordID Discord_ID);
 	TransferRet					transferAllMoneytoAnotherDiscordUser(DiscordID Discord_ID);
-	TransferRet					transferMoneyToAddress(std::uint64_t amount, const std::string & address) const;
-	TransferRet					transferAllMoneyToAddress(const std::string & address) const;
+	TransferRet					transferMoneyToAddress(std::uint64_t amount, const std::string & address);
+	TransferRet					transferAllMoneyToAddress(const std::string & address);
 
 	TransferList				getTransactions();
 	static const std::string	getWalletAddress(DiscordID Discord_ID);
