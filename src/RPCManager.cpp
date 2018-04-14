@@ -126,14 +126,14 @@ void RPCManager::processNewTransactions()
 		{
 			try
 			{
-				auto response = DiscordPtr->createDirectMessageChannel(Poco::format("%Lu", account.second.myID));
+				auto response = DiscordPtr->createDirectMessageChannel(Poco::format("%Lu", account.first));
 				object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
 				clientID = object->getValue<std::string>("id");
 
 				for (auto newTx : diff)
 				{
 					DiscordPtr->sendMessage(clientID, Poco::format("You've recieved money! %f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
-					std::cout << Poco::format("User %Lu recived %f ITNS\n", account.second.myID,newTx.amount / ITNS_OFFSET);
+					std::cout << Poco::format("User %Lu recived %f ITNS\n", account.first,newTx.amount / ITNS_OFFSET);
 				}
 
 				account.second.Transactions = newTransactions;
@@ -194,7 +194,6 @@ void RPCManager::load()
 RPCProc RPCManager::SpinUpNewRPC(DiscordID id)
 {
 	RPCProc RPC_DATA;
-	RPC_DATA.myID = id;
 	RPC_DATA.pid = LaunchRPC(currPortNum);
 	RPC_DATA.MyAccount.open(id, &RPC_DATA.MyRPC);
 	RPC_DATA.MyRPC.open(currPortNum);
@@ -214,7 +213,7 @@ RPCProc& RPCManager::FindOldestRPC()
 	auto it = std::min_element(RPCMap.begin(), RPCMap.end(),
 		[](decltype(RPCMap)::value_type& l, decltype(RPCMap)::value_type& r) -> bool { return l.second.timestamp < r.second.timestamp; });
 
-	std::cout << it->second.myID;
+	std::cout << it->first;
 
 	return it->second;
 }
@@ -238,10 +237,10 @@ void RPCManager::ReloadSavedRPCs()
 		wallets.second.pid = LaunchRPC(wallets.second.MyRPC.getPort());
 
 		// Setup Accounts
-		wallets.second.MyAccount.open(wallets.second.myID, &wallets.second.MyRPC);
+		wallets.second.MyAccount.open(wallets.first, &wallets.second.MyRPC);
 
 		// Open Wallet
-		assert(wallets.second.MyRPC.openWallet(Util::getWalletStrFromIID(wallets.second.myID)));
+		assert(wallets.second.MyRPC.openWallet(Util::getWalletStrFromIID(wallets.first)));
 
 		// Get transactions
 		wallets.second.Transactions = wallets.second.MyRPC.getTransfers();

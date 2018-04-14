@@ -34,13 +34,12 @@ class ITNS_TIPBOT;
 
 struct RPCProc
 {
-	RPCProc() : myID(0), pid(0) {}
+	RPCProc() : pid(0) {}
 	RPCProc(const RPCProc & obj)
 	{
 		*this = obj;
 	}
 
-	DiscordID											myID;
 	Poco::Timestamp										timestamp;
 	unsigned int										pid;
 	RPC													MyRPC;
@@ -49,7 +48,6 @@ struct RPCProc
 
 	RPCProc& operator=(const RPCProc & obj)
 	{
-		myID = obj.myID;
 		timestamp = obj.timestamp;
 		pid = obj.pid;
 		MyRPC = obj.MyRPC;
@@ -61,13 +59,13 @@ struct RPCProc
 	template<class Archive>
 	void save(Archive & archive) const
 	{
-		archive(CEREAL_NVP(myID), CEREAL_NVP(MyRPC));
+		archive(CEREAL_NVP(MyRPC));
 	}
 
 	template<class Archive>
 	void load(Archive & archive)
 	{
-		archive(CEREAL_NVP(myID), CEREAL_NVP(MyRPC));
+		archive(CEREAL_NVP(MyRPC));
 	}
 };
 
