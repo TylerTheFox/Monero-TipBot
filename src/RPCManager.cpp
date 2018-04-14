@@ -82,7 +82,7 @@ void RPCManager::run()
 					processNewTransactions();
 				}
 
-				if ((timer.seconds() > 0) && (timer.minutes() % BLOCKCHAIN_SAVE_TIME) == 0)
+				if ((timer.minutes() > 0) && (timer.seconds() == 0) && (timer.minutes() % BLOCKCHAIN_SAVE_TIME) == 0)
 				{
 					SaveWallets();
 				}
