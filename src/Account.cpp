@@ -59,9 +59,12 @@ const std::string & Account::getMyAddress() const
 	return MyAddress;
 }
 
-TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, DiscordID DIS_ID) const
+TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, DiscordID DIS_ID)
 {
 	assert(RPCPtr);
+
+	// Resync account.
+	resyncAccount();
 
 	if (amount == Balance)
 		throw InsufficientBalance("You do not have enough money for the fee, try !giveall instead");
@@ -94,9 +97,13 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
 	return RPCPtr->tranfer(Discord_ID, amount, DiscordUserAddress);
 }
 
-TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID) const
+TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID) 
 {
 	assert(RPCPtr);
+
+	// Resync account.
+	resyncAccount();
+
 	if (!Balance)
 		throw InsufficientBalance("You have an empty balance!");
 

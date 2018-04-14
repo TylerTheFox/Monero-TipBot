@@ -31,8 +31,8 @@ public:
 	std::uint64_t				getUnlockedBalance() const;
 	const std::string &			getMyAddress() const;
 
-	TransferRet					transferMoneytoAnotherDiscordUser(std::uint64_t amount, DiscordID Discord_ID) const;
-	TransferRet					transferAllMoneytoAnotherDiscordUser(DiscordID Discord_ID) const;
+	TransferRet					transferMoneytoAnotherDiscordUser(std::uint64_t amount, DiscordID Discord_ID);
+	TransferRet					transferAllMoneytoAnotherDiscordUser(DiscordID Discord_ID);
 	TransferRet					transferMoneyToAddress(std::uint64_t amount, const std::string & address) const;
 	TransferRet					transferAllMoneyToAddress(const std::string & address) const;
 

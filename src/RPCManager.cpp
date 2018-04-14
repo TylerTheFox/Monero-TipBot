@@ -130,7 +130,6 @@ void RPCManager::processNewTransactions()
 				object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
 				clientID = object->getValue<std::string>("id");
 
-
 				for (auto newTx : diff)
 				{
 					DiscordPtr->sendMessage(clientID, Poco::format("You've recieved money! %f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
