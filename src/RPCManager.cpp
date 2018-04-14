@@ -69,23 +69,25 @@ void RPCManager::run()
 	{
 		Poco::Timespan timer(Poco::Timestamp() - timeStarted);
 
-		if (timer.seconds() > 0 && (timer.milliseconds() % SEARCH_FOR_NEW_TRANSACTIONS_TIME * 1000) == 0)
+		if ((timer.seconds() % SEARCH_FOR_NEW_TRANSACTIONS_TIME) == 0)
 		{
+
 			processNewTransactions();
 		}
 
-		if (timer.minutes() > 0 && (timer.milliseconds() % SAVE_TO_DISK_TIME * 60000) == 0)
+		if ((timer.seconds() % (SAVE_TO_DISK_TIME*60)) == 0)
 		{
 			SaveWallets();
 		}
 
-		Poco::Thread::sleep(1);
+		Poco::Thread::sleep(1000);
 	}
 }
 
 void RPCManager::processNewTransactions()
 {
 	mu.lock();
+	std::cout << "Searching for new transactions...\n";
 	Poco::JSON::Parser parser;
 	Poco::JSON::Object::Ptr object;
 	std::string clientID;
