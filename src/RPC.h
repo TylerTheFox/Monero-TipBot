@@ -20,9 +20,8 @@ GNU General Public License for more details.
 #include <Poco/JSON/Object.h>
 
 // Server Settings
-#define RPC_FILENAME							"intense-wallet-rpc.exe"
+#define RPC_FILENAME							"intense-wallet-rpc"
 #define RPC_HOSTNAME							"127.0.0.1"
-#define RPC_PORT								8333
 #define DAEMON_ADDRESS							"127.0.0.1:48782"
 
 // Vars
@@ -62,6 +61,11 @@ struct TransferItem
 	std::uint64_t amount;
 	std::uint64_t payment_id;
 	unsigned int block_height;
+
+	friend bool operator<(const struct TransferItem & lhs, const struct TransferItem & rhs)
+	{
+		return lhs.block_height > rhs.block_height;
+	}
 };
 
 struct TransferItemCmp {
@@ -80,21 +84,27 @@ struct TransferList
 class RPC
 {
 public:
-	RPC() = delete;
+	RPC();
+	RPC(const RPC & obj);
+	void							open(unsigned short _port);
 
-	static struct BalanceRet				getBalance(int id = 0);
-	static std::string						getAddress(int id = 0);
-	static unsigned int						getBlockHeight(int id = 0);
-	static TransferRet						tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id = 0);
-	static TransferRet						sweepAll(std::uint64_t payment_id, const std::string & address, int id = 0);
-	static TransferList						getTransfers(int id = 0);
-	static bool								createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0);
-	static bool								openWallet(const std::string & name, const std::string & password = {}, int id = 0);
-	static void								stopWallet(int id = 0);
-	static void								store(int id = 0);
 
+	struct BalanceRet				getBalance(int id = 0) const;
+	std::string						getAddress(int id = 0) const;
+	unsigned int					getBlockHeight(int id = 0) const;
+	TransferRet						tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id = 0) const;
+	TransferRet						sweepAll(std::uint64_t payment_id, const std::string & address, int id = 0) const;
+	TransferList					getTransfers(int id = 0) const;
+	bool							createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0) const;
+	bool							openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;
+	void							stopWallet(int id = 0) const;
+	void							store(int id = 0) const;
+
+	RPC&							operator=(const RPC &rhs);
 private:
-	static void								handleNetworkError(const std::string & msg);
-	static void								handleRPCError(Poco::DynamicStruct error);
-	static Poco::DynamicStruct				getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0);
+	unsigned short					port;
+
+	void							handleNetworkError(const std::string & msg) const;
+	void							handleRPCError(Poco::DynamicStruct error) const;
+	Poco::DynamicStruct				getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0) const;
 };

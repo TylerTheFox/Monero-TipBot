@@ -14,6 +14,7 @@ GNU General Public License for more details.
 #pragma once
 #include "RPC.h"
 #include <string>
+#include "types.h"
 
 #define VOID_WALLET			"VOID_WALLET" // This is opened when the account is closed.
 
@@ -21,24 +22,30 @@ class Account
 {
 public:
 	Account();
-	
-	void					open(std::uint64_t Discord_ID);
+	Account(const Account & obj);
 
-	std::uint64_t			getBalance() const;
-	std::uint64_t			getUnlockedBalance() const;
-	const std::string &		getMyAddress() const;
+	void						open(DiscordID id, const RPC * ptr);
 
-	TransferRet				transferMoneytoAnotherDiscordUser(std::uint64_t amount, std::uint64_t Discord_ID) const;
-	TransferRet				transferAllMoneytoAnotherDiscordUser(std::uint64_t Discord_ID) const;
-	TransferRet				transferMoneyToAddress(std::uint64_t amount, const std::string & address) const;
-	TransferRet				transferAllMoneyToAddress(const std::string & address) const;
+	DiscordID					getDiscordID() const;
+	std::uint64_t				getBalance() const;
+	std::uint64_t				getUnlockedBalance() const;
+	const std::string &			getMyAddress() const;
 
-	TransferList			getTransactions();
+	TransferRet					transferMoneytoAnotherDiscordUser(std::uint64_t amount, DiscordID Discord_ID) const;
+	TransferRet					transferAllMoneytoAnotherDiscordUser(DiscordID Discord_ID) const;
+	TransferRet					transferMoneyToAddress(std::uint64_t amount, const std::string & address) const;
+	TransferRet					transferAllMoneyToAddress(const std::string & address) const;
+
+	TransferList				getTransactions();
+	static const std::string	getWalletAddress(DiscordID Discord_ID);
+	void						resyncAccount();
+
+	Account&					operator=(const Account &rhs);
+
 private:
-	std::uint64_t			Discord_ID;
-	std::uint64_t			Balance;
-	std::uint64_t			UnlockedBalance;
-	std::string				MyAddress;
-
-	void					resyncAccount();
+	const RPC*					RPCPtr;
+	DiscordID					Discord_ID;
+	std::uint64_t				Balance;
+	std::uint64_t				UnlockedBalance;
+	std::string					MyAddress;
 };

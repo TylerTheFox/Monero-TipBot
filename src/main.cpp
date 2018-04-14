@@ -16,6 +16,8 @@ GNU General Public License for more details.
 #include <iostream>
 #include "Poco/File.h"
 #include <fstream>
+#include "RPCManager.h"
+#include "Poco/Thread.h"
 
 #define TOKEN_FILE "token.discord"
 std::string myToken;
@@ -49,11 +51,16 @@ void setup()
 
 int main()
 {
+	// Create RPC threads
+	Poco::Thread thread;
+	thread.start(RPCMan);
+
 	// Setup routine
 	setup();
 
 	// Run bot with token.
 	ITNS_TIPBOT client(myToken, 2);
+	RPCMan.setDiscordPtr(&client);
 	client.run();
 	return 0;
 }

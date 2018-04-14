@@ -11,21 +11,6 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
-#include "Util.h"
-#include "RPC.h"
-#include "Poco/File.h"
-
-bool Util::doesWalletExist(const std::string & name)
-{
-	return Poco::File(name).exists();
-}
-
-bool Util::doesWalletExist(DiscordID DIS_ID)
-{
-	return Util::doesWalletExist(Util::getWalletStrFromIID(DIS_ID));
-}
-
-std::string Util::getWalletStrFromIID(DiscordID DIS_ID)
-{
-	return Poco::format(DISCORD_WALLET_MASK, DIS_ID);
-}
+#pragma once
+#include <cstdint>
+typedef std::uint64_t DiscordID;

@@ -13,11 +13,12 @@ GNU General Public License for more details.
 */
 #pragma once
 #include "sleepy_discord/websocketpp_websocket.h"
+#include "types.h"
 
 class ITNS_TIPBOT : public SleepyDiscord::DiscordClient {
 public:
 	using SleepyDiscord::DiscordClient::DiscordClient;
 
-	static std::uint64_t convertSnowflakeToInt64(SleepyDiscord::Snowflake<SleepyDiscord::User> id);
+	static DiscordID convertSnowflakeToInt64(SleepyDiscord::Snowflake<SleepyDiscord::User> id);
 	void onMessage(SleepyDiscord::Message message);
 };
