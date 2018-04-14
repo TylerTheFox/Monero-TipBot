@@ -63,6 +63,9 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
 {
 	assert(RPCPtr);
 
+	if (amount == Balance)
+		throw InsufficientBalance("You do not have enough money for the fee, try !giveall instead");
+
 	if (amount > Balance)
 		throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, Balance / ITNS_OFFSET));
 
@@ -71,6 +74,9 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
 
 	if (DIS_ID == 0)
 		throw GeneralAccountError("You need to specify an account to send to.");
+
+	// Force RPCMan to open users account.
+	RPCMan.getAccount(DIS_ID);
 
 	// Open (or create) other Discord User account to get the address
 	std::string Wallet_Name = Poco::format(DISCORD_WALLET_MASK, DIS_ID);

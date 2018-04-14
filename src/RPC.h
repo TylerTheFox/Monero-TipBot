@@ -18,6 +18,7 @@ GNU General Public License for more details.
 
 #include <Poco/JSON/Parser.h>
 #include <Poco/JSON/Object.h>
+#include "cereal/cereal.hpp"
 
 // Server Settings
 #define RPC_FILENAME							"intense-wallet-rpc"
@@ -100,7 +101,15 @@ public:
 	void							stopWallet(int id = 0) const;
 	void							store(int id = 0) const;
 
+	unsigned short					getPort() const;
+
 	RPC&							operator=(const RPC &rhs);
+
+	template <class Archive>
+	void serialize(Archive & ar)
+	{
+		ar(CEREAL_NVP(port));
+	}
 private:
 	unsigned short					port;
 

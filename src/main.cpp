@@ -61,6 +61,7 @@ int main()
 	// Run bot with token.
 	ITNS_TIPBOT client(myToken, 2);
 	RPCMan.setDiscordPtr(&client);
+	RPCMan.load();
 	client.run();
 	return 0;
 }

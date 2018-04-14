@@ -6,6 +6,8 @@
 #include <cassert>
 #include "Discord.h"
 #include "RPCException.h"
+#include "Poco/File.h"
+#include <fstream>
 
 RPCManager			 RPCMan;
 RPCProc* RPCManager::BotRPCProc;
@@ -19,6 +21,7 @@ RPCManager::~RPCManager()
 {
 	// Save blockchain on exit.
 	SaveWallets();
+	save();
 }
 
 void RPCManager::setDiscordPtr(ITNS_TIPBOT* ptr)
@@ -69,31 +72,35 @@ void RPCManager::run()
 	while (true)
 	{
 		Poco::Timespan timer(Poco::Timestamp() - timeStarted);
-
-		try
+		if (DiscordPtr)
 		{
-
-
-			if ((timer.seconds() % SEARCH_FOR_NEW_TRANSACTIONS_TIME) == 0)
+			try
 			{
+				if ((timer.seconds() % SEARCH_FOR_NEW_TRANSACTIONS_TIME) == 0)
+				{
 
-				processNewTransactions();
+					processNewTransactions();
+				}
+
+				if ((timer.seconds() > 0) && (timer.seconds() % (BLOCKCHAIN_SAVE_TIME * 60)) == 0)
+				{
+					SaveWallets();
+				}
+
+				if ((timer.seconds() % RPC_WALLETS_SAVE_TIME) == 0)
+				{
+					save();
+				}
 			}
-
-			if ((timer.seconds() > 0) && (timer.seconds() % (SAVE_TO_DISK_TIME * 60)) == 0)
+			catch (const Poco::Exception & exp)
 			{
-				SaveWallets();
+				std::cout << "Poco Error: " << exp.what();
 			}
-		} 
-		catch (const Poco::Exception & exp)
-		{
-			std::cout << "Poco Error: " << exp.what();
+			catch (AppGeneralException & exp)
+			{
+				std::cout << "App Error: " << exp.what();
+			}
 		}
-		catch (AppGeneralException & exp)
-		{
-			std::cout << "App Error: " << exp.what();
-		}
-
 		Poco::Thread::sleep(1000);
 	}
 }
@@ -148,23 +155,46 @@ const RPC & RPCManager::getGlobalBotRPC()
 	return BotRPCProc->MyRPC;
 }
 
+void RPCManager::save()
+{
+	std::ofstream out(RPC_DATABASE_FILENAME, std::ios::trunc);
+	if (out.is_open())
+	{
+		std::cout << "Saving wallet data to disk...\n";
+		{
+			cereal::JSONOutputArchive ar(out);
+			ar(CEREAL_NVP(currPortNum), CEREAL_NVP(RPCMap));
+		}
+		out.close();
+	}
+}
+
+void RPCManager::load()
+{
+	mu.lock();
+	Poco::File RPCFile(RPC_DATABASE_FILENAME);
+	if (RPCFile.exists())
+	{
+		std::cout << "Loading wallet files and spinning up RPCs..\n";
+		std::ifstream in(RPC_DATABASE_FILENAME);
+		if (in.is_open())
+		{
+			{
+				cereal::JSONInputArchive ar(in);
+				ar(CEREAL_NVP(currPortNum), CEREAL_NVP(RPCMap));
+			}
+			in.close();
+			ReloadSavedRPCs();
+		}
+	}
+	mu.unlock();
+}
+
 RPCProc RPCManager::SpinUpNewRPC(DiscordID id)
 {
 	RPCProc RPC_DATA;
-	std::vector<std::string> args;
-	args.emplace_back("--wallet-dir");
-	args.emplace_back(WALLET_PATH);
-	args.emplace_back("--rpc-bind-port");
-	args.push_back(Poco::format("%?i", currPortNum));
-	args.emplace_back("--daemon-address");
-	args.emplace_back(DAEMON_ADDRESS);
-	args.emplace_back("--disable-rpc-login");
-	args.emplace_back("--trusted-daemon");
-
-	Poco::ProcessHandle rpc_handle = Poco::Process::launch(RPC_FILENAME, args, nullptr, nullptr, nullptr);
-
 	RPC_DATA.myID = id;
-	RPC_DATA.pid = rpc_handle.id();
+	RPC_DATA.pid = LaunchRPC(currPortNum);
 	RPC_DATA.MyAccount.open(id, &RPC_DATA.MyRPC);
 	RPC_DATA.MyRPC.open(currPortNum);
 
@@ -190,13 +220,43 @@ RPCProc& RPCManager::FindOldestRPC()
 
 void RPCManager::SaveWallets()
 {
-	mu.lock();
-
 	std::cout << "Saving blockchain...\n";
 
 	// Save blockchain on exit.
 	for (auto account : this->RPCMap)
 		account.second.MyRPC.store();
+}
 
-	mu.unlock();
+void RPCManager::ReloadSavedRPCs()
+{
+	for (auto & wallets : RPCMap)
+	{
+		// Launch RPC
+		wallets.second.pid = LaunchRPC(wallets.second.MyRPC.getPort());
+
+		// Setup Accounts
+		wallets.second.MyAccount.open(wallets.second.myID, &wallets.second.MyRPC);
+
+		// Open Wallet
+		assert(wallets.second.MyRPC.openWallet(Util::getWalletStrFromIID(wallets.second.myID)));
+
+		// Get transactions
+		wallets.second.Transactions = wallets.second.MyRPC.getTransfers();
+	}
+}
+
+unsigned int RPCManager::LaunchRPC(unsigned short port)
+{
+	std::vector<std::string> args;
+	args.emplace_back("--wallet-dir");
+	args.emplace_back(WALLET_PATH);
+	args.emplace_back("--rpc-bind-port");
+	args.push_back(Poco::format("%?i", port));
+	args.emplace_back("--daemon-address");
+	args.emplace_back(DAEMON_ADDRESS);
+	args.emplace_back("--disable-rpc-login");
+	args.emplace_back("--trusted-daemon");
+
+	Poco::ProcessHandle rpc_handle = Poco::Process::launch(RPC_FILENAME, args, nullptr, nullptr, nullptr);
+	return rpc_handle.id();
 }

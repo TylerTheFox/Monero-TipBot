@@ -13,7 +13,6 @@ GNU General Public License for more details.
 */
 #pragma once
 #include <map>
-#include <stack>
 #include "types.h"
 #include "RPC.h"
 #include "Poco/Timestamp.h"
@@ -21,10 +20,16 @@ GNU General Public License for more details.
 #include "Poco/Runnable.h"
 #include "Discord.h"
 
+#include <cereal/archives/json.hpp>
+#include <cereal/types/map.hpp>
+#include "Poco/Process.h"
+
+#define					    RPC_DATABASE_FILENAME				"RPCDATA.json"
 #define						STARTING_PORT_NUMBER				10000
 #define						MAX_RPC_LIMIT						100
-#define						SAVE_TO_DISK_TIME					15 // in minutes.
+#define						BLOCKCHAIN_SAVE_TIME				15 // in minutes.
 #define						SEARCH_FOR_NEW_TRANSACTIONS_TIME	10 // in seconds
+#define						RPC_WALLETS_SAVE_TIME				60 // in seconds
 class ITNS_TIPBOT;
 
 struct RPCProc
@@ -41,7 +46,6 @@ struct RPCProc
 	RPC													MyRPC;
 	Account												MyAccount;
 	struct TransferList									Transactions;
-	SleepyDiscord::Snowflake<SleepyDiscord::Channel>	ChannelID;
 
 	RPCProc& operator=(const RPCProc & obj)
 	{
@@ -51,8 +55,19 @@ struct RPCProc
 		MyRPC = obj.MyRPC;
 		MyAccount = obj.MyAccount;
 		Transactions = obj.Transactions;
-		ChannelID = obj.ChannelID;
 		return *this;
+	}
+
+	template<class Archive>
+	void save(Archive & archive) const
+	{
+		archive(CEREAL_NVP(myID), CEREAL_NVP(MyRPC));
+	}
+
+	template<class Archive>
+	void load(Archive & archive)
+	{
+		archive(CEREAL_NVP(myID), CEREAL_NVP(MyRPC));
 	}
 };
 
@@ -71,6 +86,9 @@ public:
 	void									processNewTransactions();
 
 	static const RPC&						getGlobalBotRPC();
+
+	void									save();
+	void									load();
 private:
 	Poco::Mutex								mu;
 	unsigned short							currPortNum;
@@ -83,6 +101,8 @@ private:
 	void									SpinDownRPC(DiscordID id);
 	struct RPCProc &						FindOldestRPC();
 	void									SaveWallets();
+	void									ReloadSavedRPCs();
+	unsigned int							LaunchRPC(unsigned short port);
 };
 
 extern RPCManager							RPCMan;

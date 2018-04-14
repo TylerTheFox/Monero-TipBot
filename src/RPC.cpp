@@ -350,6 +350,11 @@ void RPC::store(int id) const
 	}*/
 }
 
+unsigned short RPC::getPort() const
+{
+	return port;
+}
+
 RPC& RPC::operator=(const RPC &rhs)
 {
 	if (this != &rhs) {
