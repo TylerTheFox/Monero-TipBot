@@ -103,7 +103,7 @@ void DiscordCommands::MyAddress(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::M
 
 void DiscordCommands::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-	const auto trxs = MyAccount->getTransactions();
+	const auto trxs = RPCMan.getTransfers(MyAccount->getDiscordID());
 
 	std::stringstream ss;
 
