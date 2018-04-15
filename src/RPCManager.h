@@ -25,7 +25,7 @@ GNU General Public License for more details.
 #include "Poco/Process.h"
 
 #define					    RPC_DATABASE_FILENAME				"RPCDATA.json"
-#define						STARTING_PORT_NUMBER				10000
+#define						STARTING_PORT_NUMBER				11000
 #define						MAX_RPC_LIMIT						100
 #define						BLOCKCHAIN_SAVE_TIME				5	// in minutes.
 #define						SEARCH_FOR_NEW_TRANSACTIONS_TIME	10	// in seconds

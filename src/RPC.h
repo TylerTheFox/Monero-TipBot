@@ -21,13 +21,17 @@ GNU General Public License for more details.
 #include "cereal/cereal.hpp"
 
 // Server Settings
+#ifdef _MSC_VER
 #define RPC_FILENAME							"intense-wallet-rpc"
+#else
+#define RPC_FILENAME							"./intense-wallet-rpc"
+#endif
 #define RPC_HOSTNAME							"127.0.0.1"
 #define DAEMON_ADDRESS							"127.0.0.1:48782"
 
 // Vars
 #define RPC_JSON								"/json_rpc"
-#define WALLET_PATH								"./Wallets/"
+#define WALLET_PATH								"Wallets/"
 #define ITNS_OFFSET								100000000.0 // 1 x 10^8
 #define DEFAULT_MIXIN							4
 

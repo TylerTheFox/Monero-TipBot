@@ -53,6 +53,24 @@ Account& RPCManager::getAccount(DiscordID id)
 		// Setup Account
 		RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
 
+		// Wait for RPC to respond to requests.
+		// This is because we need to ensure open_wallet actually gets called
+		// and if RPC is still loading it'll just go into the void.
+		bool waitForRPC = true;
+		while (waitForRPC)
+		{
+			try
+			{
+				RPCMap[id].MyRPC.getBlockHeight(); // Query RPC until it responds.
+			} catch (const Poco::Exception & exp) // Catch network exceptions.
+			{
+				Poco::Thread::sleep(100);
+			} catch (AppGeneralException & exp) // Some other error probably no wallet file
+			{
+				waitForRPC = false;
+			}
+		}
+
 		// Open Wallet
 		assert(RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id)));
 

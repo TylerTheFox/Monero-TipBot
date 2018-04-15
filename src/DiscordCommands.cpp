@@ -58,7 +58,8 @@ void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDisco
 			{
 				if (command.name == cmd[0])
 				{
-					MyAccount = &RPCMan.getAccount(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
+					if (command.opensWallet)
+						MyAccount = &RPCMan.getAccount(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
 					reinterpret_cast<CommandFunc>(command.func)(DiscordPtr, message, command);
 				}
 			}
