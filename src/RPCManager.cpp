@@ -20,8 +20,14 @@ RPCManager::RPCManager() : currPortNum(STARTING_PORT_NUMBER), DiscordPtr(nullptr
 RPCManager::~RPCManager()
 {
 	// Save blockchain on exit.
-	SaveWallets();
-	save();
+	try
+	{
+		save();
+		SaveWallets();
+	} catch (...)
+	{
+		// We need to shutdown RPCs and we can't crash else they don't get shutdown.
+	}
 }
 
 void RPCManager::setDiscordPtr(ITNS_TIPBOT* ptr)
