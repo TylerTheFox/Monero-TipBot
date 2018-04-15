@@ -78,9 +78,6 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
 	if (DIS_ID == 0)
 		throw GeneralAccountError("You need to specify an account to send to.");
 
-	// Force RPCMan to open users account.
-	RPCMan.getAccount(DIS_ID);
-
 	// Open (or create) other Discord User account to get the address
 	auto recieveAccount = RPCMan.getAccount(DIS_ID);
 	const std::string DiscordUserAddress = recieveAccount.getMyAddress();
