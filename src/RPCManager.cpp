@@ -221,9 +221,7 @@ RPCProc& RPCManager::FindOldestRPC()
 {
 	auto it = std::min_element(RPCMap.begin(), RPCMap.end(),
 		[](decltype(RPCMap)::value_type& l, decltype(RPCMap)::value_type& r) -> bool { return l.second.timestamp < r.second.timestamp; });
-
-	std::cout << it->first;
-
+		
 	return it->second;
 }
 
