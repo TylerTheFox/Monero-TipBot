@@ -51,17 +51,19 @@ void setup()
 
 int main()
 {
-	// Create RPC threads
-	Poco::Thread thread;
-	thread.start(RPCMan);
-
 	// Setup routine
 	setup();
+
+	RPCMan.load();
 
 	// Run bot with token.
 	ITNS_TIPBOT client(myToken, 2);
 	RPCMan.setDiscordPtr(&client);
-	RPCMan.load();
+
+	// Create RPC threads
+	Poco::Thread thread;
+	thread.start(RPCMan);
+
 	client.run();
 	return 0;
 }
