@@ -287,6 +287,7 @@ void RPCManager::waitForRPCToRespond(DiscordID id)
 		try
 		{
 			RPCMap[id].MyRPC.getBlockHeight(); // Query RPC until it responds.
+			waitForRPC = false;
 		}
 		catch (RPCConnectionError & exp)
 		{
