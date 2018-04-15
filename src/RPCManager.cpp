@@ -288,11 +288,15 @@ void RPCManager::waitForRPCToRespond(DiscordID id)
 		{
 			RPCMap[id].MyRPC.getBlockHeight(); // Query RPC until it responds.
 		}
+		catch (RPCConnectionError & exp)
+		{
+			Poco::Thread::sleep(100);
+		}
 		catch (const Poco::Exception & exp) // Catch network exceptions.
 		{
 			Poco::Thread::sleep(100);
 		}
-		catch (AppGeneralException & exp) // Some other error probably no wallet file
+		catch (RPCGeneralError & exp) // Some other error probably no wallet file
 		{
 			waitForRPC = false;
 		}
