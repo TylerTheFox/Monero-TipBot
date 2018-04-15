@@ -49,6 +49,8 @@ Account& RPCManager::getAccount(DiscordID id)
 			RPCMap[id] = SpinUpNewRPC(id);
 		else
 			RPCMap[id] = FindOldestRPC();
+
+		// Setup Account
 		RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
 
 		// Open Wallet

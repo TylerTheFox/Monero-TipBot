@@ -82,16 +82,11 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
 	RPCMan.getAccount(DIS_ID);
 
 	// Open (or create) other Discord User account to get the address
-	std::string Wallet_Name = Poco::format(DISCORD_WALLET_MASK, DIS_ID);
-	assert(RPCPtr->openWallet(Wallet_Name));
-	const std::string DiscordUserAddress = RPCPtr->getAddress();
+	auto recieveAccount = RPCMan.getAccount(DIS_ID);
+	const std::string DiscordUserAddress = recieveAccount.getMyAddress();
 
 	if (DiscordUserAddress == MyAddress)
 		throw GeneralAccountError("Don't transfer money to yourself.");
-
-	// Now they we got the address reopen my account so we can send the money.
-	Wallet_Name = Poco::format(DISCORD_WALLET_MASK, Discord_ID);
-	assert(RPCPtr->openWallet(Wallet_Name));
 
 	// Send the money
 	return RPCPtr->tranfer(Discord_ID, amount, DiscordUserAddress);
@@ -111,16 +106,11 @@ TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
 		throw GeneralAccountError("You need to specify an account to send to.");
 
 	// Open (or create) other Discord User account to get the address
-	std::string Wallet_Name = Poco::format(DISCORD_WALLET_MASK, DIS_ID);
-	assert(RPCPtr->openWallet(Wallet_Name));
-	const std::string DiscordUserAddress = RPCPtr->getAddress();
+	auto recieveAccount = RPCMan.getAccount(DIS_ID);
+	const std::string DiscordUserAddress = recieveAccount.getMyAddress();
 
 	if (DiscordUserAddress == MyAddress)
 		throw GeneralAccountError("Don't transfer money to yourself.");
-
-	// Now they we got the address reopen my account so we can send the money.
-	Wallet_Name = Poco::format(DISCORD_WALLET_MASK, Discord_ID);
-	assert(RPCPtr->openWallet(Wallet_Name));
 
 	// Send the money
 	return RPCPtr->sweepAll(Discord_ID, DiscordUserAddress);
