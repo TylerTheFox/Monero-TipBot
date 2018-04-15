@@ -68,6 +68,13 @@ Account& RPCManager::getAccount(DiscordID id)
 	return RPCMap[id].MyAccount;
 }
 
+const TransferList RPCManager::getTransfers(DiscordID id)
+{
+	if (RPCMap.count(id))
+		return RPCMap[id].Transactions;
+	return {};
+}
+
 void RPCManager::run()
 {
 	const Poco::Timestamp timeStarted;
@@ -135,13 +142,13 @@ void RPCManager::processNewTransactions()
 				for (auto newTx : diff)
 				{
 					DiscordPtr->sendMessage(clientID, Poco::format("You've recieved money! %f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
-					std::cout << Poco::format("User %Lu recived %f ITNS\n", account.first,newTx.amount / ITNS_OFFSET);
+					std::cout << Poco::format("User %Lu recived %f ITNS\n", account.first, newTx.amount / ITNS_OFFSET);
 				}
 
 				account.second.Transactions = newTransactions;
 
 				diff.clear();
-			} 
+			}
 			catch (const Poco::Exception & exp)
 			{
 				diff.clear();

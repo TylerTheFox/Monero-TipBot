@@ -79,6 +79,7 @@ public:
 	void									setDiscordPtr(ITNS_TIPBOT* ptr);
 	time_t									getTimeStarted(DiscordID id);
 	Account &								getAccount(DiscordID id);
+	const struct TransferList 				getTransfers(DiscordID id);
 
 	virtual void							run();
 	void									processNewTransactions();
