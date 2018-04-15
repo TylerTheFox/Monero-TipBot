@@ -53,23 +53,8 @@ Account& RPCManager::getAccount(DiscordID id)
 		// Setup Account
 		RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
 
-		// Wait for RPC to respond to requests.
-		// This is because we need to ensure open_wallet actually gets called
-		// and if RPC is still loading it'll just go into the void.
-		bool waitForRPC = true;
-		while (waitForRPC)
-		{
-			try
-			{
-				RPCMap[id].MyRPC.getBlockHeight(); // Query RPC until it responds.
-			} catch (const Poco::Exception & exp) // Catch network exceptions.
-			{
-				Poco::Thread::sleep(100);
-			} catch (AppGeneralException & exp) // Some other error probably no wallet file
-			{
-				waitForRPC = false;
-			}
-		}
+		// Wait for RPC to respond
+		waitForRPCToRespond(id);
 
 		// Open Wallet
 		assert(RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id)));
@@ -264,6 +249,9 @@ void RPCManager::ReloadSavedRPCs()
 		// Setup Accounts
 		wallets.second.MyAccount.open(wallets.first, &wallets.second.MyRPC);
 
+		// Wait for RPC to respond
+		waitForRPCToRespond(wallets.first);
+
 		// Open Wallet
 		assert(wallets.second.MyRPC.openWallet(Util::getWalletStrFromIID(wallets.first)));
 
@@ -286,4 +274,27 @@ unsigned int RPCManager::LaunchRPC(unsigned short port)
 
 	Poco::ProcessHandle rpc_handle = Poco::Process::launch(RPC_FILENAME, args, nullptr, nullptr, nullptr);
 	return rpc_handle.id();
+}
+
+void RPCManager::waitForRPCToRespond(DiscordID id)
+{
+	// Wait for RPC to respond to requests.
+	// This is because we need to ensure open_wallet actually gets called
+	// and if RPC is still loading it'll just go into the void.
+	bool waitForRPC = true;
+	while (waitForRPC)
+	{
+		try
+		{
+			RPCMap[id].MyRPC.getBlockHeight(); // Query RPC until it responds.
+		}
+		catch (const Poco::Exception & exp) // Catch network exceptions.
+		{
+			Poco::Thread::sleep(100);
+		}
+		catch (AppGeneralException & exp) // Some other error probably no wallet file
+		{
+			waitForRPC = false;
+		}
+	}
 }

@@ -102,6 +102,7 @@ private:
 	void									SaveWallets();
 	void									ReloadSavedRPCs();
 	unsigned int							LaunchRPC(unsigned short port);
+	void									waitForRPCToRespond(DiscordID id);
 };
 
 extern RPCManager							RPCMan;
