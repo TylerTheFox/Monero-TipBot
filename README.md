@@ -11,6 +11,7 @@ Discord Tipbot built in C++ for IntenseCoin/Monero
 * make 
 
 ## Commands
+* !about
 * !help
 * !balance
 * !myaddress
@@ -22,8 +23,9 @@ Discord Tipbot built in C++ for IntenseCoin/Monero
 
 ## Requirements
 * IntenseCon Daemon
-* IntenseCoin RPC - Configuration can be found in RPC.h (IP/Port)
+* IntenseCoin RPC
 * Discord Token 
+* TCP Port 11000 to 11100 free to bind
 
 ## Dependencies (included)
 
@@ -36,24 +38,16 @@ Discord Tipbot built in C++ for IntenseCoin/Monero
 * libssl-dev
 
 ## RPC Setup
-First you need to download the RPC from IntenseCoin if you haven't already (https://github.com/valiant1x/intensecoin/releases). 
-Unzip the folder and run 
-`intense-wallet-rpc` with the arguments `--wallet-dir ./Wallets/  --rpc-bind-port 8333 --daemon-address 127.0.0.1:48782 --disable-rpc-login --trusted-daemon`
-
-Note: `--wallet-dir ./Wallets/` is required and to change the dir you must change RPC.h
-
-It should complain about the deamon not running. Thats normal see the next step.
+You need to download the RPC from IntenseCoin if you haven't already (https://github.com/valiant1x/intensecoin/releases). Unzip it to whereever you built the TIPBOT.
 
 ## IntenseCoin Deamon setup
 Just open `intensecoind` normally.
 
-## Application Setup
-The program needs to be in the folder with RPC or have the working directory set to the folder RPC is in.
-
 The file structure should look like this:
+* intensecoind
 * intense-wallet-rpc
-* TIPBOT
-* Wallets/ <-- this is a directory. 
+* TIPBOT <- This programs executable. 
+* Wallets/ <-- this is a directory. This will be created after running TIPBOT.
 
 ## Discord Token Setup
 Navigate to "My Apps" on Discord (https://discordapp.com/developers/applications/me). 
@@ -63,7 +57,7 @@ Copy the token generated on that page and open TIPBOT and enter it when prompted
 To add a bot user to your account you'll need to get the client id for the bot which is also on that page. 
 Then navigate to this url (https://discordapp.com/oauth2/authorize?client_id=CLIENTID&scope=bot) and replace CLIENTID in the url with the client url on the page.
 
-The bot should now be ready to run. Launch it and type `!balance` and if it returns a balance of 0 then the communication between the bot and the RPC is working correctly. 
+The bot should now be ready to run. Launch it, enter the token, and type `!balance` and if it returns a balance of 0 then the communication between the bot and the RPC is working correctly. 
 
 Author: Brandan Tyler Lasley
 * BTC: 1KsX66J98WMgtSbFA5UZhVDn1iuhN5B6Hm
