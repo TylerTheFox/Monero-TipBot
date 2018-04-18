@@ -127,9 +127,6 @@ void RPCManager::processNewTransactions()
 {
 	mu.lock();
 	std::cout << "Searching for new transactions...\n";
-	Poco::JSON::Parser parser;
-	Poco::JSON::Object::Ptr object;
-	std::string clientID;
 	std::vector<struct TransferItem> diff;
 	TransferList newTransactions;
 
@@ -144,13 +141,9 @@ void RPCManager::processNewTransactions()
 		{
 			try
 			{
-				auto response = DiscordPtr->createDirectMessageChannel(Poco::format("%Lu", account.first));
-				object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
-				clientID = object->getValue<std::string>("id");
-
 				for (auto newTx : diff)
 				{
-					DiscordPtr->sendMessage(clientID, Poco::format("You've recieved money! %f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
+					DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
 					std::cout << Poco::format("User %Lu recived %f ITNS\n", account.first, newTx.amount / ITNS_OFFSET);
 				}
 

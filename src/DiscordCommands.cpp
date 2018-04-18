@@ -21,16 +21,16 @@ GNU General Public License for more details.
 
 const struct Command Commands[] =
 {
-	{   "!about",			reinterpret_cast<void*>(&DiscordCommands::About),		"",								false	},
-	{	"!help",			reinterpret_cast<void*>(&DiscordCommands::Help),		"",								false	},
-	{	"!blockheight",		reinterpret_cast<void*>(&DiscordCommands::BlockHeight),	"",								false	},
-	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	"",								false	},
-	{	"!balance",			reinterpret_cast<void*>(&DiscordCommands::Balance),		"",								true	},
-	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),		"",								true	},
-	{	"!withdraw",		reinterpret_cast<void*>(&DiscordCommands::Withdraw),	"[amount] [address]",			true	},
-	{	"!withdrawall",		reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),	"[address]"	,					true	},
-	{	"!give",			reinterpret_cast<void*>(&DiscordCommands::Give),		"[amount] [@User1 @User2...]",	true	},
-	{	"!giveall",			reinterpret_cast<void*>(&DiscordCommands::GiveAll),		"[@User]",						true	},
+	{   "!about",			reinterpret_cast<void*>(&DiscordCommands::About),		"",								false,	AllowChannelTypes::Any		},
+	{	"!help",			reinterpret_cast<void*>(&DiscordCommands::Help),		"",								false,	AllowChannelTypes::Any		},
+	{	"!blockheight",		reinterpret_cast<void*>(&DiscordCommands::BlockHeight),	"",								false,	AllowChannelTypes::Any		},
+	{	"!myaddress",		reinterpret_cast<void*>(&DiscordCommands::MyAddress),	"",								false,	AllowChannelTypes::Any		},
+	{	"!balance",			reinterpret_cast<void*>(&DiscordCommands::Balance),		"",								true,	AllowChannelTypes::Any		},
+	{	"!history",			reinterpret_cast<void*>(&DiscordCommands::History),		"",								true,	AllowChannelTypes::Any		},
+	{	"!withdraw",		reinterpret_cast<void*>(&DiscordCommands::Withdraw),	"[amount] [address]",			true,	AllowChannelTypes::Any		},
+	{	"!withdrawall",		reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),	"[address]"	,					true,	AllowChannelTypes::Any		},
+	{	"!give",			reinterpret_cast<void*>(&DiscordCommands::Give),		"[amount] [@User1 @User2...]",	true,	AllowChannelTypes::Any		},
+	{	"!giveall",			reinterpret_cast<void*>(&DiscordCommands::GiveAll),		"[@User]",						true,	AllowChannelTypes::Any		},
 };
 
 #define		VERSION_MAJOR 1
@@ -48,6 +48,7 @@ Account*			MyAccount;
 
 void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message)
 {
+	int channelType;
 	try
 	{
 		Poco::StringTokenizer cmd(message.content, " ");
@@ -58,9 +59,13 @@ void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDisco
 			{
 				if (command.name == cmd[0])
 				{
-					if (command.opensWallet)
-						MyAccount = &RPCMan.getAccount(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
-					reinterpret_cast<CommandFunc>(command.func)(DiscordPtr, message, command);
+					channelType = DiscordPtr->getDiscordChannelType(message.channelID);
+					if ((command.ChannelPermission == AllowChannelTypes::Any) || (channelType == command.ChannelPermission))
+					{
+						if (command.opensWallet)
+							MyAccount = &RPCMan.getAccount(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
+						reinterpret_cast<CommandFunc>(command.func)(DiscordPtr, message, command);
+					}
 				}
 			}
 		}

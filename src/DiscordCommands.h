@@ -15,12 +15,21 @@ GNU General Public License for more details.
 #include "sleepy_discord/websocketpp_websocket.h"
 
 class ITNS_TIPBOT;
+
+enum AllowChannelTypes
+{
+	Any = -1,
+	Public = 0,
+	Private = 1
+};
+
 struct Command
 {
 	std::string		name;
 	void *			func;
 	std::string		params;
 	bool			opensWallet;
+	enum AllowChannelTypes ChannelPermission;
 };
 typedef void(*CommandFunc)(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me);
 
