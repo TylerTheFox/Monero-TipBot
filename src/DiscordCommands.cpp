@@ -101,6 +101,7 @@ void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDisco
                         {
                             if (command.opensWallet)
                                 MyAccount = &RPCMan.getAccount(DiscordPtr->convertSnowflakeToInt64(message.author.ID));
+                            else MyAccount = nullptr;
 
                             if (isCommandAllowedToBeExecuted(DiscordPtr, message, command, channelType))
                                 reinterpret_cast<CommandFunc>(command.func)(DiscordPtr, message, command);
