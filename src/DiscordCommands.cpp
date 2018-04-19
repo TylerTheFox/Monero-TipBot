@@ -45,8 +45,8 @@ const struct Command Commands[] =
     {   "!blockheight",     reinterpret_cast<void*>(&DiscordCommands::BlockHeight),                 "",                                 true,   false,  AllowChannelTypes::Any                },
     {   "!balance",         reinterpret_cast<void*>(&DiscordCommands::Balance),                     "",                                 true,   false,  AllowChannelTypes::Any                },
     {   "!history",         reinterpret_cast<void*>(&DiscordCommands::History),                     "",                                 true,   false,  AllowChannelTypes::Private            },
-    {   "!withdraw",        reinterpret_cast<void*>(&DiscordCommands::Withdraw),                    "[amount] [address]",               true,   false,  AllowChannelTypes::Any                },
-    {   "!withdrawall",     reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),                 "[address]"    ,                    true,   false,  AllowChannelTypes::Any                },
+    {   "!withdraw",        reinterpret_cast<void*>(&DiscordCommands::Withdraw),                    "[amount] [address]",               true,   false,  AllowChannelTypes::Private            },
+    {   "!withdrawall",     reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),                 "[address]"    ,                    true,   false,  AllowChannelTypes::Private            },
     {   "!give",            reinterpret_cast<void*>(&DiscordCommands::Give),                        "[amount] [@User1 @User2...]",      true,   false,  AllowChannelTypes::Public             },
     {   "!giveall",         reinterpret_cast<void*>(&DiscordCommands::GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public             },
 
