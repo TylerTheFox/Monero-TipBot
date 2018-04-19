@@ -37,22 +37,24 @@ const std::string AllowChannelTypeNames[] =
 
 const struct Command Commands[] =
 {
-    // User Commands        Function                                                                Params                            Wallet  Admin    Allowed Channel
-    {   "!about",           reinterpret_cast<void*>(&DiscordCommands::About),                       "",                                 false,  false,    AllowChannelTypes::Any                },
-    {    "!help",           reinterpret_cast<void*>(&DiscordCommands::Help),                        "",                                 false,  false,    AllowChannelTypes::Any                },
-    {    "!myaddress",      reinterpret_cast<void*>(&DiscordCommands::MyAddress),                   "",                                 false,  false,    AllowChannelTypes::Private            },
-    {    "!blockheight",    reinterpret_cast<void*>(&DiscordCommands::BlockHeight),                 "",                                 true,   false,    AllowChannelTypes::Any                },
-    {    "!balance",        reinterpret_cast<void*>(&DiscordCommands::Balance),                     "",                                 true,   false,    AllowChannelTypes::Any                },
-    {    "!history",        reinterpret_cast<void*>(&DiscordCommands::History),                     "",                                 true,   false,    AllowChannelTypes::Private            },
-    {    "!withdraw",       reinterpret_cast<void*>(&DiscordCommands::Withdraw),                    "[amount] [address]",               true,   false,    AllowChannelTypes::Any                },
-    {    "!withdrawall",    reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),                 "[address]"    ,                    true,   false,    AllowChannelTypes::Any                },
-    {    "!give",           reinterpret_cast<void*>(&DiscordCommands::Give),                        "[amount] [@User1 @User2...]",      true,   false,    AllowChannelTypes::Public             },
-    {    "!giveall",        reinterpret_cast<void*>(&DiscordCommands::GiveAll),                     "[@User]",                          true,   false,    AllowChannelTypes::Public             },
+    // User Commands 
+    // Command              Function                                                                Params                              Wallet  Admin   Allowed Channel
+    {   "!about",           reinterpret_cast<void*>(&DiscordCommands::About),                       "",                                 false,  false,  AllowChannelTypes::Any                },
+    {   "!help",            reinterpret_cast<void*>(&DiscordCommands::Help),                        "",                                 false,  false,  AllowChannelTypes::Any                },
+    {   "!myaddress",       reinterpret_cast<void*>(&DiscordCommands::MyAddress),                   "",                                 false,  false,  AllowChannelTypes::Private            },
+    {   "!blockheight",     reinterpret_cast<void*>(&DiscordCommands::BlockHeight),                 "",                                 true,   false,  AllowChannelTypes::Any                },
+    {   "!balance",         reinterpret_cast<void*>(&DiscordCommands::Balance),                     "",                                 true,   false,  AllowChannelTypes::Any                },
+    {   "!history",         reinterpret_cast<void*>(&DiscordCommands::History),                     "",                                 true,   false,  AllowChannelTypes::Private            },
+    {   "!withdraw",        reinterpret_cast<void*>(&DiscordCommands::Withdraw),                    "[amount] [address]",               true,   false,  AllowChannelTypes::Any                },
+    {   "!withdrawall",     reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),                 "[address]"    ,                    true,   false,  AllowChannelTypes::Any                },
+    {   "!give",            reinterpret_cast<void*>(&DiscordCommands::Give),                        "[amount] [@User1 @User2...]",      true,   false,  AllowChannelTypes::Public             },
+    {   "!giveall",         reinterpret_cast<void*>(&DiscordCommands::GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public             },
 
     // Admin
-    {    "!togglewithdraw", reinterpret_cast<void*>(&DiscordCommands::ToggleWithdrawAllowed),        "",                                false,    true,    AllowChannelTypes::Private            },
-    {    "!togglegive",     reinterpret_cast<void*>(&DiscordCommands::ToggleGiveAllowed),            "",                                false,    true,    AllowChannelTypes::Private            },
-    {    "!togglebot",      reinterpret_cast<void*>(&DiscordCommands::ToggleCommandsAllowed),        "",                                false,    true,    AllowChannelTypes::Private            },
+    // Command              Function                                                                Params                              Wallet  Admin   Allowed Channel
+    {   "!togglewithdraw",  reinterpret_cast<void*>(&DiscordCommands::ToggleWithdrawAllowed),       "",                                 false,  true,   AllowChannelTypes::Private            },
+    {   "!togglegive",      reinterpret_cast<void*>(&DiscordCommands::ToggleGiveAllowed),           "",                                 false,  true,   AllowChannelTypes::Private            },
+    {   "!togglebot",       reinterpret_cast<void*>(&DiscordCommands::ToggleCommandsAllowed),       "",                                 false,  true,   AllowChannelTypes::Private            },
 };
 
 struct Settings globalSettings = {
