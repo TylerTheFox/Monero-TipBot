@@ -17,12 +17,12 @@ GNU General Public License for more details.
 
 class ITNS_TIPBOT : public SleepyDiscord::DiscordClient {
 public:
-	using SleepyDiscord::DiscordClient::DiscordClient;
+    using SleepyDiscord::DiscordClient::DiscordClient;
 
-	int					getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id);
-	std::string			getDiscordDMChannel(DiscordID id);
-	static DiscordID	convertSnowflakeToInt64(SleepyDiscord::Snowflake<SleepyDiscord::User> id);
+    int                     getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id);
+    std::string             getDiscordDMChannel(DiscordID id);
+    static DiscordID        convertSnowflakeToInt64(SleepyDiscord::Snowflake<SleepyDiscord::User> id);
 
 
-	void onMessage(SleepyDiscord::Message message);
+    void onMessage(SleepyDiscord::Message message);
 };

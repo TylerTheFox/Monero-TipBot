@@ -14,7 +14,6 @@ GNU General Public License for more details.
 #pragma once
 #include <string>
 #include "Poco/Process.h"
-#include "Poco/Pipe.h"
 #include "types.h"
 
 #define DISCORD_WALLET_MASK "Discord-User-%Lu"
@@ -22,11 +21,11 @@ GNU General Public License for more details.
 class Util
 {
 public:
-	Util() = delete;
-	~Util() = delete;
+    Util() = delete;
+    ~Util() = delete;
 
-	static bool doesWalletExist(const std::string & name);
-	static bool doesWalletExist(DiscordID DIS_ID);
+    static bool doesWalletExist(const std::string & name);
+    static bool doesWalletExist(DiscordID DIS_ID);
 
-	static std::string getWalletStrFromIID(DiscordID DIS_ID);
+    static std::string getWalletStrFromIID(DiscordID DIS_ID);
 };

@@ -17,30 +17,30 @@ GNU General Public License for more details.
 
 int ITNS_TIPBOT::getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id)
 {
-	Poco::JSON::Parser			parser;
-	Poco::JSON::Object::Ptr		object;
-	std::string					clientID;
-	auto response = getChannel(id);
-	object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
-	return object->getValue<int>("type");
+    Poco::JSON::Parser          parser;
+    Poco::JSON::Object::Ptr     object;
+    std::string                 clientID;
+    auto response = getChannel(id);
+    object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
+    return object->getValue<int>("type");
 }
 
 std::string ITNS_TIPBOT::getDiscordDMChannel(DiscordID id)
 {
-	Poco::JSON::Parser			parser;
-	Poco::JSON::Object::Ptr		object;
-	std::string					clientID;
-	auto response	=	createDirectMessageChannel(Poco::format("%Lu", id));
-	object			=	parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
-	return object->getValue<std::string>("id");
+    Poco::JSON::Parser      parser;
+    Poco::JSON::Object::Ptr object;
+    std::string             clientID;
+    auto response   =    createDirectMessageChannel(Poco::format("%Lu", id));
+    object          =    parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
+    return object->getValue<std::string>("id");
 }
 
 DiscordID ITNS_TIPBOT::convertSnowflakeToInt64(SleepyDiscord::Snowflake<SleepyDiscord::User> id)
 {
-	return Poco::NumberParser::parseUnsigned64(static_cast<std::string>(id));
+    return Poco::NumberParser::parseUnsigned64(static_cast<std::string>(id));
 }
 
 void ITNS_TIPBOT::onMessage(SleepyDiscord::Message message)
 {
-	DiscordCommands::ProcessCommand(this, message);
+    DiscordCommands::ProcessCommand(this, message);
 }

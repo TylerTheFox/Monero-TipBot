@@ -24,46 +24,46 @@ std::string myToken;
 
 void setup()
 {
-	Poco::File discordToken(TOKEN_FILE);
+    Poco::File discordToken(TOKEN_FILE);
 
-	if (discordToken.exists())
-	{
-		std::ifstream infile(TOKEN_FILE);
-		assert(infile.is_open());
-		myToken.assign(std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
-		infile.close();
-		return; // Exit Setup
-	}
+    if (discordToken.exists())
+    {
+        std::ifstream infile(TOKEN_FILE);
+        assert(infile.is_open());
+        myToken.assign(std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
+        infile.close();
+        return; // Exit Setup
+    }
 
-	std::cout	<< "Welcome to ITNS Tipbot!\n"
-				<< "Created by Brandan Tyler Lasley\n"
-				<< "Please enter Discord Token: "; 
-	
-	std::cin >> myToken;
+    std::cout    << "Welcome to ITNS Tipbot!\n"
+                << "Created by Brandan Tyler Lasley\n"
+                << "Please enter Discord Token: "; 
+    
+    std::cin >> myToken;
 
-	std::ofstream out(TOKEN_FILE, std::ios::trunc);
-	assert(out.is_open());
-	out << myToken;
-	out.close();
+    std::ofstream out(TOKEN_FILE, std::ios::trunc);
+    assert(out.is_open());
+    out << myToken;
+    out.close();
 
-	std::cout << "Token saved to " << TOKEN_FILE << ", delete this file to rerun setup. \n";
+    std::cout << "Token saved to " << TOKEN_FILE << ", delete this file to rerun setup. \n";
 }
 
 int main()
 {
-	// Setup routine
-	setup();
+    // Setup routine
+    setup();
 
-	RPCMan.load();
+    RPCMan.load();
 
-	// Run bot with token.
-	ITNS_TIPBOT client(myToken, 2);
-	RPCMan.setDiscordPtr(&client);
+    // Run bot with token.
+    ITNS_TIPBOT client(myToken, 2);
+    RPCMan.setDiscordPtr(&client);
 
-	// Create RPC threads
-	Poco::Thread thread;
-	thread.start(RPCMan);
+    // Create RPC threads
+    Poco::Thread thread;
+    thread.start(RPCMan);
 
-	client.run();
-	return 0;
+    client.run();
+    return 0;
 }

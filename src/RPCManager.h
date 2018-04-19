@@ -21,88 +21,81 @@ GNU General Public License for more details.
 #include "Discord.h"
 
 #include <cereal/archives/json.hpp>
-#include <cereal/types/map.hpp>
 #include "Poco/Process.h"
 
-#define					    RPC_DATABASE_FILENAME				"RPCDATA.json"
-#define						STARTING_PORT_NUMBER				11000
-#define						MAX_RPC_LIMIT						100
-#define						BLOCKCHAIN_SAVE_TIME				5	// in minutes.
-#define						SEARCH_FOR_NEW_TRANSACTIONS_TIME	10	// in seconds
-#define						RPC_WALLETS_SAVE_TIME				60	// in seconds
+#define                        RPC_DATABASE_FILENAME                "RPCDATA.json"
+#define                        STARTING_PORT_NUMBER                 11000
+#define                        MAX_RPC_LIMIT                        100
+#define                        BLOCKCHAIN_SAVE_TIME                 5    // in minutes.
+#define                        SEARCH_FOR_NEW_TRANSACTIONS_TIME     10    // in seconds
+#define                        RPC_WALLETS_SAVE_TIME                60    // in seconds
 class ITNS_TIPBOT;
 
 struct RPCProc
 {
-	RPCProc() : pid(0) {}
-	RPCProc(const RPCProc & obj)
-	{
-		*this = obj;
-	}
+    RPCProc() : pid(0) {}
+    RPCProc(const RPCProc & obj)
+    {
+        *this = obj;
+    }
 
-	Poco::Timestamp										timestamp;
-	unsigned int										pid;
-	RPC													MyRPC;
-	Account												MyAccount;
-	struct TransferList									Transactions;
+    Poco::Timestamp                 timestamp;
+    unsigned int                    pid;
+    RPC                             MyRPC;
+    Account                         MyAccount;
+    struct TransferList             Transactions;
 
-	RPCProc& operator=(const RPCProc & obj)
-	{
-		timestamp = obj.timestamp;
-		pid = obj.pid;
-		MyRPC = obj.MyRPC;
-		MyAccount = obj.MyAccount;
-		Transactions = obj.Transactions;
-		return *this;
-	}
+    RPCProc& operator=(const RPCProc & obj)
+    {
+        timestamp = obj.timestamp;
+        pid = obj.pid;
+        MyRPC = obj.MyRPC;
+        MyAccount = obj.MyAccount;
+        Transactions = obj.Transactions;
+        return *this;
+    }
 
-	template<class Archive>
-	void save(Archive & archive) const
-	{
-		archive(CEREAL_NVP(MyRPC));
-	}
-
-	template<class Archive>
-	void load(Archive & archive)
-	{
-		archive(CEREAL_NVP(MyRPC));
-	}
+    template <class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(MyRPC));
+    }
 };
 
 // Mutex only needed for map and stack add/remove.
 class RPCManager : public Poco::Runnable
 {
 public:
-	RPCManager();
-	~RPCManager();
+    RPCManager();
+    ~RPCManager();
 
-	void									setDiscordPtr(ITNS_TIPBOT* ptr);
-	time_t									getTimeStarted(DiscordID id);
-	Account &								getAccount(DiscordID id);
-	const struct TransferList 				getTransfers(DiscordID id);
+    void                                    setDiscordPtr(ITNS_TIPBOT* ptr);
+    time_t                                  getTimeStarted(DiscordID id);
+    Account &                               getAccount(DiscordID id);
+    const struct TransferList               getTransfers(DiscordID id);
 
-	virtual void							run();
-	void									processNewTransactions();
+    virtual void                            run();
+    void                                    processNewTransactions();
 
-	static const RPC&						getGlobalBotRPC();
+    static const RPC&                       getGlobalBotRPC();
 
-	void									save();
-	void									load();
+    void                                    save();
+    void                                    load();
 private:
-	Poco::Mutex								mu;
-	unsigned short							currPortNum;
-	static struct RPCProc*					BotRPCProc;
-	std::map<DiscordID, struct RPCProc>		RPCMap;
-	ITNS_TIPBOT*							DiscordPtr;
+    Poco::Mutex                             mu;
+    unsigned short                          currPortNum;
+    static struct RPCProc*                  BotRPCProc;
+    std::map<DiscordID, struct RPCProc>     RPCMap;
+    ITNS_TIPBOT*                            DiscordPtr;
 
-	bool									isRPCRunning(DiscordID id);
-	struct RPCProc							SpinUpNewRPC(DiscordID id);
-	void									SpinDownRPC(DiscordID id);
-	struct RPCProc &						FindOldestRPC();
-	void									SaveWallets();
-	void									ReloadSavedRPCs();
-	unsigned int							LaunchRPC(unsigned short port);
-	void									waitForRPCToRespond(DiscordID id);
+    bool                                    isRPCRunning(DiscordID id);
+    struct RPCProc                          SpinUpNewRPC(DiscordID id);
+    void                                    SpinDownRPC(DiscordID id);
+    struct RPCProc &                        FindOldestRPC();
+    void                                    SaveWallets();
+    void                                    ReloadSavedRPCs();
+    unsigned int                            LaunchRPC(unsigned short port);
+    void                                    waitForRPCToRespond(DiscordID id);
 };
 
-extern RPCManager							RPCMan;
+extern RPCManager                           RPCMan;

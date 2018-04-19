@@ -17,15 +17,15 @@ GNU General Public License for more details.
 
 bool Util::doesWalletExist(const std::string & name)
 {
-	return Poco::File(name).exists();
+    return Poco::File(name).exists();
 }
 
 bool Util::doesWalletExist(DiscordID DIS_ID)
 {
-	return Util::doesWalletExist(Util::getWalletStrFromIID(DIS_ID));
+    return Util::doesWalletExist(Util::getWalletStrFromIID(DIS_ID));
 }
 
 std::string Util::getWalletStrFromIID(DiscordID DIS_ID)
 {
-	return Poco::format(DISCORD_WALLET_MASK, DIS_ID);
+    return Poco::format(DISCORD_WALLET_MASK, DIS_ID);
 }

@@ -20,12 +20,12 @@ InsufficientBalance::InsufficientBalance(std::string general_error) : genErr(std
 
 const std::string & InsufficientBalance::getGeneralError()
 {
-	return genErr;
+    return genErr;
 }
 
 const char * InsufficientBalance::what()
 {
-	return "Insufficient Balance";
+    return "Insufficient Balance";
 }
 
 ZeroTransferAmount::ZeroTransferAmount(std::string general_error) : genErr(std::move(general_error))
@@ -34,12 +34,12 @@ ZeroTransferAmount::ZeroTransferAmount(std::string general_error) : genErr(std::
 
 const std::string & ZeroTransferAmount::getGeneralError()
 {
-	return genErr;
+    return genErr;
 }
 
 const char * ZeroTransferAmount::what()
 {
-	return "Transfer Error";
+    return "Transfer Error";
 }
 
 GeneralAccountError::GeneralAccountError(std::string general_error) : genErr(std::move(general_error))
@@ -48,10 +48,10 @@ GeneralAccountError::GeneralAccountError(std::string general_error) : genErr(std
 
 const std::string & GeneralAccountError::getGeneralError()
 {
-	return genErr;
+    return genErr;
 }
 
 const char * GeneralAccountError::what()
 {
-	return "General Application Error";
+    return "General Application Error";
 }

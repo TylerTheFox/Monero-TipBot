@@ -16,36 +16,37 @@ GNU General Public License for more details.
 #include <string>
 #include "types.h"
 
-#define VOID_WALLET			"VOID_WALLET" // This is opened when the account is closed.
+#define VOID_WALLET            "VOID_WALLET" // This is opened when the account is closed.
 
 class Account
 {
 public:
-	Account();
-	Account(const Account & obj);
+    Account();
+    Account(const Account & obj);
 
-	void						open(DiscordID id, const RPC * ptr);
+    void                        open(DiscordID id, const RPC * ptr);
 
-	DiscordID					getDiscordID() const;
-	std::uint64_t				getBalance() const;
-	std::uint64_t				getUnlockedBalance() const;
-	const std::string &			getMyAddress() const;
+    DiscordID                   getDiscordID() const;
+    std::uint64_t               getBalance() const;
+    std::uint64_t               getUnlockedBalance() const;
+    std::uint64_t               getBlockHeight() const;
+    const std::string &         getMyAddress() const;
 
-	TransferRet					transferMoneytoAnotherDiscordUser(std::uint64_t amount, DiscordID Discord_ID);
-	TransferRet					transferAllMoneytoAnotherDiscordUser(DiscordID Discord_ID);
-	TransferRet					transferMoneyToAddress(std::uint64_t amount, const std::string & address);
-	TransferRet					transferAllMoneyToAddress(const std::string & address);
+    TransferRet                 transferMoneytoAnotherDiscordUser(std::uint64_t amount, DiscordID Discord_ID);
+    TransferRet                 transferAllMoneytoAnotherDiscordUser(DiscordID Discord_ID);
+    TransferRet                 transferMoneyToAddress(std::uint64_t amount, const std::string & address);
+    TransferRet                 transferAllMoneyToAddress(const std::string & address);
 
-	TransferList				getTransactions();
-	static const std::string	getWalletAddress(DiscordID Discord_ID);
-	void						resyncAccount();
+    TransferList                getTransactions();
+    static const std::string    getWalletAddress(DiscordID Discord_ID);
+    void                        resyncAccount();
 
-	Account&					operator=(const Account &rhs);
+    Account&                    operator=(const Account &rhs);
 
 private:
-	const RPC*					RPCPtr;
-	DiscordID					Discord_ID;
-	std::uint64_t				Balance;
-	std::uint64_t				UnlockedBalance;
-	std::string					MyAddress;
+    const RPC*                  RPCPtr;
+    DiscordID                   Discord_ID;
+    std::uint64_t               Balance;
+    std::uint64_t               UnlockedBalance;
+    std::string                 MyAddress;
 };
