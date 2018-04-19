@@ -14,6 +14,7 @@ GNU General Public License for more details.
 #include "Discord.h"
 #include "Poco/NumberParser.h"
 #include "DiscordCommands.h"
+#include "Poco/JSON/Parser.h"
 
 int ITNS_TIPBOT::getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id)
 {
