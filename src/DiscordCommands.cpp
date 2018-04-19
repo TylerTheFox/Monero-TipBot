@@ -119,6 +119,10 @@ void DiscordCommands::ProcessCommand(ITNS_TIPBOT * DiscordPtr, const SleepyDisco
     {
         DiscordPtr->sendMessage(message.channelID, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
     }
+    catch (const SleepyDiscord::ErrorCode & exp)
+    {
+        std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
+    }
     catch (AppGeneralException & exp)
     {
         DiscordPtr->sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");

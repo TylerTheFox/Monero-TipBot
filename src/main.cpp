@@ -18,6 +18,7 @@ GNU General Public License for more details.
 #include <fstream>
 #include "RPCManager.h"
 #include "Poco/Thread.h"
+#include "RPCException.h"
 
 #define TOKEN_FILE "token.discord"
 std::string myToken;
@@ -35,10 +36,10 @@ void setup()
         return; // Exit Setup
     }
 
-    std::cout    << "Welcome to ITNS Tipbot!\n"
-                << "Created by Brandan Tyler Lasley\n"
-                << "Please enter Discord Token: "; 
-    
+    std::cout << "Welcome to ITNS Tipbot!\n"
+        << "Created by Brandan Tyler Lasley\n"
+        << "Please enter Discord Token: ";
+
     std::cin >> myToken;
 
     std::ofstream out(TOKEN_FILE, std::ios::trunc);
@@ -51,19 +52,34 @@ void setup()
 
 int main()
 {
-    // Setup routine
-    setup();
+    try
+    {
+        // Setup routine
+        setup();
 
-    RPCMan.load();
+        RPCMan.load();
 
-    // Run bot with token.
-    ITNS_TIPBOT client(myToken, 2);
-    RPCMan.setDiscordPtr(&client);
+        // Run bot with token.
+        ITNS_TIPBOT client(myToken, 2);
+        RPCMan.setDiscordPtr(&client);
 
-    // Create RPC threads
-    Poco::Thread thread;
-    thread.start(RPCMan);
+        // Create RPC threads
+        Poco::Thread thread;
+        thread.start(RPCMan);
 
-    client.run();
+        client.run();
+    }
+    catch (const Poco::Exception & exp)
+    {
+        std::cerr << "Poco Error: " << exp.what() << "\n";
+    }
+    catch (AppGeneralException & exp)
+    {
+        std::cerr << "App Error: " << exp.what() << "\n";
+    }
+    catch (const SleepyDiscord::ErrorCode & exp)
+    {
+        std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
+    }
     return 0;
 }

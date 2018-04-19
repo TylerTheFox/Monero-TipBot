@@ -115,11 +115,15 @@ void RPCManager::run()
             }
             catch (const Poco::Exception & exp)
             {
-                std::cout << "Poco Error: " << exp.what();
+                std::cerr << "Poco Error: " << exp.what() << "\n";
             }
             catch (AppGeneralException & exp)
             {
-                std::cout << "App Error: " << exp.what();
+                std::cerr << "App Error: " << exp.what() << "\n";
+            }
+            catch (const SleepyDiscord::ErrorCode & exp)
+            {
+                std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
             }
         }
         Poco::Thread::sleep(1000);
