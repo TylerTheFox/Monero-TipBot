@@ -49,6 +49,8 @@ const struct Command Commands[] =
     {   "!withdrawall",     reinterpret_cast<void*>(&DiscordCommands::WithdrawAll),                 "[address]"    ,                    true,   false,  AllowChannelTypes::Private            },
     {   "!give",            reinterpret_cast<void*>(&DiscordCommands::Give),                        "[amount] [@User1 @User2...]",      true,   false,  AllowChannelTypes::Public             },
     {   "!giveall",         reinterpret_cast<void*>(&DiscordCommands::GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public             },
+    {   "!tip",             reinterpret_cast<void*>(&DiscordCommands::Give),                        "[amount] [@User1 @User2...]",      true,   false,  AllowChannelTypes::Public             },
+    {   "!tipall",          reinterpret_cast<void*>(&DiscordCommands::GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public             },
 
     // Admin
     // Command              Function                                                                Params                              Wallet  Admin   Allowed Channel
