@@ -168,7 +168,7 @@ void DiscordCommands::Balance(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Mes
 void DiscordCommands::MyAddress(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
 
-    DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your ITNS Address is: %s", message.author.username, message.author.discriminator, Account::getWalletAddress(MyAccount->getDiscordID())));
+    DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your ITNS Address is: %s", message.author.username, message.author.discriminator, Account::getWalletAddress(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID))));
 }
 
 void DiscordCommands::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
