@@ -150,8 +150,8 @@ void RPCManager::processNewTransactions()
             {
                 for (auto newTx : diff)
                 {
-                    DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
-                    std::cout << Poco::format("User %Lu recived %f ITNS\n", account.first, newTx.amount / ITNS_OFFSET);
+                    DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %0.8f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
+                    std::cout << Poco::format("User %Lu recived %0.8f ITNS\n", account.first, newTx.amount / ITNS_OFFSET);
                 }
 
                 account.second.Transactions = newTransactions;

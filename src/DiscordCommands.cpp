@@ -160,7 +160,7 @@ void DiscordCommands::Help(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message
 
 void DiscordCommands::Balance(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-    DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your Balance is %f ITNS and your Unlocked Balance is %f ITNS", message.author.username, message.author.discriminator, MyAccount->getBalance() / ITNS_OFFSET, MyAccount->getUnlockedBalance() / ITNS_OFFSET));
+    DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your Balance is %0.8f ITNS and your Unlocked Balance is %0.8f ITNS", message.author.username, message.author.discriminator, MyAccount->getBalance() / ITNS_OFFSET, MyAccount->getUnlockedBalance() / ITNS_OFFSET));
 }
 
 void DiscordCommands::MyAddress(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
@@ -211,7 +211,7 @@ void DiscordCommands::Withdraw(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Me
             const auto amount = Poco::NumberParser::parseFloat(cmd[1]);
             const auto& address = cmd[2];
             const auto tx = MyAccount->transferMoneyToAddress(static_cast<std::uint64_t>(amount * ITNS_OFFSET), address);
-            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, tx.tx_hash));
+            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %0.8f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, tx.tx_hash));
         }
     }
     else
@@ -232,7 +232,7 @@ void DiscordCommands::WithdrawAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord:
         {
             const auto& address = cmd[1];
             const auto tx = MyAccount->transferAllMoneyToAddress(address);
-            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, MyAccount->getBalance() / ITNS_OFFSET, tx.tx_hash));
+            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %0.8f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, MyAccount->getBalance() / ITNS_OFFSET, tx.tx_hash));
         }
     }
     else
@@ -255,7 +255,7 @@ void DiscordCommands::Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Messag
             for (const auto& user : message.mentions)
             {
                 const auto tx = MyAccount->transferMoneytoAnotherDiscordUser(static_cast<std::uint64_t>(amount * ITNS_OFFSET), DiscordPtr->convertSnowflakeToInt64(user.ID));
-                DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, user.username, tx.tx_hash));
+                DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %0.8f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, user.username, tx.tx_hash));
             }
         }
     }
@@ -276,7 +276,7 @@ void DiscordCommands::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Mes
         else
         {
             const auto tx = MyAccount->transferAllMoneytoAnotherDiscordUser(DiscordPtr->convertSnowflakeToInt64(message.mentions[0].ID));
-            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, static_cast<double>(MyAccount->getBalance() / ITNS_OFFSET), message.mentions[0].username, tx.tx_hash));
+            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %0.8f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, static_cast<double>(MyAccount->getBalance() / ITNS_OFFSET), message.mentions[0].username, tx.tx_hash));
         }
     }
     else
