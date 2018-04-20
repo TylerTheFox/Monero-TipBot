@@ -74,6 +74,9 @@ Account& RPCManager::getAccount(DiscordID id)
             RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
         }
 
+        // Update timestamp
+        RPCMap[id].timestamp = Poco::Timestamp();
+
         // Account Resync
         RPCMap[id].MyAccount.resyncAccount();
     }
