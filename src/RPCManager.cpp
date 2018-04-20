@@ -10,6 +10,7 @@
 #include "cereal/types/map.hpp"
 #include "cereal/types/set.hpp"
 #include <fstream>
+#include "AccountException.h"
 
 RPCManager      RPCMan;
 RPCProc*        RPCManager::BotRPCProc;
@@ -51,30 +52,46 @@ time_t RPCManager::getTimeStarted(DiscordID id)
 Account& RPCManager::getAccount(DiscordID id)
 {
     mu.lock();
-
-    if (RPCMap.count(id) == 0)
+    try
     {
-        if (RPCMap.size() <= MAX_RPC_LIMIT)
-            RPCMap[id] = SpinUpNewRPC(id);
-        else
-            RPCMap[id] = FindOldestRPC();
+        if (RPCMap.count(id) == 0)
+        {
+            if (RPCMap.size() <= MAX_RPC_LIMIT)
+                RPCMap[id] = SpinUpNewRPC(id);
+            else
+                RPCMap[id] = FindOldestRPC();
 
-        // Setup Account
-        RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
+            // Setup Account
+            RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
 
-        // Wait for RPC to respond
-        waitForRPCToRespond(id);
+            // Wait for RPC to respond
+            waitForRPCToRespond(id);
 
-        // Open Wallet
-        assert(RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id)));
+            // Open Wallet
+            assert(RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id)));
 
-        // Get transactions
-        RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
+            // Get transactions
+            RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
+        }
+
+        // Account Resync
+        RPCMap[id].MyAccount.resyncAccount();
     }
-
-    // Account Resync
-    RPCMap[id].MyAccount.resyncAccount();
-
+    catch (const Poco::Exception & exp)
+    {
+        mu.unlock();
+        throw exp;
+    }
+    catch (AppGeneralException & exp)
+    {
+        mu.unlock();
+        throw GeneralAccountError(exp.getGeneralError());
+    }
+    catch (const SleepyDiscord::ErrorCode & exp)
+    {
+        mu.unlock();
+        throw exp;
+    }
     mu.unlock();
 
     return RPCMap[id].MyAccount;
@@ -249,20 +266,31 @@ void RPCManager::ReloadSavedRPCs()
 {
     for (auto & wallets : RPCMap)
     {
-        // Launch RPC
-        wallets.second.pid = LaunchRPC(wallets.second.MyRPC.getPort());
+        try
+        {
+            // Launch RPC
+            wallets.second.pid = LaunchRPC(wallets.second.MyRPC.getPort());
 
-        // Setup Accounts
-        wallets.second.MyAccount.open(wallets.first, &wallets.second.MyRPC);
+            // Setup Accounts
+            wallets.second.MyAccount.open(wallets.first, &wallets.second.MyRPC);
 
-        // Wait for RPC to respond
-        waitForRPCToRespond(wallets.first);
+            // Wait for RPC to respond
+            waitForRPCToRespond(wallets.first);
 
-        // Open Wallet
-        assert(wallets.second.MyRPC.openWallet(Util::getWalletStrFromIID(wallets.first)));
+            // Open Wallet
+            assert(wallets.second.MyRPC.openWallet(Util::getWalletStrFromIID(wallets.first)));
 
-        // Get transactions
-        wallets.second.Transactions = wallets.second.MyRPC.getTransfers();
+            // Get transactions
+            wallets.second.Transactions = wallets.second.MyRPC.getTransfers();
+        }
+        catch (const Poco::Exception & exp)
+        {
+            std::cerr << "Poco Error: " << exp.what();
+        }
+        catch (AppGeneralException & exp)
+        {
+            std::cerr << "App Error: " << exp.what();
+        }
     }
 }
 
@@ -288,8 +316,11 @@ void RPCManager::waitForRPCToRespond(DiscordID id)
     // This is because we need to ensure open_wallet actually gets called
     // and if RPC is still loading it'll just go into the void.
     bool waitForRPC = true;
+
+    const Poco::Timestamp timeStarted;
     while (waitForRPC)
     {
+        Poco::Timespan timer(Poco::Timestamp() - timeStarted);
         try
         {
             RPCMap[id].MyRPC.getBlockHeight(); // Query RPC until it responds.
@@ -306,6 +337,14 @@ void RPCManager::waitForRPCToRespond(DiscordID id)
         catch (RPCGeneralError & exp) // Some other error probably no wallet file
         {
             waitForRPC = false;
+        }
+
+        if (timer.seconds() > 30)
+        {            
+            // Give up
+            Poco::Process::kill(RPCMap[id].pid);
+            RPCMap.erase(id);
+            throw RPCGeneralError("-1", "RPC Process Killed, given up on connecting.");
         }
     }
 }
