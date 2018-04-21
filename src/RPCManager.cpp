@@ -11,6 +11,7 @@
 #include "cereal/types/set.hpp"
 #include <fstream>
 #include "AccountException.h"
+#include "Poco/ScopedLock.h"
 
 RPCManager      RPCMan;
 RPCProc*        RPCManager::BotRPCProc;
@@ -51,51 +52,33 @@ time_t RPCManager::getTimeStarted(DiscordID id)
 
 Account& RPCManager::getAccount(DiscordID id)
 {
-    mu.lock();
-    try
+    Poco::Mutex::ScopedLock lock(mu);
+
+    if (RPCMap.count(id) == 0)
     {
-        if (RPCMap.count(id) == 0)
-        {
-            if (RPCMap.size() <= MAX_RPC_LIMIT)
-                RPCMap[id] = SpinUpNewRPC(id);
-            else
-                RPCMap[id] = FindOldestRPC();
+        if (RPCMap.size() <= MAX_RPC_LIMIT)
+            RPCMap[id] = SpinUpNewRPC(id);
+        else
+            RPCMap[id] = FindOldestRPC();
 
-            // Setup Account
-            RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
+        // Setup Account
+        RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
 
-            // Wait for RPC to respond
-            waitForRPCToRespond(id);
+        // Wait for RPC to respond
+        waitForRPCToRespond(id);
 
-            // Open Wallet
-            assert(RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id)));
+        // Open Wallet
+        assert(RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id)));
 
-            // Get transactions
-            RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
-        }
-
-        // Update timestamp
-        RPCMap[id].timestamp = Poco::Timestamp();
-
-        // Account Resync
-        RPCMap[id].MyAccount.resyncAccount();
+        // Get transactions
+        RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
     }
-    catch (const Poco::Exception & exp)
-    {
-        mu.unlock();
-        throw exp;
-    }
-    catch (AppGeneralException & exp)
-    {
-        mu.unlock();
-        throw GeneralAccountError(exp.getGeneralError());
-    }
-    catch (const SleepyDiscord::ErrorCode & exp)
-    {
-        mu.unlock();
-        throw exp;
-    }
-    mu.unlock();
+
+    // Update timestamp
+    RPCMap[id].timestamp = Poco::Timestamp();
+
+    // Account Resync
+    RPCMap[id].MyAccount.resyncAccount();
 
     return RPCMap[id].MyAccount;
 }
@@ -152,7 +135,7 @@ void RPCManager::run()
 
 void RPCManager::processNewTransactions()
 {
-    mu.lock();
+    Poco::Mutex::ScopedLock lock(mu);
     std::cout << "Searching for new transactions...\n";
     std::vector<struct TransferItem> diff;
     TransferList newTransactions;
@@ -184,7 +167,6 @@ void RPCManager::processNewTransactions()
             }
         }
     }
-    mu.unlock();
 }
 
 const RPC & RPCManager::getGlobalBotRPC()
@@ -194,7 +176,7 @@ const RPC & RPCManager::getGlobalBotRPC()
 
 void RPCManager::save()
 {
-    mu.lock();
+    Poco::Mutex::ScopedLock lock(mu);
     std::ofstream out(RPC_DATABASE_FILENAME, std::ios::trunc);
     if (out.is_open())
     {
@@ -205,12 +187,11 @@ void RPCManager::save()
         }
         out.close();
     }
-    mu.unlock();
 }
 
 void RPCManager::load()
 {
-    mu.lock();
+    Poco::Mutex::ScopedLock lock(mu);
     Poco::File RPCFile(RPC_DATABASE_FILENAME);
     if (RPCFile.exists())
     {
@@ -226,7 +207,6 @@ void RPCManager::load()
             ReloadSavedRPCs();
         }
     }
-    mu.unlock();
 }
 
 RPCProc RPCManager::SpinUpNewRPC(DiscordID id)
@@ -256,13 +236,12 @@ RPCProc& RPCManager::FindOldestRPC()
 
 void RPCManager::SaveWallets()
 {
-    mu.lock();
+    Poco::Mutex::ScopedLock lock(mu);
     std::cout << "Saving blockchain...\n";
 
     // Save blockchain on exit.
     for (auto account : this->RPCMap)
         account.second.MyRPC.store();
-    mu.unlock();
 }
 
 void RPCManager::ReloadSavedRPCs()
@@ -343,7 +322,7 @@ void RPCManager::waitForRPCToRespond(DiscordID id)
         }
 
         if (timer.seconds() > 30)
-        {            
+        {
             // Give up
             Poco::Process::kill(RPCMap[id].pid);
             RPCMap.erase(id);
