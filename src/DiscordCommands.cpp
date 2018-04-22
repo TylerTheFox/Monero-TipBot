@@ -234,7 +234,7 @@ void DiscordCommands::WithdrawAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord:
         {
             const auto& address = cmd[1];
             const auto tx = MyAccount->transferAllMoneyToAddress(address);
-            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %0.8f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, MyAccount->getBalance() / ITNS_OFFSET, tx.tx_hash));
+            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %0.8f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, MyAccount->getUnlockedBalance() / ITNS_OFFSET, tx.tx_hash));
         }
     }
     else
@@ -278,7 +278,7 @@ void DiscordCommands::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Mes
         else
         {
             const auto tx = MyAccount->transferAllMoneytoAnotherDiscordUser(DiscordPtr->convertSnowflakeToInt64(message.mentions[0].ID));
-            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %0.8f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, static_cast<double>(MyAccount->getBalance() / ITNS_OFFSET), message.mentions[0].username, tx.tx_hash));
+            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %0.8f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, static_cast<double>(MyAccount->getUnlockedBalance() / ITNS_OFFSET), message.mentions[0].username, tx.tx_hash));
         }
     }
     else
