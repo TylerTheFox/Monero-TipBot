@@ -66,7 +66,7 @@ struct Settings globalSettings = {
 };
 
 #define        VERSION_MAJOR 1
-#define        VERSION_MINOR 2
+#define        VERSION_MINOR 3
 
 const char *aboutStr =
 "```ITNS TipBot v%d.%d\\n"
@@ -177,15 +177,15 @@ void DiscordCommands::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Mes
 
     std::stringstream ss;
 
-    const auto addtoss = [&ss](const std::set<struct TransferItem, TransferItemCmp> & sset)
+    const auto addtoss = [&ss, DiscordPtr](const std::set<struct TransferItem, TransferItemCmp> & sset)
     {
         auto i = 0;
-        ss << "```Amount | Payment ID | Block Height | TX Hash\\n";
+        ss << "```Amount | User | Block Height | TX Hash\\n";
 
         for (auto tx : sset)
         {
             if (i == 5) break;
-            ss << tx.amount / ITNS_OFFSET << " | " << tx.payment_id << " | " << tx.block_height << " | " << tx.tx_hash << "\\n";
+            ss << tx.amount / ITNS_OFFSET << " | " << DiscordPtr->findUser(tx.payment_id).username << " | " << tx.block_height << " | " << tx.tx_hash << "\\n";
             i++;
         }
         ss << "```";

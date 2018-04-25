@@ -68,7 +68,7 @@ class RPCManager : public Poco::Runnable
 public:
     RPCManager();
     ~RPCManager();
-
+    void                                    setBotUser(DiscordID id);
     void                                    setDiscordPtr(ITNS_TIPBOT* ptr);
     time_t                                  getTimeStarted(DiscordID id);
     Account &                               getAccount(DiscordID id);
@@ -84,7 +84,7 @@ public:
 private:
     Poco::Mutex                             mu;
     unsigned short                          currPortNum;
-    static struct RPCProc*                  BotRPCProc;
+    static struct RPCProc                   BotRPCProc;
     std::map<DiscordID, struct RPCProc>     RPCMap;
     ITNS_TIPBOT*                            DiscordPtr;
 

@@ -14,11 +14,11 @@
 #include "Poco/ScopedLock.h"
 
 RPCManager      RPCMan;
-RPCProc*        RPCManager::BotRPCProc;
+RPCProc         RPCManager::BotRPCProc;
 
 RPCManager::RPCManager() : currPortNum(STARTING_PORT_NUMBER), DiscordPtr(nullptr)
 {
-    BotRPCProc = new RPCProc(SpinUpNewRPC(0));
+    
 }
 
 RPCManager::~RPCManager()
@@ -33,6 +33,11 @@ RPCManager::~RPCManager()
     {
         // We need to shutdown RPCs and we can't crash else they don't get shutdown.
     }
+}
+
+void RPCManager::setBotUser(DiscordID id)
+{
+    BotRPCProc = RPCProc(SpinUpNewRPC(id));
 }
 
 void RPCManager::setDiscordPtr(ITNS_TIPBOT* ptr)
@@ -171,7 +176,7 @@ void RPCManager::processNewTransactions()
 
 const RPC & RPCManager::getGlobalBotRPC()
 {
-    return BotRPCProc->MyRPC;
+    return BotRPCProc.MyRPC;
 }
 
 void RPCManager::save()
