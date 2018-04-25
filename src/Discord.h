@@ -13,7 +13,11 @@ GNU General Public License for more details.
 */
 #pragma once
 #include "sleepy_discord/websocketpp_websocket.h"
+#include "Poco/NumberParser.h"
 #include "types.h"
+#include "cereal/cereal.hpp"
+#include <set>
+#include <map>
 
 struct DiscordUser
 {
@@ -52,7 +56,7 @@ private:
     void                                            refreshUserList();
     void                                            saveUserList();
     void                                            loadUserList();
-    std::map<std::uint64_t, std::set<DiscordUser>>  UserList;
+    std::map<std::uint64_t, std::set<DiscordUser> > UserList;
     SleepyDiscord::User                             BotUser;
 };
 
