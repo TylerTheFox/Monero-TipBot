@@ -29,7 +29,6 @@ Faucet::Faucet()
         { "!faucet",          CLASS_RESOLUTION(help),                       "",                                 false,  false,  AllowChannelTypes::Any },
         { "!take",            CLASS_RESOLUTION(take),                       "",                                 false,  false,  AllowChannelTypes::Any },
         { "!status",          CLASS_RESOLUTION(status),                     "",                                 false,  true,   AllowChannelTypes::Private },
-
     };
 }
 
@@ -85,7 +84,7 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
 
     std::stringstream ss;
 
-    ss << "```Searching for your user in database...";
+    ss << "```";
 
     const auto & user = DiscordPtr->findUser(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID));
     const Poco::Timestamp   current;
@@ -97,38 +96,18 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
     const Poco::Timespan    faucettimediff(current - faucetts);
     const Poco::Timespan    jointimediff(current - joints);
 
-    ss << "Found!\\n";
-
-    ss << "Your name is: " << user.username << "\\n";
-    ss << "Your ID is: " << user.id << "\\n";
-    ss << "You joined in " << UTCJoinDate << " UTC \\n";
-    ss << "Aka " << jointimediff.days() << " days ago\\n";
-    ss << "Today is " << UTCTodayDate << " UTC\\n";
-    if (user.faucet_epoch_time)
-    {
-        ss << "You last used this command in " << UTCaucetDate << " UTC \\n";
-        ss << "Aka " << faucettimediff.seconds() << " seconds ago\\n";
-    }
-    else  ss << "You last used this command in never.\\n";
-    ss << "Bot current unlocked balance is: " << myAccountPtr.getUnlockedBalance() / ITNS_OFFSET << "\\n";
-    ss << "Bot current address is: " << myAccountPtr.getMyAddress() << "\\n";
-
-
     if (jointimediff.days() > MIN_DISCORD_ACCOUNT_IN_DAYS)
     {
         if (faucettimediff.minutes() > FAUCET_TIMEOUT)
         {
             if (myAccountPtr.getUnlockedBalance() > 0)
             {
-                ss << "Attempting to give 1 ITNS to requesting user...\\n";
                 const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE);
                 const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID)));
                 user.total_faucet_itns_sent += amount / ITNS_OFFSET;
                 ss << Poco::format("%s#%s: You have been granted %0.8f ITNS with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / ITNS_OFFSET, tx.tx_hash);
-                ss << "Setting your last used command time \\n";
                 user.faucet_epoch_time = current.epochMicroseconds();
                 DiscordPtr->saveUserList();
-                ss << "Saving this interaction to disk...\\n";
             }
             else ss << "Bot is either broke or has pending transactions, try again later. :disappointed_relieved: \\n";
         }
@@ -149,6 +128,7 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     std::stringstream ss;
     ss.precision(8);
     myAccountPtr.resyncAccount();
+
     ss << "```";
     ss << "Your name is: " << user.username << "\\n";
     ss << "Your ID is: " << user.id << "\\n";
@@ -159,9 +139,6 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     ss << "Current Award: " << (myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE) / ITNS_OFFSET << "\\n";
     ss << "Current payout percentage: " << FAUCET_PERCENTAGE_ALLOWANCE*100 << "%\\n";
     ss << "Current Amount Awarded: " << DiscordPtr->totalFaucetAmount() << "\\n";
-
-
-
     ss << "```";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());

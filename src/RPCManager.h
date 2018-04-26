@@ -25,7 +25,7 @@ GNU General Public License for more details.
 
 #define                        RPC_DATABASE_FILENAME                "RPCDATA.json"
 #define                        STARTING_PORT_NUMBER                 11000
-#define                        MAX_RPC_LIMIT                        100
+#define                        MAX_RPC_LIMIT                        200
 #define                        BLOCKCHAIN_SAVE_TIME                 5    // in minutes.
 #define                        SEARCH_FOR_NEW_TRANSACTIONS_TIME     10    // in seconds
 #define                        RPC_WALLETS_SAVE_TIME                60    // in seconds
