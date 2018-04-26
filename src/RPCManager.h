@@ -77,16 +77,18 @@ public:
     virtual void                            run();
     void                                    processNewTransactions();
 
+    const RPC&                              getRPC(DiscordID id);
     static const RPC&                       getGlobalBotRPC();
     static       Account &                  getGlobalBotAccount();
+    const DiscordID &                       getBotDiscordID();
 
     void                                    save();
     void                                    load();
 private:
     Poco::Mutex                             mu;
     unsigned short                          currPortNum;
-    static struct RPCProc                   BotRPCProc;
     std::map<DiscordID, struct RPCProc>     RPCMap;
+    DiscordID                               BotID;
     ITNS_TIPBOT*                            DiscordPtr;
 
     bool                                    isRPCRunning(DiscordID id);

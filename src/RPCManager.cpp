@@ -27,7 +27,6 @@ GNU General Public License for more details.
 #include "Poco/ScopedLock.h"
 
 RPCManager      RPCMan;
-RPCProc         RPCManager::BotRPCProc;
 
 RPCManager::RPCManager() : currPortNum(STARTING_PORT_NUMBER), DiscordPtr(nullptr)
 {
@@ -50,11 +49,7 @@ RPCManager::~RPCManager()
 
 void RPCManager::setBotUser(DiscordID id)
 {
-    BotRPCProc.pid = LaunchRPC(STARTING_PORT_NUMBER-1);
-    BotRPCProc.MyAccount.open(id, &BotRPCProc.MyRPC);
-    BotRPCProc.MyRPC.open(STARTING_PORT_NUMBER-1);
-    waitForRPCToRespond(id, BotRPCProc.MyRPC);
-    assert(BotRPCProc.MyRPC.openWallet(Util::getWalletStrFromIID(id)));
+    BotID = id;
 }
 
 void RPCManager::setDiscordPtr(ITNS_TIPBOT* ptr)
@@ -164,7 +159,7 @@ void RPCManager::processNewTransactions()
 
     for (auto & account : this->RPCMap)
     {
-        if (account.first != BotRPCProc.MyAccount.getDiscordID())
+        if (account.first != BotID)
         {
             newTransactions = account.second.MyRPC.getTransfers();
 
@@ -194,14 +189,26 @@ void RPCManager::processNewTransactions()
     }
 }
 
+const RPC& RPCManager::getRPC(DiscordID id)
+{
+    if (RPCMap.count(id))
+        return RPCMap[id].MyRPC;
+    throw RPCGeneralError("-1", "RPC does not exist!");
+}
+
 const RPC & RPCManager::getGlobalBotRPC()
 {
-    return BotRPCProc.MyRPC;
+    return RPCMan.getRPC(RPCMan.getBotDiscordID());
 }
 
 Account & RPCManager::getGlobalBotAccount()
 {
-    return BotRPCProc.MyAccount;
+    return RPCMan.getAccount(RPCMan.getBotDiscordID());
+}
+
+const DiscordID& RPCManager::getBotDiscordID()
+{
+    return BotID;
 }
 
 void RPCManager::save()
