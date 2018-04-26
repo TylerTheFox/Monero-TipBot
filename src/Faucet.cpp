@@ -98,7 +98,7 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
 
     if (jointimediff.days() > MIN_DISCORD_ACCOUNT_IN_DAYS)
     {
-        if (faucettimediff.minutes() > FAUCET_TIMEOUT)
+        if (faucettimediff.hours() > FAUCET_TIMEOUT)
         {
             if (myAccountPtr.getUnlockedBalance() > 0)
             {
