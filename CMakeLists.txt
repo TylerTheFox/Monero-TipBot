@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.2)
 project (TIPBOT)
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 
 file(GLOB_RECURSE sources "src/*.cpp")
-set(CMAKE_BUILD_TYPE Debug)
-
+  
 include_directories(
 	extern/sleepy-discord/include
 	extern/poco-1.9.0/Foundation/include

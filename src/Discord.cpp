@@ -16,6 +16,7 @@ GNU General Public License for more details.
 #include "Poco/Thread.h"
 #include "RPCManager.h"
 #include <fstream>
+#include <memory>
 
 #include "cereal/archives/json.hpp"
 #include "cereal/types/map.hpp"
