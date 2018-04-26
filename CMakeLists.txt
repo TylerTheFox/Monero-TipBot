@@ -13,6 +13,12 @@ include_directories(
 	extern/cereal-1.2.2/include
     )
 
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi")
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+endif()
+	
 if (MSVC) 
   link_directories(
 	extern/sleepy-discord/lib/win32
