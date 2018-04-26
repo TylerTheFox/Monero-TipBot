@@ -90,9 +90,6 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
     const Poco::Timestamp   current;
     const Poco::Timestamp   joints(user.join_epoch_time);
     const Poco::Timestamp   faucetts(user.faucet_epoch_time);
-    const auto UTCJoinDate = Poco::DateTimeFormatter::format(joints, "%m-%d-%Y %H:%M:%S", 0);
-    const auto UTCaucetDate = Poco::DateTimeFormatter::format(faucetts, "%m-%d-%Y %H:%M:%S", 0);
-    const auto UTCTodayDate = Poco::DateTimeFormatter::format(current, "%m-%d-%Y %H:%M:%S", 0);
     const Poco::Timespan    faucettimediff(current - faucetts);
     const Poco::Timespan    jointimediff(current - joints);
 
