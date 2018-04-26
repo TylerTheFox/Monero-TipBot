@@ -1,3 +1,16 @@
+/*
+Copyright(C) 2018 Brandan Tyler Lasley
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU General Public License for more details.
+*/
 #include "RPCManager.h"
 #include "Poco/Process.h"
 #include "Poco/Thread.h"
@@ -37,7 +50,11 @@ RPCManager::~RPCManager()
 
 void RPCManager::setBotUser(DiscordID id)
 {
-    BotRPCProc = RPCProc(SpinUpNewRPC(id));
+    BotRPCProc.pid = LaunchRPC(STARTING_PORT_NUMBER-1);
+    BotRPCProc.MyAccount.open(id, &BotRPCProc.MyRPC);
+    BotRPCProc.MyRPC.open(STARTING_PORT_NUMBER-1);
+    waitForRPCToRespond(id, BotRPCProc.MyRPC);
+    assert(BotRPCProc.MyRPC.openWallet(Util::getWalletStrFromIID(id)));
 }
 
 void RPCManager::setDiscordPtr(ITNS_TIPBOT* ptr)
@@ -70,7 +87,7 @@ Account& RPCManager::getAccount(DiscordID id)
         RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
 
         // Wait for RPC to respond
-        waitForRPCToRespond(id);
+        waitForRPCToRespond(id, RPCMap[id].MyRPC);
 
         // Open Wallet
         assert(RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id)));
@@ -147,28 +164,31 @@ void RPCManager::processNewTransactions()
 
     for (auto & account : this->RPCMap)
     {
-        newTransactions = account.second.MyRPC.getTransfers();
-
-        std::set_difference(newTransactions.tx_in.begin(), newTransactions.tx_in.end(), account.second.Transactions.tx_in.begin(), account.second.Transactions.tx_in.end(),
-            std::inserter(diff, diff.begin()));
-
-        if (!diff.empty())
+        if (account.first != BotRPCProc.MyAccount.getDiscordID())
         {
-            try
+            newTransactions = account.second.MyRPC.getTransfers();
+
+            std::set_difference(newTransactions.tx_in.begin(), newTransactions.tx_in.end(), account.second.Transactions.tx_in.begin(), account.second.Transactions.tx_in.end(),
+                std::inserter(diff, diff.begin()));
+
+            if (!diff.empty())
             {
-                for (auto newTx : diff)
+                try
                 {
-                    DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %0.8f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
-                    std::cout << Poco::format("User %Lu recived %0.8f ITNS\n", account.first, newTx.amount / ITNS_OFFSET);
+                    for (auto newTx : diff)
+                    {
+                        DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %0.8f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
+                        std::cout << Poco::format("User %Lu recived %0.8f ITNS\n", account.first, newTx.amount / ITNS_OFFSET);
+                    }
+
+                    account.second.Transactions = newTransactions;
+
+                    diff.clear();
                 }
-
-                account.second.Transactions = newTransactions;
-
-                diff.clear();
-            }
-            catch (const Poco::Exception & exp)
-            {
-                diff.clear();
+                catch (const Poco::Exception & exp)
+                {
+                    diff.clear();
+                }
             }
         }
     }
@@ -177,6 +197,11 @@ void RPCManager::processNewTransactions()
 const RPC & RPCManager::getGlobalBotRPC()
 {
     return BotRPCProc.MyRPC;
+}
+
+Account & RPCManager::getGlobalBotAccount()
+{
+    return BotRPCProc.MyAccount;
 }
 
 void RPCManager::save()
@@ -262,7 +287,7 @@ void RPCManager::ReloadSavedRPCs()
             wallets.second.MyAccount.open(wallets.first, &wallets.second.MyRPC);
 
             // Wait for RPC to respond
-            waitForRPCToRespond(wallets.first);
+            waitForRPCToRespond(wallets.first, wallets.second.MyRPC);
 
             // Open Wallet
             assert(wallets.second.MyRPC.openWallet(Util::getWalletStrFromIID(wallets.first)));
@@ -297,7 +322,7 @@ unsigned int RPCManager::LaunchRPC(unsigned short port)
     return rpc_handle.id();
 }
 
-void RPCManager::waitForRPCToRespond(DiscordID id)
+void RPCManager::waitForRPCToRespond(DiscordID id, const RPC & rpc)
 {
     // Wait for RPC to respond to requests.
     // This is because we need to ensure open_wallet actually gets called
@@ -310,7 +335,7 @@ void RPCManager::waitForRPCToRespond(DiscordID id)
         Poco::Timespan timer(Poco::Timestamp() - timeStarted);
         try
         {
-            RPCMap[id].MyRPC.getBlockHeight(); // Query RPC until it responds.
+            rpc.getBlockHeight(); // Query RPC until it responds.
             waitForRPC = false;
         }
         catch (RPCConnectionError & exp)

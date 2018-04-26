@@ -16,8 +16,6 @@ GNU General Public License for more details.
 #include <string>
 #include "types.h"
 
-#define VOID_WALLET            "VOID_WALLET" // This is opened when the account is closed.
-
 class Account
 {
 public:

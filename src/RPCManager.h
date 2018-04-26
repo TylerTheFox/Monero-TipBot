@@ -78,6 +78,7 @@ public:
     void                                    processNewTransactions();
 
     static const RPC&                       getGlobalBotRPC();
+    static       Account &                  getGlobalBotAccount();
 
     void                                    save();
     void                                    load();
@@ -95,7 +96,7 @@ private:
     void                                    SaveWallets();
     void                                    ReloadSavedRPCs();
     unsigned int                            LaunchRPC(unsigned short port);
-    void                                    waitForRPCToRespond(DiscordID id);
+    void                                    waitForRPCToRespond(DiscordID id, const RPC & rpc);
 };
 
 extern RPCManager                           RPCMan;

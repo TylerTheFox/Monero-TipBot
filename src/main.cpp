@@ -61,6 +61,7 @@ int main()
 
         // Run bot with token.
         ITNS_TIPBOT client(myToken, 2);
+        client.init();
         RPCMan.setDiscordPtr(&client);
 
         // Create RPC threads

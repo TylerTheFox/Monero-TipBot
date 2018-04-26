@@ -12,8 +12,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #include "Discord.h"
-#include "Poco/NumberParser.h"
-#include "DiscordCommands.h"
 #include "Poco/JSON/Parser.h"
 #include "Poco/Thread.h"
 #include "RPCManager.h"
@@ -22,6 +20,30 @@ GNU General Public License for more details.
 #include "cereal/archives/json.hpp"
 #include "cereal/types/map.hpp"
 #include "cereal/types/set.hpp"
+#include "Tip.h"
+#include "Faucet.h"
+#include "RPCException.h"
+#include "Poco/StringTokenizer.h"
+
+const char *aboutStr =
+"```ITNS TipBot v%d.%d\\n"
+"(C) Brandan Tyler Lasley 2018\\n"
+"Github: https://github.com/Brandantl/IntenseCoin-TipBot \\n"
+"BTC: 1KsX66J98WMgtSbFA5UZhVDn1iuhN5B6Hm\\n"
+"ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf\\n"
+"XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS\\n```";
+
+ITNS_TIPBOT::~ITNS_TIPBOT()
+{
+}
+
+void ITNS_TIPBOT::init()
+{
+    Apps = { 
+        {(std::shared_ptr<AppBaseClass>(std::make_unique<Tip>()))},
+        {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))}
+    };
+}
 
 int ITNS_TIPBOT::getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id)
 {
@@ -43,15 +65,15 @@ std::string ITNS_TIPBOT::getDiscordDMChannel(DiscordID id)
     return object->getValue<std::string>("id");
 }
 
-const DiscordUser UknownUser = { 0, "Unknown User", 0 };
+DiscordUser UknownUser = { 0, "Unknown User", 0 };
 const DiscordUser & ITNS_TIPBOT::findUser(const DiscordID & id)
 {
     if (id > 0)
     {
         // Find user
-        for (const auto & server : UserList)
+        for (auto & server : UserList)
         {
-            for (const auto & user : server.second)
+            for (auto & user : server.second)
             {
                 if (id == user.id) return user;
             }
@@ -68,7 +90,7 @@ const DiscordUser & ITNS_TIPBOT::findUser(const DiscordID & id)
             struct DiscordUser newUser;
             newUser.username = object->getValue<std::string>("username");
             newUser.id = ITNS_TIPBOT::convertSnowflakeToInt64(object->getValue<std::string>("id"));
-            newUser.join_epoch_time = ((newUser.id >> 22) + 1420070400000) / 1000;
+            newUser.join_epoch_time = ((newUser.id >> 22) + 1420070400000) * 1000;
             auto ret = UserList.begin()->second.insert(newUser);
             saveUserList();
             return *ret.first;
@@ -79,9 +101,96 @@ const DiscordUser & ITNS_TIPBOT::findUser(const DiscordID & id)
     return UknownUser;
 }
 
+bool ITNS_TIPBOT::isUserAdmin(const SleepyDiscord::Message& message)
+{
+    auto myid = convertSnowflakeToInt64(message.author.ID);
+    for (auto adminid : DiscordAdmins)
+    {
+        if (myid == adminid)
+            return true;
+    }
+    return false;
+}
+
+void ITNS_TIPBOT::CommandParseError(const SleepyDiscord::Message& message, const Command& me)
+{
+    sendMessage(message.channelID, Poco::format("Command Error --- Correct Usage: %s %s :cold_sweat:", me.name, me.params));
+}
+
+bool ITNS_TIPBOT::isCommandAllowedToBeExecuted(const SleepyDiscord::Message& message, const Command& command, int channelType)
+{
+    return !command.adminTools || (command.adminTools && (channelType == AllowChannelTypes::Private || command.ChannelPermission == AllowChannelTypes::Any) && ITNS_TIPBOT::isUserAdmin(message));
+}
+
+std::string ITNS_TIPBOT::generateHelpText(const std::string & title, const std::vector<Command>& cmds, int ChannelType, const SleepyDiscord::Message& message)
+{
+    std::stringstream ss;
+    ss << title;
+    ss << "```";
+    for (auto cmd : cmds)
+    {
+        if (ITNS_TIPBOT::isCommandAllowedToBeExecuted(message, cmd, ChannelType))
+        {
+            ss << cmd.name << " " << cmd.params;
+            if (cmd.ChannelPermission != AllowChannelTypes::Any)
+            {
+                ss << " -- " << AllowChannelTypeNames[cmd.ChannelPermission];
+            }
+            if (cmd.adminTools)
+            {
+                ss << " -- ADMIN ONLY";
+            }
+            ss << "\\n";
+        }
+    }
+    ss << "```";
+    return ss.str();
+}
+
 void ITNS_TIPBOT::onMessage(SleepyDiscord::Message message)
 {
-    DiscordCommands::ProcessCommand(this, message);
+    // Dispatcher
+    if (!message.content.empty() && message.content.at(0) == '!')
+    {
+        int channelType;
+        for (const auto & ptr : Apps)
+        {
+            for (const auto & command : *ptr.get())
+            {
+                try
+                {
+                    Poco::StringTokenizer cmd(message.content, " ");
+
+                    if (command.name == cmd[0])
+                    {
+                        channelType = getDiscordChannelType(message.channelID);
+                        if ((command.ChannelPermission == AllowChannelTypes::Any) || (channelType == command.ChannelPermission))
+                        {
+                            if (command.opensWallet)
+                                ptr->setAccount(&RPCMan.getAccount(convertSnowflakeToInt64(message.author.ID)));
+                            else  ptr->setAccount(nullptr);
+
+                            if (ITNS_TIPBOT::isCommandAllowedToBeExecuted(message, command, channelType))
+                                command.func(this, message, command);
+                        }
+                        break;
+                    }
+                }
+                catch (const Poco::Exception & exp)
+                {
+                    sendMessage(message.channelID, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
+                }
+                catch (const SleepyDiscord::ErrorCode & exp)
+                {
+                    std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
+                }
+                catch (AppGeneralException & exp)
+                {
+                    sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
+                }
+            }
+        }
+    }
 }
 
 #define DISCORD_MAX_GET_USERS 2
@@ -94,7 +203,7 @@ void getDiscordUsers(ITNS_TIPBOT & me, std::set<DiscordUser> & myList, const Sle
         struct DiscordUser newUser;
         newUser.username = user.user.username;
         newUser.id = ITNS_TIPBOT::convertSnowflakeToInt64(user.user.ID);
-        newUser.join_epoch_time = ((newUser.id >> 22) + 1420070400000) / 1000;
+        newUser.join_epoch_time = ((newUser.id >> 22) + 1420070400000) * 1000;
         myList.insert(newUser);
     }
 
@@ -147,6 +256,19 @@ void ITNS_TIPBOT::saveUserList()
         }
         out.close();
     }
+}
+
+std::uint64_t ITNS_TIPBOT::totalFaucetAmount()
+{
+    std::uint64_t amount = 0;
+    for (auto & server : UserList)
+    {
+        for (auto & user : server.second)
+        {
+            amount += user.total_faucet_itns_sent;
+        }
+    }
+    return amount;
 }
 
 void ITNS_TIPBOT::loadUserList()
