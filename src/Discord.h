@@ -76,6 +76,12 @@ struct DiscordUser
     }
 }; 
 
+struct TopTakerStruct
+{
+    struct DiscordUser me;
+    std::uint64_t amount;
+};
+
 inline bool operator<(const DiscordUser &a, const DiscordUser &b)
 {
     return a.id < b.id;
@@ -100,6 +106,7 @@ public:
     static bool                                     isCommandAllowedToBeExecuted(const SleepyDiscord::Message & message, const Command& command, int channelType);
     static std::string                              generateHelpText(const std::string & title, const std::vector<Command>& cmds, int ChannelType, const SleepyDiscord::Message& message);
     void                                            saveUserList();
+    const struct TopTakerStruct                     findTopTaker();
 
     std::uint64_t                                   totalFaucetAmount();
 

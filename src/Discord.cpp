@@ -17,6 +17,8 @@ GNU General Public License for more details.
 #include "RPCManager.h"
 #include <fstream>
 #include <memory>
+#include <map>
+#include <utility>
 
 #include "cereal/archives/json.hpp"
 #include "cereal/types/map.hpp"
@@ -257,6 +259,29 @@ void ITNS_TIPBOT::saveUserList()
         }
         out.close();
     }
+}
+
+const struct TopTakerStruct ITNS_TIPBOT::findTopTaker()
+{
+    TopTakerStruct me;
+    std::map<DiscordID, std::uint64_t> topTakerList;
+    for (const auto & mp : UserList)
+    {
+        for (const auto & usr : mp.second)
+        {
+            topTakerList[usr.id] += usr.total_faucet_itns_sent;
+        }
+    }
+
+    auto TopTaker = std::max_element(topTakerList.begin(), topTakerList.end(),
+        [](const std::pair<int, int>& p1, const std::pair<int, int>& p2) {
+        return p1.second > p2.second; });
+
+    const auto & TopDonorUser = findUser(TopTaker->first);
+
+    me.me = TopDonorUser;
+    me.amount = TopTaker->second;
+    return me;
 }
 
 std::uint64_t ITNS_TIPBOT::totalFaucetAmount()

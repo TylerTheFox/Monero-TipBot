@@ -17,7 +17,8 @@ GNU General Public License for more details.
 #include "Poco/Timestamp.h"
 #include "Poco/Timespan.h"
 #include "RPCManager.h"
-
+#include <utility>
+#include <map>
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Faucet::Faucet()
@@ -84,8 +85,6 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
 
     std::stringstream ss;
 
-    ss << "```";
-
     const auto & user = DiscordPtr->findUser(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID));
     const Poco::Timestamp   current;
     const Poco::Timestamp   joints(user.join_epoch_time);
@@ -101,18 +100,18 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
             {
                 const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE);
                 const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID)));
-                user.total_faucet_itns_sent += amount / ITNS_OFFSET;
+                user.total_faucet_itns_sent += amount;
                 ss << Poco::format("%s#%s: You have been granted %0.8f ITNS with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / ITNS_OFFSET, tx.tx_hash);
                 user.faucet_epoch_time = current.epochMicroseconds();
                 DiscordPtr->saveUserList();
             }
-            else ss << "Bot is either broke or has pending transactions, try again later. :disappointed_relieved: \\n";
+            else if (myAccountPtr.getUnlockedBalance() > 0)
+                ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
+            else ss << "Bot is either broke, try again later. :disappointed_relieved: \\n";
         }
         else ss << "Too soon, once every " << FAUCET_TIMEOUT << " hours...\\n";
     }
     else ss << "Your Discord account must be older than 7 days\\n";
-
-    ss << " ```";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());
 }
@@ -126,6 +125,30 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     ss.precision(8);
     myAccountPtr.resyncAccount();
 
+    auto txs = myAccountPtr.getTransactions();
+    std::uint64_t recieved = 0;
+    std::uint64_t sent = 0;
+
+    std::map<DiscordID, std::uint64_t> topDonorList;
+    for (auto tx : txs.tx_in)
+    {
+        if (tx.payment_id > 0)
+            topDonorList[tx.payment_id] += tx.amount;
+        recieved += tx.amount;
+    }
+
+    for (auto tx : txs.tx_out)
+    {
+        sent += tx.amount;
+    }
+
+    auto TopDonor = std::max_element(topDonorList.begin(), topDonorList.end(),
+        [](const std::pair<int, int>& p1, const std::pair<int, int>& p2) {
+        return p1.second < p2.second; });
+
+    const auto & TopDonorUser = DiscordPtr->findUser(TopDonor->first);
+    auto TopTaker =  DiscordPtr->findTopTaker();
+
     ss << "```";
     ss << "Your name is: " << user.username << "\\n";
     ss << "Your ID is: " << user.id << "\\n";
@@ -135,7 +158,12 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     ss << "Minimum Discord Account: " << MIN_DISCORD_ACCOUNT_IN_DAYS << " days\\n";
     ss << "Current Award: " << (myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE) / ITNS_OFFSET << "\\n";
     ss << "Current payout percentage: " << FAUCET_PERCENTAGE_ALLOWANCE*100 << "%\\n";
-    ss << "Current Amount Awarded: " << DiscordPtr->totalFaucetAmount() << "\\n";
+    ss << "Current Amount Awarded: " << sent / ITNS_OFFSET << "\\n";
+    ss << "Current Donated Awarded: " << recieved / ITNS_OFFSET << "\\n";
+    ss << "Current Top Donor: " << TopDonorUser.username << "\\n";
+    ss << "Current Top Donor Amount: " << (TopDonor->second / ITNS_OFFSET) << "\\n";
+    ss << "Current Top Taker: " << TopTaker.me.username << "\\n";
+    ss << "Current Top Taker Amount: " << (TopTaker.amount / ITNS_OFFSET) << "\\n";
     ss << "```";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());
