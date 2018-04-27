@@ -105,9 +105,9 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
                 user.faucet_epoch_time = current.epochMicroseconds();
                 DiscordPtr->saveUserList();
             }
-            else if (myAccountPtr.getUnlockedBalance() > 0)
+            else if (myAccountPtr.getBalance() > 0)
                 ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
-            else ss << "Bot is either broke, try again later. :disappointed_relieved: \\n";
+            else ss << "Bot is broke, try again later. :disappointed_relieved: \\n";
         }
         else ss << "Too soon, once every " << FAUCET_TIMEOUT << " hours...\\n";
     }
