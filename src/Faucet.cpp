@@ -107,11 +107,11 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
             }
             else if (myAccountPtr.getBalance() > 0)
                 ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
-            else ss << "Bot is broke, try again later. :disappointed_relieved: \\n";
+            else ss << "Bot is broke, try again later. :disappointed_relieved:\\n";
         }
         else ss << "Too soon! You're allowed one ``!take`` every " << FAUCET_TIMEOUT << " hours, remaining " << FAUCET_TIMEOUT - faucettimediff.hours() << " hours.\\n";
     }
-    else ss << "Your Discord account must be older than 7 days\\n";
+    else ss << "Your Discord account must be older than 7 days.\\n";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());
 }
@@ -150,21 +150,21 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     auto TopTaker =  DiscordPtr->findTopTaker();
 
     ss << "```";
-    ss << "Your name is: " << user.username << "\\n";
-    ss << "Your ID is: " << user.id << "\\n";
-    ss << "Bot current balance is: " << myAccountPtr.getBalance() / ITNS_OFFSET << "\\n";
-    ss << "Bot current unlocked balance is: " << myAccountPtr.getUnlockedBalance() / ITNS_OFFSET << "\\n";
-    ss << "Bot current address is: " << myAccountPtr.getMyAddress() << "\\n";
+    ss << "Your name is: " << user.username << ".\\n";
+    ss << "Your ID is: " << user.id << ".\\n";
+    ss << "Bot current balance is: " << myAccountPtr.getBalance() / ITNS_OFFSET << ".\\n";
+    ss << "Bot current unlocked balance is: " << myAccountPtr.getUnlockedBalance() / ITNS_OFFSET << ".\\n";
+    ss << "Bot current address is: " << myAccountPtr.getMyAddress() << ".\\n";
     ss << "Bot timeout is: " << FAUCET_TIMEOUT << " hours\\n";
-    ss << "Minimum Discord Account: " << MIN_DISCORD_ACCOUNT_IN_DAYS << " days\\n";
-    ss << "Current Award: " << (myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE) / ITNS_OFFSET << "\\n";
-    ss << "Current payout percentage: " << FAUCET_PERCENTAGE_ALLOWANCE*100 << "%\\n";
-    ss << "Current Award Amount: " << sent / ITNS_OFFSET << "\\n";
-    ss << "Current Donated From Users: " << recieved / ITNS_OFFSET << "\\n";
-    ss << "Current Top Donor: " << TopDonorUser.username << " (" << TopDonorUser.id << ")\\n";
-    ss << "Current Top Donor Amount: " << (TopDonor->second / ITNS_OFFSET) << "\\n";
-    ss << "Current Top Taker: " << TopTaker.me.username << " (" << TopTaker.me.id << ")\\n";
-    ss << "Current Top Taker Amount: " << (TopTaker.amount / ITNS_OFFSET) << "\\n";
+    ss << "Minimum Discord Account: " << MIN_DISCORD_ACCOUNT_IN_DAYS << " days.\\n";
+    ss << "Current Award: " << (myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE) / ITNS_OFFSET << ".\\n";
+    ss << "Current payout percentage: " << FAUCET_PERCENTAGE_ALLOWANCE*100 << "%.\\n";
+    ss << "Current Award Amount: " << sent / ITNS_OFFSET << ".\\n";
+    ss << "Current Donated From Users: " << recieved / ITNS_OFFSET << ".\\n";
+    ss << "Current Top Donor: " << TopDonorUser.username << " (" << TopDonorUser.id << ").\\n";
+    ss << "Current Top Donor Amount: " << (TopDonor->second / ITNS_OFFSET) << ".\\n";
+    ss << "Current Top Taker: " << TopTaker.me.username << " (" << TopTaker.me.id << ").\\n";
+    ss << "Current Top Taker Amount: " << (TopTaker.amount / ITNS_OFFSET) << ".\\n";
     ss << "```";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());
