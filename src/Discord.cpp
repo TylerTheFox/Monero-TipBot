@@ -274,8 +274,8 @@ const struct TopTakerStruct ITNS_TIPBOT::findTopTaker()
     }
 
     auto TopTaker = std::max_element(topTakerList.begin(), topTakerList.end(),
-        [](const std::pair<int, int>& p1, const std::pair<int, int>& p2) {
-        return p1.second > p2.second; });
+        [](const std::pair<DiscordID, std::uint64_t>& p1, const std::pair<DiscordID, std::uint64_t>& p2) {
+        return p1.second < p2.second; });
 
     const auto & TopDonorUser = findUser(TopTaker->first);
 

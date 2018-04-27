@@ -143,7 +143,7 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     }
 
     auto TopDonor = std::max_element(topDonorList.begin(), topDonorList.end(),
-        [](const std::pair<int, int>& p1, const std::pair<int, int>& p2) {
+        [](const std::pair<DiscordID, std::uint64_t>& p1, const std::pair<DiscordID, std::uint64_t>& p2) {
         return p1.second < p2.second; });
 
     const auto & TopDonorUser = DiscordPtr->findUser(TopDonor->first);
@@ -160,9 +160,9 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     ss << "Current payout percentage: " << FAUCET_PERCENTAGE_ALLOWANCE*100 << "%\\n";
     ss << "Current Amount Awarded: " << sent / ITNS_OFFSET << "\\n";
     ss << "Current Donated Awarded: " << recieved / ITNS_OFFSET << "\\n";
-    ss << "Current Top Donor: " << TopDonorUser.username << "\\n";
+    ss << "Current Top Donor: " << TopDonorUser.username << " (" << TopDonorUser.id << ")\\n";
     ss << "Current Top Donor Amount: " << (TopDonor->second / ITNS_OFFSET) << "\\n";
-    ss << "Current Top Taker: " << TopTaker.me.username << "\\n";
+    ss << "Current Top Taker: " << TopTaker.me.username << " (" << TopTaker.me.id << ")\\n";
     ss << "Current Top Taker Amount: " << (TopTaker.amount / ITNS_OFFSET) << "\\n";
     ss << "```";
 
