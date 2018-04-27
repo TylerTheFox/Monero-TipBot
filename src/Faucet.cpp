@@ -109,7 +109,7 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
                 ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
             else ss << "Bot is broke, try again later. :disappointed_relieved: \\n";
         }
-        else ss << "Too soon! You're allowed one ``!take`` every " << FAUCET_TIMEOUT << " hours, Remaining " << FAUCET_TIMEOUT - faucettimediff.hours() << " hours.\\n";
+        else ss << "Too soon! You're allowed one ``!take`` every " << FAUCET_TIMEOUT << " hours, remaining " << FAUCET_TIMEOUT - faucettimediff.hours() << " hours.\\n";
     }
     else ss << "Your Discord account must be older than 7 days\\n";
 
@@ -168,5 +168,4 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     ss << "```";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());
-
 }
