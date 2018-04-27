@@ -92,24 +92,24 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
     const Poco::Timespan    faucettimediff(current - faucetts);
     const Poco::Timespan    jointimediff(current - joints);
 
-    if (jointimediff.days() > MIN_DISCORD_ACCOUNT_IN_DAYS)
+    if (jointimediff.days() >= MIN_DISCORD_ACCOUNT_IN_DAYS)
     {
-        if (faucettimediff.hours() > FAUCET_TIMEOUT)
+        if (faucettimediff.hours() >= FAUCET_TIMEOUT)
         {
             if (myAccountPtr.getUnlockedBalance() > 0)
             {
                 const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE);
                 const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID)));
-                user.total_faucet_itns_sent += amount;
                 ss << Poco::format("%s#%s: You have been granted %0.8f ITNS with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / ITNS_OFFSET, tx.tx_hash);
                 user.faucet_epoch_time = current.epochMicroseconds();
+                user.total_faucet_itns_sent += amount;
                 DiscordPtr->saveUserList();
             }
             else if (myAccountPtr.getBalance() > 0)
                 ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
             else ss << "Bot is broke, try again later. :disappointed_relieved: \\n";
         }
-        else ss << "Too soon, once every " << FAUCET_TIMEOUT << " hours...\\n";
+        else ss << "Too soon! You're allowed one ``!take`` every " << FAUCET_TIMEOUT << " hours, Remaining " << FAUCET_TIMEOUT - faucettimediff.hours() << " hours\\n";
     }
     else ss << "Your Discord account must be older than 7 days\\n";
 
@@ -158,8 +158,8 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     ss << "Minimum Discord Account: " << MIN_DISCORD_ACCOUNT_IN_DAYS << " days\\n";
     ss << "Current Award: " << (myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE) / ITNS_OFFSET << "\\n";
     ss << "Current payout percentage: " << FAUCET_PERCENTAGE_ALLOWANCE*100 << "%\\n";
-    ss << "Current Amount Awarded: " << sent / ITNS_OFFSET << "\\n";
-    ss << "Current Donated Awarded: " << recieved / ITNS_OFFSET << "\\n";
+    ss << "Current Award Amount: " << sent / ITNS_OFFSET << "\\n";
+    ss << "Current Donated From Users: " << recieved / ITNS_OFFSET << "\\n";
     ss << "Current Top Donor: " << TopDonorUser.username << " (" << TopDonorUser.id << ")\\n";
     ss << "Current Top Donor Amount: " << (TopDonor->second / ITNS_OFFSET) << "\\n";
     ss << "Current Top Taker: " << TopTaker.me.username << " (" << TopTaker.me.id << ")\\n";
