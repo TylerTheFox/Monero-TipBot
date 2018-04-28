@@ -196,7 +196,7 @@ void ITNS_TIPBOT::onMessage(SleepyDiscord::Message message)
     }
 }
 
-#define DISCORD_MAX_GET_USERS 2
+#define DISCORD_MAX_GET_USERS 1000
 void getDiscordUsers(ITNS_TIPBOT & me, std::set<DiscordUser> & myList, const SleepyDiscord::Snowflake<SleepyDiscord::Server> & snowyServer, const unsigned short & limit, const SleepyDiscord::Snowflake<SleepyDiscord::User> & snowyUser)
 {
     auto guildInfo = me.listMembers(snowyServer, limit, snowyUser).vector();
