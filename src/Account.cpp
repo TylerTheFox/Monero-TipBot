@@ -76,7 +76,7 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
         throw InsufficientBalance("You do not have enough money for the fee, try !giveall instead");
 
     if (amount > UnlockedBalance)
-        throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, Balance / ITNS_OFFSET));
+        throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, UnlockedBalance / ITNS_OFFSET));
 
     if (amount == 0)
         throw ZeroTransferAmount("You are trying to transfer a zero amount");
@@ -130,7 +130,7 @@ TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::str
         throw InsufficientBalance("You do not have enough money for the fee, try !giveall instead");
 
     if (amount > UnlockedBalance)
-        throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, Balance / ITNS_OFFSET));
+        throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, UnlockedBalance / ITNS_OFFSET));
 
     if (amount == 0)
         throw ZeroTransferAmount("You are trying to transfer a zero amount");
@@ -153,7 +153,7 @@ TransferRet Account::transferAllMoneyToAddress(const std::string& address)
     resyncAccount();
 
     if (UnlockedBalance == 0)
-        throw InsufficientBalance(Poco::format("You are trying to send all your money to an address while only having %f!", Balance / ITNS_OFFSET));
+        throw InsufficientBalance(Poco::format("You are trying to send all your money to an address while only having %f!", UnlockedBalance / ITNS_OFFSET));
 
     if (address.empty())
         throw GeneralAccountError("You need to specify an address to send to.");
