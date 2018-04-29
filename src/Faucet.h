@@ -16,9 +16,9 @@ GNU General Public License for more details.
 #include "Account.h"
 #include "AppBaseClass.h"
 
-#define FAUCET_PERCENTAGE_ALLOWANCE 0.01
+#define FAUCET_PERCENTAGE_ALLOWANCE 0.008
 #define MIN_DISCORD_ACCOUNT_IN_DAYS 7
-#define FAUCET_TIMEOUT              6
+#define FAUCET_TIMEOUT              16
 
 class Faucet : public AppBaseClass
 {
