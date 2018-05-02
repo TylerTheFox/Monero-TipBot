@@ -156,7 +156,7 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     ss << "Bot current unlocked balance is: " << myAccountPtr.getUnlockedBalance() / ITNS_OFFSET << ".\\n";
     ss << "Bot current address is: " << myAccountPtr.getMyAddress() << ".\\n";
     ss << "Bot timeout is: " << FAUCET_TIMEOUT << " hours\\n";
-    ss << "Minimum Discord Account: " << MIN_DISCORD_ACCOUNT_IN_DAYS << " days.\\n";
+    ss << "Minimum Discord Account: " << MIN_DISCORD_ACCOUNT_IN_DAYS / MICROSECOND_DAY << " days.\\n";
     ss << "Current Award: " << (myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE) / ITNS_OFFSET << ".\\n";
     ss << "Current payout percentage: " << FAUCET_PERCENTAGE_ALLOWANCE*100 << "%.\\n";
     ss << "Current Award Amount: " << sent / ITNS_OFFSET << ".\\n";
