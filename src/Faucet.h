@@ -16,9 +16,11 @@ GNU General Public License for more details.
 #include "Account.h"
 #include "AppBaseClass.h"
 
-#define FAUCET_PERCENTAGE_ALLOWANCE 0.008
-#define MIN_DISCORD_ACCOUNT_IN_DAYS 7
-#define FAUCET_TIMEOUT              16
+#define FAUCET_PERCENTAGE_ALLOWANCE     0.008
+#define MICROSECOND_HOUR                3600000000
+#define MICROSECOND_DAY                 (MICROSECOND_HOUR*24.0)
+#define MIN_DISCORD_ACCOUNT_IN_DAYS     (7.0*MICROSECOND_DAY)   // Days
+#define FAUCET_TIMEOUT                  (16.0*MICROSECOND_HOUR) // Hours
 
 class Faucet : public AppBaseClass
 {
@@ -35,9 +37,9 @@ public:
     const_iterator  end() const;
     const_iterator  cend() const;
 
-    void                                help(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                                take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                                status(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                                help(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                status(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
 
 private:
     std::vector<struct Command>     Commands;

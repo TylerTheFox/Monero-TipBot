@@ -35,7 +35,7 @@ Faucet::Faucet()
 
 void Faucet::setAccount(Account*)
 {
-    // Do nothing, we construct this parameter since its static.
+    // Do nothing, we construct this parameter since its pure virtual and we dont need it in this class.
 }
 
 iterator Faucet::begin()
@@ -70,14 +70,14 @@ const_iterator Faucet::cend() const
 
 }
 
-void Faucet::help(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+void Faucet::help(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
 {
     const auto channelType = DiscordPtr->getDiscordChannelType(message.channelID);
     const auto helpStr = ITNS_TIPBOT::generateHelpText("ITNS Bot Faucet Commands (use ``!give [amount] @Tip Bot`` to donate to faucet):\\n", Commands, channelType, message);
     DiscordPtr->sendMessage(message.channelID, helpStr);
 }
 
-void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
 {
     auto & myAccountPtr = RPCManager::getGlobalBotAccount();
 
@@ -87,36 +87,36 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
 
     const auto & user = DiscordPtr->findUser(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID));
     const Poco::Timestamp   current;
-    const Poco::Timestamp   joints(user.join_epoch_time);
-    const Poco::Timestamp   faucetts(user.faucet_epoch_time);
-    const Poco::Timespan    faucettimediff(current - faucetts);
-    const Poco::Timespan    jointimediff(current - joints);
+    const std::uint64_t     currentTime    = current.epochMicroseconds();
+    const auto              joinTime       = user.join_epoch_time;
+    const auto              faucetTime     = user.faucet_epoch_time;
 
-    if (jointimediff.days() >= MIN_DISCORD_ACCOUNT_IN_DAYS)
+    if ((currentTime - joinTime) >= MIN_DISCORD_ACCOUNT_IN_DAYS)
     {
-        if (faucettimediff.hours() >= FAUCET_TIMEOUT)
+        if (currentTime > faucetTime)
         {
-            if (myAccountPtr.getUnlockedBalance() > 0)
+            if (myAccountPtr.getUnlockedBalance())
             {
                 const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE);
                 const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID)));
                 ss << Poco::format("%s#%s: You have been granted %0.8f ITNS with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / ITNS_OFFSET, tx.tx_hash);
-                user.faucet_epoch_time = current.epochMicroseconds();
+                user.faucet_epoch_time = current.epochMicroseconds() + FAUCET_TIMEOUT;
                 user.total_faucet_itns_sent += amount;
                 DiscordPtr->saveUserList();
             }
-            else if (myAccountPtr.getBalance() > 0)
+            else if (myAccountPtr.getBalance())
                 ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
             else ss << "Bot is broke, try again later. :disappointed_relieved:\\n";
         }
-        else ss << "Too soon! You're allowed one ``!take`` every " << FAUCET_TIMEOUT << " hours, remaining " << FAUCET_TIMEOUT - faucettimediff.hours() << " hours.\\n";
+        else ss << "Too soon! You're allowed one ``!take`` every " << FAUCET_TIMEOUT / MICROSECOND_HOUR <<
+            " hours, remaining " << static_cast<double>(faucetTime - currentTime) / MICROSECOND_HOUR << " hours.\\n";
     }
     else ss << "Your Discord account must be older than 7 days.\\n";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());
 }
 
-void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
 {
     auto & myAccountPtr = RPCManager::getGlobalBotAccount();
     const auto & user = DiscordPtr->findUser(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID));
