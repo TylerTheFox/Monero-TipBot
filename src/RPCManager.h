@@ -19,6 +19,7 @@ GNU General Public License for more details.
 #include "Account.h"
 #include "Poco/Runnable.h"
 #include "Discord.h"
+#include <memory>
 
 #include <cereal/archives/json.hpp>
 #include "Poco/Process.h"
@@ -81,6 +82,8 @@ public:
     static const RPC&                       getGlobalBotRPC();
     static       Account &                  getGlobalBotAccount();
     const DiscordID &                       getBotDiscordID();
+    static std::shared_ptr<RPCProc>         manuallyCreateRPC(const std::string & walletname, unsigned short port);
+    void                                    waitForRPCToRespond(DiscordID id, const RPC & rpc);
 
     void                                    save();
     void                                    load();
@@ -92,13 +95,12 @@ private:
     ITNS_TIPBOT*                            DiscordPtr;
 
     bool                                    isRPCRunning(DiscordID id);
-    struct RPCProc                          SpinUpNewRPC(DiscordID id);
+    struct RPCProc                          SpinUpNewRPC(DiscordID id, unsigned short port = 0);
     void                                    SpinDownRPC(DiscordID id);
     struct RPCProc &                        FindOldestRPC();
     void                                    SaveWallets();
     void                                    ReloadSavedRPCs();
     unsigned int                            LaunchRPC(unsigned short port);
-    void                                    waitForRPCToRespond(DiscordID id, const RPC & rpc);
 };
 
 extern RPCManager                           RPCMan;

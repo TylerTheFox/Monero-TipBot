@@ -28,14 +28,16 @@ public:
     Faucet();
     virtual ~Faucet() = default;
 
-    void            setAccount(Account *);
-    iterator        begin();
-    const_iterator  begin() const;
-    const_iterator  cbegin() const;
+    void                                save();
+    void                                load();
+    void                                setAccount(Account *);
+    iterator                            begin();
+    const_iterator                      begin() const;
+    const_iterator                      cbegin() const;
 
-    iterator        end();
-    const_iterator  end() const;
-    const_iterator  cend() const;
+    iterator                            end();
+    const_iterator                      end() const;
+    const_iterator                      cend() const;
 
     void                                help(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;

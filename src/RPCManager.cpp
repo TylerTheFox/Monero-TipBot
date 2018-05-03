@@ -211,6 +211,25 @@ const DiscordID& RPCManager::getBotDiscordID()
     return BotID;
 }
 
+std::shared_ptr<RPCProc> RPCManager::manuallyCreateRPC(const std::string& walletname, unsigned short port)
+{
+    std::shared_ptr<RPCProc> ret(new RPCProc(RPCMan.SpinUpNewRPC(0, port)));
+
+    // Setup Account
+    ret->MyAccount.open(RPCMan.getBotDiscordID(), &ret->MyRPC);
+
+    // Wait for RPC to respond
+    RPCMan.waitForRPCToRespond(0, ret->MyRPC);
+
+    // Open Wallet
+    assert(ret->MyRPC.openWallet(walletname));
+
+    // Get transactions
+    ret->Transactions = ret->MyRPC.getTransfers();
+
+    return ret;
+}
+
 void RPCManager::save()
 {
     Poco::Mutex::ScopedLock lock(mu);
@@ -246,14 +265,19 @@ void RPCManager::load()
     }
 }
 
-RPCProc RPCManager::SpinUpNewRPC(DiscordID id)
+RPCProc RPCManager::SpinUpNewRPC(DiscordID id, unsigned short port)
 {
     RPCProc RPC_DATA;
-    RPC_DATA.pid = LaunchRPC(currPortNum);
-    RPC_DATA.MyAccount.open(id, &RPC_DATA.MyRPC);
-    RPC_DATA.MyRPC.open(currPortNum);
 
-    currPortNum++;
+    const auto & portNum = port ? port : currPortNum;
+
+    RPC_DATA.pid = LaunchRPC(portNum);
+    RPC_DATA.MyAccount.open(id, &RPC_DATA.MyRPC);
+    RPC_DATA.MyRPC.open(portNum);
+
+    if (port == 0)
+        currPortNum++;
+
     return RPC_DATA;
 }
 
@@ -361,8 +385,11 @@ void RPCManager::waitForRPCToRespond(DiscordID id, const RPC & rpc)
         if (timer.seconds() > 30)
         {
             // Give up
-            Poco::Process::kill(RPCMap[id].pid);
-            RPCMap.erase(id);
+            if (id)
+            {
+                Poco::Process::kill(RPCMap[id].pid);
+                RPCMap.erase(id);
+            }
             throw RPCGeneralError("-1", "RPC Process Killed, given up on connecting.");
         }
     }

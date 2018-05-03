@@ -33,6 +33,16 @@ Faucet::Faucet()
     };
 }
 
+void Faucet::save()
+{
+
+}
+
+void Faucet::load()
+{
+
+}
+
 void Faucet::setAccount(Account*)
 {
     // Do nothing, we construct this parameter since its pure virtual and we dont need it in this class.

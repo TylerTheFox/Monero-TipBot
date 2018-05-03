@@ -22,7 +22,7 @@ GNU General Public License for more details.
 #include <memory>
 
 #define        VERSION_MAJOR 1
-#define        VERSION_MINOR 4
+#define        VERSION_MINOR 5
 
 extern const char *aboutStr;
 
@@ -107,6 +107,7 @@ public:
     static std::string                              generateHelpText(const std::string & title, const std::vector<Command>& cmds, int ChannelType, const SleepyDiscord::Message& message);
     void                                            saveUserList();
     const struct TopTakerStruct                     findTopTaker();
+    void                                            AppSave();
 
     std::uint64_t                                   totalFaucetAmount();
 

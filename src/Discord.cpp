@@ -27,6 +27,7 @@ GNU General Public License for more details.
 #include "Faucet.h"
 #include "RPCException.h"
 #include "Poco/StringTokenizer.h"
+#include "Lottery.h"
 
 const char *aboutStr =
 "```ITNS TipBot v%d.%d\\n"
@@ -44,8 +45,12 @@ void ITNS_TIPBOT::init()
 {
     Apps = { 
         {(std::shared_ptr<AppBaseClass>(std::make_unique<Tip>()))},
-        {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))}
+        {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))},
+        {(std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this)))}
     };
+
+    for (auto & app : Apps)
+        app->load();
 }
 
 int ITNS_TIPBOT::getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id)
@@ -282,6 +287,12 @@ const struct TopTakerStruct ITNS_TIPBOT::findTopTaker()
     me.me = TopDonorUser;
     me.amount = TopTaker->second;
     return me;
+}
+
+void ITNS_TIPBOT::AppSave()
+{
+    for (auto & app : Apps)
+        app->save();
 }
 
 std::uint64_t ITNS_TIPBOT::totalFaucetAmount()

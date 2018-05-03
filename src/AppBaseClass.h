@@ -10,6 +10,8 @@ public:
     AppBaseClass() = default;
     
     virtual void            setAccount(Account *) = 0;
+    virtual void            save() = 0;
+    virtual void            load() = 0;
 
     virtual iterator        begin() = 0;
     virtual const_iterator  begin() const = 0;

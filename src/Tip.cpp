@@ -48,6 +48,14 @@ Tip::Tip() : MyAccount(nullptr)
     };
 }
 
+void Tip::save()
+{
+}
+
+void Tip::load()
+{
+}
+
 void Tip::Help(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
     const auto channelType = DiscordPtr->getDiscordChannelType(message.channelID);
@@ -62,7 +70,6 @@ void Tip::Balance(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& messag
 
 void Tip::MyAddress(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-
     DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your ITNS Address is: %s", message.author.username, message.author.discriminator, Account::getWalletAddress(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID))));
 }
 
@@ -227,13 +234,11 @@ iterator Tip::end()
 const_iterator Tip::end() const
 {
     return Commands.end();
-
 }
 
 const_iterator Tip::cend() const
 {
     return Commands.cend();
-
 }
 
 void Tip::setAccount(Account* acc)

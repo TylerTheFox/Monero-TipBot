@@ -31,6 +31,8 @@ public:
     Tip();
     ~Tip() = default;
 
+    void                            save();
+    void                            load();
     iterator                        begin();
     const_iterator                  begin() const;
     const_iterator                  cbegin() const;
