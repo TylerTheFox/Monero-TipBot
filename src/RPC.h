@@ -46,6 +46,7 @@ GNU General Public License for more details.
 #define RPC_METHOD_OPEN_WALLET              "open_wallet"
 #define RPC_METHOD_CLOSE_RPC                "stop_wallet"
 #define RPC_METHOD_STORE                    "store"
+#define RPC_METHOD_RESCAN_SPENT             "rescan_spent"
 
 struct BalanceRet
 {
@@ -104,6 +105,7 @@ public:
     bool                            openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;
     void                            stopWallet(int id = 0) const;
     void                            store(int id = 0) const;
+    void                            rescanSpent(int id = 0) const;
 
     unsigned short                  getPort() const;
 
