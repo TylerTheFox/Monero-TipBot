@@ -350,6 +350,11 @@ void RPC::store(int id) const
      }*/
 }
 
+void RPC::rescanSpent(int id) const
+{
+    auto json = getDataFromRPC(RPC_METHOD_RESCAN_SPENT, {}, id);
+}
+
 unsigned short RPC::getPort() const
 {
     return port;

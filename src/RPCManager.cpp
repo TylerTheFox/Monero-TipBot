@@ -394,3 +394,9 @@ void RPCManager::waitForRPCToRespond(DiscordID id, const RPC & rpc)
         }
     }
 }
+
+void RPCManager::rescanAll()
+{
+    for (auto & wallet : RPCMap)
+        wallet.second.MyRPC.rescanSpent();
+}

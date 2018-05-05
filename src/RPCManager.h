@@ -85,6 +85,8 @@ public:
     static std::shared_ptr<RPCProc>         manuallyCreateRPC(const std::string & walletname, unsigned short port);
     void                                    waitForRPCToRespond(DiscordID id, const RPC & rpc);
 
+    void                                    rescanAll();
+
     void                                    save();
     void                                    load();
 private:

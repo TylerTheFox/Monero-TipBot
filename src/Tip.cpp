@@ -45,6 +45,8 @@ Tip::Tip() : MyAccount(nullptr)
         // Command            Function                                       Params                              Wallet  Admin   Allowed Channel
         { "!togglewithdraw",  CLASS_RESOLUTION(ToggleWithdraw),              "",                                 false,  true,   AllowChannelTypes::Private },
         { "!togglegive",      CLASS_RESOLUTION(ToggleGive),                  "",                                 false,  true,   AllowChannelTypes::Private },
+        { "!rescanallwallets",CLASS_RESOLUTION(RescanAllWallets),            "",                                 false,  true,   AllowChannelTypes::Private },
+
     };
 }
 
@@ -209,6 +211,12 @@ void Tip::ToggleGive(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& mess
 {
     globalSettings.giveAllowed = !globalSettings.giveAllowed;
     DiscordPtr->sendMessage(message.channelID, Poco::format("Give Enabled: %b", globalSettings.giveAllowed));
+}
+
+void Tip::RescanAllWallets(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+{
+    RPCMan.rescanAll();
+    DiscordPtr->sendMessage(message.channelID, "Rescan spent complete!");
 }
 
 iterator Tip::begin()

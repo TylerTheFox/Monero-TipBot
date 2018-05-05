@@ -46,7 +46,7 @@ void ITNS_TIPBOT::init()
     Apps = { 
         {(std::shared_ptr<AppBaseClass>(std::make_unique<Tip>()))},
         {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))},
-        {(std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this)))}
+        //{(std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this)))}
     };
 
     for (auto & app : Apps)
