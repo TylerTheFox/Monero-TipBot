@@ -84,6 +84,8 @@ public:
     const DiscordID &                       getBotDiscordID();
     static std::shared_ptr<RPCProc>         manuallyCreateRPC(const std::string & walletname, unsigned short port);
     void                                    waitForRPCToRespond(DiscordID id, const RPC & rpc);
+    std::uint64_t                           getTotalBalance();
+    std::uint64_t                           getTotalUnlockedBalance();
 
     void                                    rescanAll();
 

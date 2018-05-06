@@ -170,7 +170,7 @@ void ITNS_TIPBOT::onMessage(SleepyDiscord::Message message)
                 {
                     Poco::StringTokenizer cmd(message.content, " ");
 
-                    if (command.name == cmd[0])
+                    if (command.name == Poco::toLower(cmd[0]))
                     {
                         channelType = getDiscordChannelType(message.channelID);
                         if ((command.ChannelPermission == AllowChannelTypes::Any) || (channelType == command.ChannelPermission))

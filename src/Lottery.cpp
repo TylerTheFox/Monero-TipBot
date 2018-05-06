@@ -20,7 +20,7 @@ Lottery::Lottery(ITNS_TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false)
         { "!gameinfo",                  CLASS_RESOLUTION(gameInfo),                   "",               false,  false,  AllowChannelTypes::Any        },
         { "!mytickets",                 CLASS_RESOLUTION(MyTickets),                  "",               false,  false,  AllowChannelTypes::Any        },
         { "!buytickets",                CLASS_RESOLUTION(BuyTicket),                  "[amount]",       true,   false,  AllowChannelTypes::Any        },
-        { "!togglelotterysuspend",      CLASS_RESOLUTION(ToggleLotterySuspend),       "",               false,   true,  AllowChannelTypes::Private    },
+        { "!togglelotterysuspend",      CLASS_RESOLUTION(ToggleLotterySuspend),       "",               false,  true,   AllowChannelTypes::Private    },
     };
     LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, STARTING_PORT_NUMBER - 1);
 }

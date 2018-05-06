@@ -395,6 +395,28 @@ void RPCManager::waitForRPCToRespond(DiscordID id, const RPC & rpc)
     }
 }
 
+std::uint64_t RPCManager::getTotalBalance()
+{
+    uint64_t ret = 0;
+    for (auto & wallet : RPCMap)
+    {
+        wallet.second.MyAccount.resyncAccount();
+        ret += wallet.second.MyAccount.getBalance();
+    }
+    return ret;
+}
+
+std::uint64_t RPCManager::getTotalUnlockedBalance()
+{
+    uint64_t ret = 0;
+    for (auto & wallet : RPCMap)
+    {
+        wallet.second.MyAccount.resyncAccount();
+        ret += wallet.second.MyAccount.getUnlockedBalance();
+    }
+    return ret;
+}
+
 void RPCManager::rescanAll()
 {
     for (auto & wallet : RPCMap)
