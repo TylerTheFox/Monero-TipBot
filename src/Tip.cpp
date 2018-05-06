@@ -82,7 +82,7 @@ void Tip::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& messag
 
     std::stringstream ss;
 
-    const auto addtoss = [&ss, DiscordPtr](const std::set<struct TransferItem, TransferItemCmp> & sset)
+    const auto addtoss = [&ss, DiscordPtr](const std::multiset<struct TransferItem, TransferItemCmp> & sset)
     {
         auto i = 0;
         ss << "```Amount | User | Block Height | TX Hash\\n";

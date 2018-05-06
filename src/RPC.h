@@ -83,8 +83,8 @@ struct TransferItemCmp {
 
 struct TransferList
 {
-    std::set<struct TransferItem, TransferItemCmp> tx_in;
-    std::set<struct TransferItem, TransferItemCmp> tx_out;
+    std::multiset<struct TransferItem, TransferItemCmp> tx_in;
+    std::multiset<struct TransferItem, TransferItemCmp> tx_out;
 };
 
 class RPC
