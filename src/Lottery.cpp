@@ -7,27 +7,22 @@
 #include "cereal/types/list.hpp"
 #include "Poco/StringTokenizer.h"
 #include "Poco/Thread.h"
-#define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 
-Lottery::Lottery(ITNS_TIPBOT * DP) : lastWinningTopBlock(0), DiscordPtr(DP)
+#define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
+Lottery::Lottery(ITNS_TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false)
 {
     Commands =
     {
         // User Commands 
-        // Command            Function                                      Params                              Wallet  Admin   Allowed Channel
-        { "!lottery",         CLASS_RESOLUTION(LotteryHelp),                "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!jackpot",         CLASS_RESOLUTION(Jackpot),                    "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!gameinfo",        CLASS_RESOLUTION(gameInfo),                   "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!mytickets",       CLASS_RESOLUTION(MyTickets),                  "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!buytickets",      CLASS_RESOLUTION(BuyTicket),                  "[amount]",                         true,   false,  AllowChannelTypes::Any },
+        // Command                      Function                                      Params            Wallet  Admin   Allowed Channel
+        { "!lottery",                   CLASS_RESOLUTION(LotteryHelp),                "",               false,  false,  AllowChannelTypes::Any        },
+        { "!jackpot",                   CLASS_RESOLUTION(Jackpot),                    "",               false,  false,  AllowChannelTypes::Any        },
+        { "!gameinfo",                  CLASS_RESOLUTION(gameInfo),                   "",               false,  false,  AllowChannelTypes::Any        },
+        { "!mytickets",                 CLASS_RESOLUTION(MyTickets),                  "",               false,  false,  AllowChannelTypes::Any        },
+        { "!buytickets",                CLASS_RESOLUTION(BuyTicket),                  "[amount]",       true,   false,  AllowChannelTypes::Any        },
+        { "!togglelotterysuspend",      CLASS_RESOLUTION(ToggleLotterySuspend),       "",               false,   true,  AllowChannelTypes::Private    },
     };
     LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, STARTING_PORT_NUMBER - 1);
-
-    lotterySuspended = true; // Lottery not ready yet.
-}
-
-Lottery::~Lottery()
-{
 }
 
 void Lottery::save()
@@ -197,7 +192,7 @@ void Lottery::run()
     }
 }
 
-void Lottery::gameInfo(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Lottery::gameInfo(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
 {
     std::stringstream ss;
 
@@ -213,14 +208,14 @@ void Lottery::gameInfo(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& me
     DiscordPtr->sendMessage(message.channelID, ss.str());
 }
 
-void Lottery::LotteryHelp(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Lottery::LotteryHelp(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
 {
     const auto channelType = DiscordPtr->getDiscordChannelType(message.channelID);
     const auto helpStr = ITNS_TIPBOT::generateHelpText("ITNS Lottery Commands:\\n", Commands, channelType, message);
     DiscordPtr->sendMessage(message.channelID, helpStr);
 }
 
-void Lottery::Jackpot(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Lottery::Jackpot(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
 {
     // Calcualte jackpot.
     std::uint64_t bal = 0;
@@ -235,7 +230,7 @@ void Lottery::Jackpot(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& mes
     DiscordPtr->sendMessage(message.channelID, Poco::format("The current jackpot is: %0.8f", bal / ITNS_OFFSET));
 }
 
-void Lottery::BuyTicket(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Lottery::BuyTicket(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
 {
     Poco::DateTime curr;
     if (curr.dayOfWeek() != LOTTERY_DAY || (curr.dayOfWeek() == LOTTERY_DAY && curr.hour() < LOTTERY_CLOSE))
@@ -259,7 +254,7 @@ void Lottery::BuyTicket(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& m
     else DiscordPtr->sendMessage(message.channelID, "Lottery is closed until 12 AM UTC.");
 }
 
-void Lottery::MyTickets(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Lottery::MyTickets(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
 {
     LotteryAccount->MyAccount.resyncAccount();
 
@@ -274,4 +269,11 @@ void Lottery::MyTickets(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& m
         }
     }
     DiscordPtr->sendMessage(message.channelID, Poco::format("You currently have %Lu active tickets.", static_cast<uint64_t>((bal / ITNS_OFFSET) / TICKET_COST)));
+}
+
+void Lottery::ToggleLotterySuspend(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+{
+    lotterySuspended = !lotterySuspended;    
+    DiscordPtr->AppSave();
+    DiscordPtr->sendMessage(message.channelID, Poco::format("Lottery Suspended: %b", lotterySuspended));
 }

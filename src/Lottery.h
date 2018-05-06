@@ -26,7 +26,7 @@ class Lottery : public Poco::Runnable, public AppBaseClass
 {
 public:
     Lottery(ITNS_TIPBOT * DiscordPtr);
-    virtual ~Lottery();
+    virtual ~Lottery() = default;
 
     void                                save();
     void                                load();
@@ -41,16 +41,17 @@ public:
 
     void                                run();
 
-    void                                gameInfo(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                                LotteryHelp(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                                Jackpot(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                                BuyTicket(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                                MyTickets(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                                gameInfo(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                LotteryHelp(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                Jackpot(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                BuyTicket(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                MyTickets(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
 
+    void                                ToggleLotterySuspend(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 private:
     ITNS_TIPBOT *                   DiscordPtr;
     bool                            lotterySuspended;
-    std::uint64_t                   lastWinningTopBlock;
+    std::uint64_t                   lastWinningTopBlock = 0;
     Account*                        currentUsrAccount{};
     std::shared_ptr<RPCProc>        LotteryAccount;
     std::vector<struct Command>     Commands;
