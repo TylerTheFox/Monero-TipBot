@@ -156,6 +156,26 @@ std::string ITNS_TIPBOT::generateHelpText(const std::string & title, const std::
     return ss.str();
 }
 
+void dispatcher(const std::function<void(ITNS_TIPBOT *, const SleepyDiscord::Message &, const Command &)> & func, ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+{
+    try
+    {
+        func(DiscordPtr, message, me);
+    }
+    catch (const Poco::Exception & exp)
+    {
+        DiscordPtr->sendMessage(message.channelID, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
+    }
+    catch (const SleepyDiscord::ErrorCode & exp)
+    {
+        std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
+    }
+    catch (AppGeneralException & exp)
+    {
+        DiscordPtr->sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
+    }
+}
+
 void ITNS_TIPBOT::onMessage(SleepyDiscord::Message message)
 {
     // Dispatcher
@@ -182,7 +202,7 @@ void ITNS_TIPBOT::onMessage(SleepyDiscord::Message message)
                             if (ITNS_TIPBOT::isCommandAllowedToBeExecuted(message, command, channelType))
                             {
                                 // Create command thread
-                                std::thread t1(command.func, this, message, command);
+                                std::thread t1(dispatcher, command.func, this, message, command);
                                 t1.detach();
                             }
                         }

@@ -179,6 +179,8 @@ void RPCManager::processNewTransactions()
                     account.second.Transactions = newTransactions;
 
                     diff.clear();
+
+                    account.second.MyRPC.store();
                 }
                 catch (const Poco::Exception & exp)
                 {
