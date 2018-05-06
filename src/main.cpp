@@ -52,7 +52,7 @@ void setup()
 
 int main()
 {
-   // try
+    try
     {
         // Setup routine
         setup();
@@ -70,7 +70,7 @@ int main()
 
         client.run();
     }
-    /*catch (const Poco::Exception & exp)
+    catch (const Poco::Exception & exp)
     {
         std::cerr << "Poco Error: " << exp.what() << "\n";
     }
@@ -81,6 +81,6 @@ int main()
     catch (const SleepyDiscord::ErrorCode & exp)
     {
         std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
-    }*/
+    }
     return 0;
 }
