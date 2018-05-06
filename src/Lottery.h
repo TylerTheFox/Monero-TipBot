@@ -49,7 +49,7 @@ public:
 
 private:
     ITNS_TIPBOT *                   DiscordPtr;
-    bool                            lotterySuspended = false;
+    bool                            lotterySuspended;
     std::uint64_t                   lastWinningTopBlock;
     Account*                        currentUsrAccount{};
     std::shared_ptr<RPCProc>        LotteryAccount;

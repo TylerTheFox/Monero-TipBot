@@ -24,6 +24,8 @@ Lottery::Lottery(ITNS_TIPBOT * DP) : lastWinningTopBlock(0), DiscordPtr(DP)
         { "!buyticket",       CLASS_RESOLUTION(BuyTicket),                  "[amount]",                         true,   false,  AllowChannelTypes::Any },
     };
     LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, STARTING_PORT_NUMBER - 1);
+
+    lotterySuspended = true; // Lottery not ready yet.
 }
 
 Lottery::~Lottery()
