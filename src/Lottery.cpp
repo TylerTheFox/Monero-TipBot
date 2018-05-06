@@ -109,7 +109,7 @@ void Lottery::run()
         if (!lotterySuspended)
         {
             Poco::DateTime curr;
-            if (!rewardGivenout && curr.dayOfWeek() == LOTTERY_DAY && curr.hour() == LOTTERY_PICK)
+            if (!noWinner && !rewardGivenout && curr.dayOfWeek() == LOTTERY_DAY && curr.hour() == LOTTERY_PICK)
             {
                 std::cout << "Choosing Winners\n";
                 try
