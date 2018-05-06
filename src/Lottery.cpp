@@ -107,7 +107,7 @@ void Lottery::run()
         if (!lotterySuspended)
         {
             Poco::DateTime curr;
-            if (!rewardGivenout && curr.dayOfWeek() == Poco::DateTime::FRIDAY && curr.hour() == 21)
+            if (!rewardGivenout && curr.dayOfWeek() == LOTTERY_DAY && curr.hour() == LOTTERY_PICK)
             {
                 std::cout << "Choosing Winners\n";
                 try
@@ -127,7 +127,7 @@ void Lottery::run()
                         {
                             if (tx.block_height > lastWinningTopBlock)
                             {
-                                tickets = tx.amount / TICKET_COST;
+                                tickets = (tx.amount / ITNS_OFFSET) / TICKET_COST;
                                 for (int i = 0; i < tickets; i++)
                                     enteries.emplace_back(tx.payment_id);
                                 bal += tx.amount;
@@ -150,7 +150,7 @@ void Lottery::run()
                             {
                                 std::cout << "The winner is " << winner << "\n";
                                 lastWinningTopBlock = txs.tx_in.begin()->block_height;
-                                auto reward = bal - (bal * FACUET_DONATION_PERCENT);
+                                const std::uint64_t reward = bal - (bal * FACUET_DONATION_PERCENT);
                                 auto WinnerAccount = RPCMan.getAccount(winner);
                                 DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(winner), Poco::format("You've won %0.8f ITNS from the lottery! :money_with_wings:", reward / ITNS_OFFSET));
                                 LotteryAccount->MyAccount.transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
@@ -170,7 +170,7 @@ void Lottery::run()
                 }
                 rewardGivenout = true;
             }
-            else if (!sweepComplete && curr.dayOfWeek() == Poco::DateTime::FRIDAY && curr.hour() == 23)
+            else if (!sweepComplete && curr.dayOfWeek() == LOTTERY_DAY && curr.hour() == LOTTERY_FAUCET)
             {
                 try
                 {
@@ -238,7 +238,7 @@ void Lottery::Jackpot(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& mes
 void Lottery::BuyTicket(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
     Poco::DateTime curr;
-    if (curr.dayOfWeek() != Poco::DateTime::FRIDAY || (curr.dayOfWeek() == Poco::DateTime::FRIDAY && curr.hour() < 18))
+    if (curr.dayOfWeek() != LOTTERY_DAY || (curr.dayOfWeek() == LOTTERY_DAY && curr.hour() < LOTTERY_CLOSE))
     {
         if (!lotterySuspended)
         {
@@ -273,5 +273,5 @@ void Lottery::MyTickets(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& m
             bal += tx.amount;
         }
     }
-    DiscordPtr->sendMessage(message.channelID, Poco::format("You currently have %?i active tickets.", bal / TICKET_COST));
+    DiscordPtr->sendMessage(message.channelID, Poco::format("You currently have %Lu active tickets.", static_cast<uint64_t>((bal / ITNS_OFFSET) / TICKET_COST)));
 }

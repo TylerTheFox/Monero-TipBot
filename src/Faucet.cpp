@@ -98,8 +98,8 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
     const auto & user = DiscordPtr->findUser(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID));
     const Poco::Timestamp   current;
     const std::uint64_t     currentTime    = current.epochMicroseconds();
-    const auto              joinTime       = user.join_epoch_time;
-    const auto              faucetTime     = user.faucet_epoch_time;
+    const auto&             joinTime       = user.join_epoch_time;
+    const auto&             faucetTime     = user.faucet_epoch_time;
 
     if ((currentTime - joinTime) >= MIN_DISCORD_ACCOUNT_IN_DAYS)
     {
@@ -109,9 +109,9 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
             {
                 const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE);
                 const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID)));
-                ss << Poco::format("%s#%s: You have been granted %0.8f ITNS with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / ITNS_OFFSET, tx.tx_hash);
                 user.faucet_epoch_time = current.epochMicroseconds() + FAUCET_TIMEOUT;
                 user.total_faucet_itns_sent += amount;
+                ss << Poco::format("%s#%s: You have been granted %0.8f ITNS with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / ITNS_OFFSET, tx.tx_hash);
                 DiscordPtr->saveUserList();
             }
             else if (myAccountPtr.getBalance())

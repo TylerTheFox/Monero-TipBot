@@ -17,6 +17,10 @@
 #define    TICKET_COST             0.5 // ITNS
 #define    FACUET_DONATION_PERCENT 0.05
 #define    NO_WINNER_CHANCE        0.20
+#define    LOTTERY_DAY             Poco::DateTime::FRIDAY
+#define    LOTTERY_CLOSE           18
+#define    LOTTERY_PICK            21
+#define    LOTTERY_FAUCET          23
 
 class Lottery : public Poco::Runnable, public AppBaseClass
 {
@@ -45,7 +49,7 @@ public:
 
 private:
     ITNS_TIPBOT *                   DiscordPtr;
-    bool                            lotterySuspended{};
+    bool                            lotterySuspended = false;
     std::uint64_t                   lastWinningTopBlock;
     Account*                        currentUsrAccount{};
     std::shared_ptr<RPCProc>        LotteryAccount;

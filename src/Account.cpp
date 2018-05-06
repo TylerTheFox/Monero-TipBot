@@ -68,6 +68,7 @@ const std::string & Account::getMyAddress() const
 
 TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, DiscordID DIS_ID)
 {
+    Poco::Mutex::ScopedLock lock(mu);
     assert(RPCPtr);
 
     // Resync account.
@@ -98,6 +99,7 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
 
 TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
 {
+    Poco::Mutex::ScopedLock lock(mu);
     assert(RPCPtr);
 
     // Resync account.
@@ -122,6 +124,7 @@ TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
 
 TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::string & address)
 {
+    Poco::Mutex::ScopedLock lock(mu);
     assert(RPCPtr);
 
     // Resync account.
@@ -148,6 +151,7 @@ TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::str
 
 TransferRet Account::transferAllMoneyToAddress(const std::string& address)
 {
+    Poco::Mutex::ScopedLock lock(mu);
     assert(RPCPtr);
 
     // Resync account.
@@ -174,6 +178,7 @@ TransferList Account::getTransactions()
 
 void Account::resyncAccount()
 {
+    Poco::Mutex::ScopedLock lock(mu);
     assert(RPCPtr);
     RPCPtr->rescanSpent();
     Poco::Thread::sleep(500); // Sleep for a bit so RPC can catch up.

@@ -28,6 +28,7 @@ GNU General Public License for more details.
 #include "RPCException.h"
 #include "Poco/StringTokenizer.h"
 #include "Lottery.h"
+#include "Poco/ThreadTarget.h"
 
 const char *aboutStr =
 "```ITNS TipBot v%d.%d\\n"
@@ -46,7 +47,7 @@ void ITNS_TIPBOT::init()
     Apps = { 
         {(std::shared_ptr<AppBaseClass>(std::make_unique<Tip>()))},
         {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))},
-        //{(std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this)))}
+        {(std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this)))}
     };
 
     for (auto & app : Apps)
@@ -179,7 +180,11 @@ void ITNS_TIPBOT::onMessage(SleepyDiscord::Message message)
                             else  ptr->setAccount(nullptr);
 
                             if (ITNS_TIPBOT::isCommandAllowedToBeExecuted(message, command, channelType))
-                                command.func(this, message, command);
+                            {
+                                // Create command thread
+                                std::thread t1(command.func, this, message, command);
+                                t1.detach();
+                            }
                         }
                         break;
                     }

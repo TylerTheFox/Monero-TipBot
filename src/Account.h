@@ -42,6 +42,7 @@ public:
     Account&                    operator=(const Account &rhs);
 
 private:
+    Poco::Mutex                 mu;
     const RPC*                  RPCPtr;
     DiscordID                   Discord_ID;
     std::uint64_t               Balance;
