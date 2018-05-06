@@ -85,7 +85,7 @@ Account& RPCManager::getAccount(DiscordID id)
         waitForRPCToRespond(id, RPCMap[id].MyRPC);
 
         // Open Wallet
-        assert(RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id)));
+        RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id));
 
         // Get transactions
         RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
@@ -222,7 +222,7 @@ std::shared_ptr<RPCProc> RPCManager::manuallyCreateRPC(const std::string& wallet
     RPCMan.waitForRPCToRespond(0, ret->MyRPC);
 
     // Open Wallet
-    assert(ret->MyRPC.openWallet(walletname));
+    ret->MyRPC.openWallet(walletname);
 
     // Get transactions
     ret->Transactions = ret->MyRPC.getTransfers();
@@ -321,7 +321,7 @@ void RPCManager::ReloadSavedRPCs()
             waitForRPCToRespond(wallets.first, wallets.second.MyRPC);
 
             // Open Wallet
-            assert(wallets.second.MyRPC.openWallet(Util::getWalletStrFromIID(wallets.first)));
+            wallets.second.MyRPC.openWallet(Util::getWalletStrFromIID(wallets.first));
 
             // Get transactions
             wallets.second.Transactions = wallets.second.MyRPC.getTransfers();

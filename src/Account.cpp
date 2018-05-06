@@ -203,7 +203,7 @@ const std::string Account::getWalletAddress(DiscordID Discord_ID)
     const std::string & walletStr = Util::getWalletStrFromIID(Discord_ID);
 
     if (!Util::doesWalletExist(WALLET_PATH + walletStr))
-        assert(RPCManager::getGlobalBotRPC().createWallet(walletStr));
+            RPCManager::getGlobalBotRPC().createWallet(walletStr);
 
     const auto addressStr = WALLET_PATH + walletStr + ".address.txt";
 

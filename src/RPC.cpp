@@ -281,7 +281,7 @@ TransferList RPC::getTransfers(int id) const
 bool RPC::createWallet(const std::string & name, const std::string & password, const std::string & language, int id) const
 {
     // Ensure we dont overwrite a wallet.
-    assert(!Util::doesWalletExist(WALLET_PATH + name));
+    if (!Util::doesWalletExist(WALLET_PATH + name)) return false;
 
     Poco::DynamicStruct data;
 
@@ -306,7 +306,7 @@ bool RPC::openWallet(const std::string & name, const std::string & password, int
 {
     // Ensure Wallet Exists
     if (!Util::doesWalletExist(WALLET_PATH + name))
-        assert(createWallet(name, password));
+            createWallet(name, password);
 
     Poco::DynamicStruct data;
 
