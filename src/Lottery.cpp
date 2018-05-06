@@ -201,7 +201,7 @@ void Lottery::gameInfo(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& me
     ss << "Minimum Ticket Cost " << TICKET_COST << " ITNS\\n";
     ss << "Faucet Donation: " << FACUET_DONATION_PERCENT * 100 << "% of the reward\\n";
     ss << "No Winner: " << NO_WINNER_CHANCE * 100 << "% of the drawing will be no winner.\\n";
-    ss << "Days: Lottery starts at Saturday 12 AM UTC and end on Friday 6 PM UTC. Winners announced on Friday 9 PM UTC\\n";
+    ss << "Days: Lottery starts on Saturday 12 AM UTC and end on Friday 6 PM UTC. Winners announced on Friday 9 PM UTC\\n";
     ss << "In the event of no winner the jackpot is rolled over to next drawing\\n";
     ss << "Winner will be direct messaged.\\n";
     ss << "```";
