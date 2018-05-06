@@ -7,8 +7,6 @@
 #include "cereal/types/list.hpp"
 #include "Poco/StringTokenizer.h"
 #include "Poco/Thread.h"
-#include "Poco/ThreadTarget.h"
-#include "Poco/RunnableAdapter.h"
 #define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 
 Lottery::Lottery(ITNS_TIPBOT * DP) : lastWinningTopBlock(0), DiscordPtr(DP)
@@ -21,7 +19,7 @@ Lottery::Lottery(ITNS_TIPBOT * DP) : lastWinningTopBlock(0), DiscordPtr(DP)
         { "!jackpot",         CLASS_RESOLUTION(Jackpot),                    "",                                 false,  false,  AllowChannelTypes::Any },
         { "!gameinfo",        CLASS_RESOLUTION(gameInfo),                   "",                                 false,  false,  AllowChannelTypes::Any },
         { "!mytickets",       CLASS_RESOLUTION(MyTickets),                  "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!buyticket",       CLASS_RESOLUTION(BuyTicket),                  "[amount]",                         true,   false,  AllowChannelTypes::Any },
+        { "!buytickets",      CLASS_RESOLUTION(BuyTicket),                  "[amount]",                         true,   false,  AllowChannelTypes::Any },
     };
     LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, STARTING_PORT_NUMBER - 1);
 
