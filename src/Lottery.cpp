@@ -48,7 +48,7 @@ void Lottery::save()
 
 void Lottery::load()
 {
-    std::ifstream in(LOTTERY_SAVE_FILE, std::ios::trunc);
+    std::ifstream in(LOTTERY_SAVE_FILE);
     if (in.is_open())
     {
         std::cout << "Loading lottery data from the disk...\n";
