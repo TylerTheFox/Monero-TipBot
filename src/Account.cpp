@@ -19,6 +19,7 @@ GNU General Public License for more details.
 #include "Util.h"
 #include "RPCManager.h"
 #include <fstream>
+#include "Poco/Thread.h"
 
 Account::Account() : RPCPtr(nullptr), Discord_ID(0), Balance(0), UnlockedBalance(0)
 {
@@ -174,6 +175,8 @@ TransferList Account::getTransactions()
 void Account::resyncAccount()
 {
     assert(RPCPtr);
+    RPCPtr->rescanSpent();
+    Poco::Thread::sleep(500); // Sleep for a bit so RPC can catch up.
     const auto Bal = RPCPtr->getBalance();
     Balance = Bal.Balance;
     UnlockedBalance = Bal.UnlockedBalance;
