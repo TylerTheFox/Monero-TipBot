@@ -263,7 +263,7 @@ void ITNS_TIPBOT::refreshUserList()
     for (auto serv : servs)
     {
         Poco::Thread::sleep(3000); // Wait a bit.
-        if (UserList.empty())
+        if (UserList[convertSnowflakeToInt64(serv.ID)].empty())
         {
             getDiscordUsers(*this, UserList[convertSnowflakeToInt64(serv.ID)], serv.ID, DISCORD_MAX_GET_USERS, "");
         }
