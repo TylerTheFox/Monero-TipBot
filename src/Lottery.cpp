@@ -157,13 +157,14 @@ void Lottery::run()
                             }
                             DiscordPtr->AppSave();
                         }
+                        rewardGivenout = true;
                     }
+                    else std::cerr << "Error transaction list is empty!\n";
                 }
                 catch (...)
                 {
                     lotterySuspended = true;
                 }
-                rewardGivenout = true;
             }
             else if (!sweepComplete && curr.dayOfWeek() == LOTTERY_DAY && curr.hour() == LOTTERY_FAUCET)
             {
@@ -184,8 +185,11 @@ void Lottery::run()
             }
             else
             {
-                sweepComplete = false;
-                rewardGivenout = false;
+                if ((rewardGivenout && sweepComplete) || (rewardGivenout && noWinner && curr.hour() < LOTTERY_CLOSE))
+                {
+                    sweepComplete = false;
+                    rewardGivenout = false;
+                }
             }
         }
         Poco::Thread::sleep(1000);
