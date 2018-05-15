@@ -16,7 +16,7 @@ GNU General Public License for more details.
 #include "Account.h"
 #include "AppBaseClass.h"
 
-#define FAUCET_PERCENTAGE_ALLOWANCE     0.008
+#define FAUCET_PERCENTAGE_ALLOWANCE     0.0008
 #define MICROSECOND_HOUR                3600000000
 #define MICROSECOND_DAY                 (MICROSECOND_HOUR*24.0)
 #define MIN_DISCORD_ACCOUNT_IN_DAYS     (7.0*MICROSECOND_DAY)   // Days
