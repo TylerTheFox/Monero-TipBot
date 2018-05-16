@@ -110,9 +110,10 @@ const TransferList RPCManager::getTransfers(DiscordID id)
 void RPCManager::run()
 {
     time_t  currTime = Poco::Timestamp().epochTime();
-    time_t  transactionTime         = currTime + SEARCH_FOR_NEW_TRANSACTIONS_TIME,
-            walletTime              = currTime + BLOCKCHAIN_SAVE_TIME,
-            saveTime                = currTime + RPC_WALLETS_SAVE_TIME;
+    time_t  transactionTime = currTime + SEARCH_FOR_NEW_TRANSACTIONS_TIME,
+        walletTime = currTime + BLOCKCHAIN_SAVE_TIME,
+        saveTime = currTime + RPC_WALLETS_SAVE_TIME,
+        walletWatchDog = currTime + RPC_WALLET_WATCHDOG;
     while (true)
     {
         if (DiscordPtr)
@@ -135,6 +136,12 @@ void RPCManager::run()
                 {
                     save();
                     saveTime = currTime + RPC_WALLETS_SAVE_TIME;
+                }
+
+                if (currTime >= walletWatchDog)
+                {
+                    watchDog();
+                    walletWatchDog = currTime + RPC_WALLET_WATCHDOG;
                 }
             }
             catch (const Poco::Exception & exp)
@@ -198,6 +205,29 @@ void RPCManager::processNewTransactions()
                 {
                     diff.clear();
                 }
+            }
+        }
+    }
+}
+
+void RPCManager::watchDog()
+{
+    for (auto rpc : RPCMap)
+    {
+        try
+        {
+            rpc.second.MyRPC.getBlockHeight();
+            rpc.second.RPCFail = 0;
+        }
+        catch (...)
+        {
+            std::cerr << "User " << rpc.first << "'s RPC is not responding/erroring for " << rpc.second.RPCFail << " Out of " << RPC_ERROR_GIVEUP << " attempts!\n";
+            rpc.second.RPCFail++;
+            if (rpc.second.RPCFail > RPC_ERROR_GIVEUP)
+            {
+                // RPC not responding, kill it.
+                std::cerr << "User " << rpc.first << "'s RPC is not responding, RPC restarted!\n";
+                restartWallet(rpc.first);
             }
         }
     }

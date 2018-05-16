@@ -27,9 +27,12 @@ GNU General Public License for more details.
 #define                        RPC_DATABASE_FILENAME                "RPCDATA.json"
 #define                        STARTING_PORT_NUMBER                 11000
 #define                        MAX_RPC_LIMIT                        200
+#define                        RPC_ERROR_GIVEUP                     3
 #define                        BLOCKCHAIN_SAVE_TIME                 (5/* Minutes */*60)
 #define                        SEARCH_FOR_NEW_TRANSACTIONS_TIME     (10/*In Seconds*/)
 #define                        RPC_WALLETS_SAVE_TIME                (60/*In Seconds*/)
+#define                        RPC_WALLET_WATCHDOG                  (10/*In Minutes*/*60)
+
 class ITNS_TIPBOT;
 
 struct RPCProc
@@ -45,6 +48,7 @@ struct RPCProc
     RPC                             MyRPC;
     Account                         MyAccount;
     struct TransferList             Transactions;
+    unsigned char                   RPCFail;
 
     RPCProc& operator=(const RPCProc & obj)
     {
@@ -69,26 +73,24 @@ class RPCManager : public Poco::Runnable
 public:
     RPCManager();
     ~RPCManager();
+
     void                                    setBotUser(DiscordID id);
     void                                    setDiscordPtr(ITNS_TIPBOT* ptr);
+
     time_t                                  getTimeStarted(DiscordID id);
     Account &                               getAccount(DiscordID id);
     const struct TransferList               getTransfers(DiscordID id);
-
-    virtual void                            run();
-    void                                    processNewTransactions();
-
     const RPC&                              getRPC(DiscordID id);
     static const RPC&                       getGlobalBotRPC();
     static       Account &                  getGlobalBotAccount();
     const DiscordID &                       getBotDiscordID();
-    static std::shared_ptr<RPCProc>         manuallyCreateRPC(const std::string & walletname, unsigned short port);
-    void                                    waitForRPCToRespond(DiscordID id, const RPC & rpc);
     std::uint64_t                           getTotalBalance();
     std::uint64_t                           getTotalUnlockedBalance();
 
+    virtual void                            run();
+    static std::shared_ptr<RPCProc>         manuallyCreateRPC(const std::string & walletname, unsigned short port);
+    void                                    waitForRPCToRespond(DiscordID id, const RPC & rpc);
     void                                    restartWallet(DiscordID id);
-
     void                                    rescanAll();
 
     void                                    save();
@@ -100,6 +102,8 @@ private:
     DiscordID                               BotID;
     ITNS_TIPBOT*                            DiscordPtr;
 
+    void                                    processNewTransactions();
+    void                                    watchDog();
     bool                                    isRPCRunning(DiscordID id);
     struct RPCProc                          SpinUpNewRPC(DiscordID id, unsigned short port = 0);
     void                                    SpinDownRPC(DiscordID id);
