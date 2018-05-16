@@ -109,27 +109,32 @@ const TransferList RPCManager::getTransfers(DiscordID id)
 
 void RPCManager::run()
 {
-    const Poco::Timestamp timeStarted;
+    time_t  currTime = Poco::Timestamp().epochTime();
+    time_t  transactionTime         = currTime + SEARCH_FOR_NEW_TRANSACTIONS_TIME,
+            walletTime              = currTime + BLOCKCHAIN_SAVE_TIME,
+            saveTime                = currTime + RPC_WALLETS_SAVE_TIME;
     while (true)
     {
-        Poco::Timespan timer(Poco::Timestamp() - timeStarted);
         if (DiscordPtr)
         {
             try
             {
-                if ((timer.seconds() % SEARCH_FOR_NEW_TRANSACTIONS_TIME) == 0)
+                if (currTime >= transactionTime)
                 {
                     processNewTransactions();
+                    transactionTime = currTime + SEARCH_FOR_NEW_TRANSACTIONS_TIME;
                 }
 
-                if ((timer.minutes() > 0) && (timer.seconds() == 0) && (timer.minutes() % BLOCKCHAIN_SAVE_TIME) == 0)
+                if (currTime >= walletTime)
                 {
                     SaveWallets();
+                    walletTime = currTime + BLOCKCHAIN_SAVE_TIME;
                 }
 
-                if ((timer.seconds() % RPC_WALLETS_SAVE_TIME) == 0)
+                if (currTime >= saveTime)
                 {
                     save();
+                    saveTime = currTime + RPC_WALLETS_SAVE_TIME;
                 }
             }
             catch (const Poco::Exception & exp)
@@ -145,7 +150,8 @@ void RPCManager::run()
                 std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
             }
         }
-        Poco::Thread::sleep(1000);
+        Poco::Thread::sleep(1);
+        currTime = Poco::Timestamp().epochTime();
     }
 }
 
