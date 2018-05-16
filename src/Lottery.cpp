@@ -25,6 +25,18 @@ Lottery::Lottery(ITNS_TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false)
     LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, STARTING_PORT_NUMBER - 1);
 }
 
+Lottery::~Lottery()
+{
+    try 
+    {
+        LotteryAccount->MyRPC.store();
+    }
+    catch (...)
+    {
+
+    }
+}
+
 void Lottery::save()
 {
     std::ofstream out(LOTTERY_SAVE_FILE, std::ios::trunc);

@@ -26,7 +26,7 @@ class Lottery : public Poco::Runnable, public AppBaseClass
 {
 public:
     Lottery(ITNS_TIPBOT * DiscordPtr);
-    virtual ~Lottery() = default;
+    virtual ~Lottery();
 
     void                                save();
     void                                load();
