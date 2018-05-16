@@ -206,7 +206,7 @@ void Tip::BlockHeight(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& mes
 void Tip::RestartWallet(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
 {
     RPCMan.restartWallet(MyAccount->getDiscordID());
-    DiscordPtr->sendMessage(message.channelID,"Discord Wallet restarted successfully! It make take a minute to resync.");
+    DiscordPtr->sendMessage(message.channelID,"Discord Wallet restarted successfully! It may take a minute to resync.");
 }
 
 void Tip::ToggleWithdraw(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)

@@ -37,7 +37,7 @@ class ITNS_TIPBOT;
 
 struct RPCProc
 {
-    RPCProc() : pid(0) {}
+    RPCProc() : pid(0), RPCFail(0) {}
     RPCProc(const RPCProc & obj)
     {
         *this = obj;
