@@ -40,7 +40,7 @@ Tip::Tip() : MyAccount(nullptr)
         { "!giveall",         CLASS_RESOLUTION(GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public },
         { "!tip",             CLASS_RESOLUTION(Give),                        "[amount] [@User1 @User2...]",      true,   false,  AllowChannelTypes::Public },
         { "!tipall",          CLASS_RESOLUTION(GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public },
-        { "!restartwallet",   CLASS_RESOLUTION(RestartWallet),              "",                                  true,   false,  AllowChannelTypes::Any },
+        { "!restartwallet",   CLASS_RESOLUTION(RestartWallet),               "",                                 true,   false,  AllowChannelTypes::Any },
 
         // Admin
         // Command            Function                                       Params                              Wallet  Admin   Allowed Channel
@@ -48,7 +48,7 @@ Tip::Tip() : MyAccount(nullptr)
         { "!togglegive",      CLASS_RESOLUTION(ToggleGive),                  "",                                 false,  true,   AllowChannelTypes::Private },
         { "!rescanallwallets",CLASS_RESOLUTION(RescanAllWallets),            "",                                 false,  true,   AllowChannelTypes::Private },
         { "!totalbalance",    CLASS_RESOLUTION(TotalBalance),                "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!savewallets",     CLASS_RESOLUTION(SaveWallets),                "",                                  false,  true,   AllowChannelTypes::Private },
+        { "!savewallets",     CLASS_RESOLUTION(SaveWallets),                 "",                                 false,  true,   AllowChannelTypes::Private },
 
     };
 }

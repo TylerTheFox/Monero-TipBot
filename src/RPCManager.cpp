@@ -308,6 +308,17 @@ void RPCManager::load()
             ReloadSavedRPCs();
         }
     }
+
+    // Check for duplicates.
+    std::vector<unsigned short> ports;
+
+    for (const auto & rpc : RPCMap)
+        ports.emplace_back(rpc.second.MyRPC.getPort());
+    std::vector<unsigned short>::iterator it = std::unique(ports.begin(), ports.end());
+    bool wasUnique = (it == ports.end());
+
+    if (!wasUnique)
+        throw RPCGeneralError("-1", "--- FATAL ERROR: Ports are not unique. ---");
 }
 
 RPCProc RPCManager::SpinUpNewRPC(DiscordID id, unsigned short port)
