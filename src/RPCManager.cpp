@@ -284,7 +284,7 @@ void RPCManager::save()
         std::cout << "Saving wallet data to disk...\n";
         {
             cereal::JSONOutputArchive ar(out);
-            ar(CEREAL_NVP(currPortNum), CEREAL_NVP(RPCMap));
+            ar(/*CEREAL_NVP(currPortNum), */CEREAL_NVP(RPCMap));
         }
         out.close();
     }
@@ -302,23 +302,12 @@ void RPCManager::load()
         {
             {
                 cereal::JSONInputArchive ar(in);
-                ar(CEREAL_NVP(currPortNum), CEREAL_NVP(RPCMap));
+                ar(/*CEREAL_NVP(currPortNum),*/CEREAL_NVP(RPCMap));
             }
             in.close();
             ReloadSavedRPCs();
         }
     }
-
-    // Check for duplicates.
-    std::vector<unsigned short> ports;
-
-    for (const auto & rpc : RPCMap)
-        ports.emplace_back(rpc.second.MyRPC.getPort());
-    std::vector<unsigned short>::iterator it = std::unique(ports.begin(), ports.end());
-    bool wasUnique = (it == ports.end());
-
-    if (!wasUnique)
-        throw RPCGeneralError("-1", "--- FATAL ERROR: Ports are not unique. ---");
 }
 
 RPCProc RPCManager::SpinUpNewRPC(DiscordID id, unsigned short port)
@@ -377,7 +366,10 @@ void RPCManager::ReloadSavedRPCs()
         try
         {
             // Launch RPC
-            wallets.second.pid = LaunchRPC(wallets.second.MyRPC.getPort());
+            wallets.second.pid = LaunchRPC(currPortNum);
+
+            // Set Port number
+            wallets.second.MyRPC.open(currPortNum);
 
             // Setup Accounts
             wallets.second.MyAccount.open(wallets.first, &wallets.second.MyRPC);
@@ -390,6 +382,8 @@ void RPCManager::ReloadSavedRPCs()
 
             // Get transactions
             wallets.second.Transactions = wallets.second.MyRPC.getTransfers();
+
+            currPortNum++;
         }
         catch (const Poco::Exception & exp)
         {
