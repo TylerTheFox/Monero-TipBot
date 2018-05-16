@@ -339,20 +339,20 @@ void RPC::store(int id) const
 {
     auto json = getDataFromRPC(RPC_METHOD_STORE, {}, id);
 
-    /*
-     * Errors in store aren't that important and causes the tipbot
-     * To get stuck in an infinite error cycle.
-     */
-
-     /*if (!json["error"].isEmpty())
+     if (!json["error"].isEmpty())
      {
          handleRPCError(json["error"].extract<Poco::DynamicStruct>());
-     }*/
+     }
 }
 
 void RPC::rescanSpent(int id) const
 {
     auto json = getDataFromRPC(RPC_METHOD_RESCAN_SPENT, {}, id);
+
+    if (!json["error"].isEmpty())
+    {
+        handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+    }
 }
 
 unsigned short RPC::getPort() const

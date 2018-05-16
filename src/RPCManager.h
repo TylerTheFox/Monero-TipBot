@@ -92,6 +92,7 @@ public:
     void                                    waitForRPCToRespond(DiscordID id, const RPC & rpc);
     void                                    restartWallet(DiscordID id);
     void                                    rescanAll();
+    void                                    saveallWallets();
 
     void                                    save();
     void                                    load();

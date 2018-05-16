@@ -59,6 +59,7 @@ public:
     void                            ToggleGive(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            RescanAllWallets(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            TotalBalance(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                            SaveWallets(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 
     private:
     Settings                        globalSettings{};

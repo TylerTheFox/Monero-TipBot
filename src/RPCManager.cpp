@@ -110,10 +110,10 @@ const TransferList RPCManager::getTransfers(DiscordID id)
 void RPCManager::run()
 {
     time_t  currTime = Poco::Timestamp().epochTime();
-    time_t  transactionTime = currTime + SEARCH_FOR_NEW_TRANSACTIONS_TIME,
-        walletTime = currTime + BLOCKCHAIN_SAVE_TIME,
-        saveTime = currTime + RPC_WALLETS_SAVE_TIME,
-        walletWatchDog = currTime + RPC_WALLET_WATCHDOG;
+    time_t  transactionTime     = currTime + SEARCH_FOR_NEW_TRANSACTIONS_TIME,
+            walletTime          = currTime + BLOCKCHAIN_SAVE_TIME,
+            saveTime            = currTime + RPC_WALLETS_SAVE_TIME,
+            walletWatchDog      = currTime + RPC_WALLET_WATCHDOG;
     while (true)
     {
         if (DiscordPtr)
@@ -347,7 +347,16 @@ void RPCManager::SaveWallets()
 
     // Save blockchain on exit.
     for (auto account : this->RPCMap)
-        account.second.MyRPC.store();
+    {
+        try
+        {
+            account.second.MyRPC.store();
+        }
+        catch (...)
+        {
+            std::cerr << "Error cannot save " << account.first << "'s wallet!\n";
+        }
+    }
 }
 
 void RPCManager::ReloadSavedRPCs()
@@ -498,4 +507,9 @@ void RPCManager::rescanAll()
 {
     for (auto & wallet : RPCMap)
         wallet.second.MyRPC.rescanSpent();
+}
+
+void RPCManager::saveallWallets()
+{
+    SaveWallets();
 }

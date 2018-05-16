@@ -48,6 +48,7 @@ Tip::Tip() : MyAccount(nullptr)
         { "!togglegive",      CLASS_RESOLUTION(ToggleGive),                  "",                                 false,  true,   AllowChannelTypes::Private },
         { "!rescanallwallets",CLASS_RESOLUTION(RescanAllWallets),            "",                                 false,  true,   AllowChannelTypes::Private },
         { "!totalbalance",    CLASS_RESOLUTION(TotalBalance),                "",                                 false,  true,   AllowChannelTypes::Private },
+        { "!savewallets",     CLASS_RESOLUTION(SaveWallets),                "",                                  false,  true,   AllowChannelTypes::Private },
 
     };
 }
@@ -230,6 +231,11 @@ void Tip::RescanAllWallets(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message
 void Tip::TotalBalance(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
     DiscordPtr->sendMessage(message.channelID, Poco::format("I currently manage %0.8f locked ITNS and %0.8f unlocked ITNS! (Excluding lottery)", RPCMan.getTotalBalance() / ITNS_OFFSET, RPCMan.getTotalUnlockedBalance() / ITNS_OFFSET));
+}
+
+void Tip::SaveWallets(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
+{
+    RPCMan.saveallWallets();
 }
 
 iterator Tip::begin()
