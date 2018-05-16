@@ -248,7 +248,7 @@ void Lottery::BuyTicket(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& m
             else
             {
                 LotteryAccount->MyAccount.resyncAccount();
-                const auto tickets = Poco::NumberParser::parseFloat(cmd[1]);
+                const auto tickets = Poco::NumberParser::parseUnsigned(cmd[1]);
                 const auto tx = currentUsrAccount->transferMoneyToAddress((tickets * TICKET_COST) * ITNS_OFFSET, LotteryAccount->MyAccount.getMyAddress());
                 DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Purchased %?i tickets for %0.8f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, tickets, tickets * TICKET_COST, tx.tx_hash));
             }
