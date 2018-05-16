@@ -30,7 +30,7 @@ RPCManager      RPCMan;
 
 RPCManager::RPCManager() : currPortNum(STARTING_PORT_NUMBER), DiscordPtr(nullptr)
 {
-    
+
 }
 
 RPCManager::~RPCManager()
@@ -119,7 +119,6 @@ void RPCManager::run()
             {
                 if ((timer.seconds() % SEARCH_FOR_NEW_TRANSACTIONS_TIME) == 0)
                 {
-
                     processNewTransactions();
                 }
 
@@ -170,10 +169,17 @@ void RPCManager::processNewTransactions()
             {
                 try
                 {
-                    for (auto newTx : diff)
+                    try
                     {
-                        DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %0.8f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
-                        std::cout << Poco::format("User %Lu recived %0.8f ITNS\n", account.first, newTx.amount / ITNS_OFFSET);
+                        for (auto newTx : diff)
+                        {
+                            DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %0.8f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
+                            std::cout << Poco::format("User %Lu recived %0.8f ITNS\n", account.first, newTx.amount / ITNS_OFFSET);
+                        }
+                    }
+                    catch (const SleepyDiscord::ErrorCode & exp)
+                    {
+                        std::cerr << "Error while posting transactions for user: " << account.first << " Error code: " << exp << '\n';
                     }
 
                     account.second.Transactions = newTransactions;
