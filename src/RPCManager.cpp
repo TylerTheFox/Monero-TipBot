@@ -212,6 +212,7 @@ void RPCManager::processNewTransactions()
 
 void RPCManager::watchDog()
 {
+    Poco::Mutex::ScopedLock lock(mu);
     for (auto rpc : RPCMap)
     {
         try
@@ -463,6 +464,7 @@ std::uint64_t RPCManager::getTotalUnlockedBalance()
 
 void RPCManager::restartWallet(DiscordID id)
 {
+    Poco::Mutex::ScopedLock lock(mu);
     std::cout << "Restarting User: " << id << "'s RPC \n";
 
     try
