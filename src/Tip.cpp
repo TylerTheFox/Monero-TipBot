@@ -40,6 +40,7 @@ Tip::Tip() : MyAccount(nullptr)
         { "!giveall",         CLASS_RESOLUTION(GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public },
         { "!tip",             CLASS_RESOLUTION(Give),                        "[amount] [@User1 @User2...]",      true,   false,  AllowChannelTypes::Public },
         { "!tipall",          CLASS_RESOLUTION(GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public },
+        { "!restartwallet",   CLASS_RESOLUTION(RestartWallet),              "",                                  true,   false,  AllowChannelTypes::Any },
 
         // Admin
         // Command            Function                                       Params                              Wallet  Admin   Allowed Channel
@@ -200,6 +201,12 @@ void Tip::About(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, 
 void Tip::BlockHeight(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
     DiscordPtr->sendMessage(message.channelID, Poco::format("Your wallet's current block height is: %?i", MyAccount->getBlockHeight()));
+}
+
+void Tip::RestartWallet(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
+{
+    RPCMan.restartWallet(MyAccount->getDiscordID());
+    DiscordPtr->sendMessage(message.channelID,"Discord Wallet restarted successfully! It make take a minute to resync.");
 }
 
 void Tip::ToggleWithdraw(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)

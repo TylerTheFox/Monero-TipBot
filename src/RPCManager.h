@@ -87,6 +87,8 @@ public:
     std::uint64_t                           getTotalBalance();
     std::uint64_t                           getTotalUnlockedBalance();
 
+    void                                    restartWallet(DiscordID id);
+
     void                                    rescanAll();
 
     void                                    save();

@@ -431,6 +431,37 @@ std::uint64_t RPCManager::getTotalUnlockedBalance()
     return ret;
 }
 
+void RPCManager::restartWallet(DiscordID id)
+{
+    std::cout << "Restarting User: " << id << "'s RPC \n";
+
+    try
+    {
+        Poco::Process::kill(RPCMap[id].pid);
+    }
+    catch (const Poco::Exception & exp)
+    {
+        std::cerr << "Error killing RPC " << exp.what() << '\n';
+    }
+
+    // Launch RPC
+    RPCMap[id].pid = LaunchRPC(RPCMap[id].MyRPC.getPort());
+
+    // Setup Accounts
+    RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
+
+    // Wait for RPC to respond
+    waitForRPCToRespond(id, RPCMap[id].MyRPC);
+
+    // Open Wallet
+    RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id));
+
+    // Get transactions
+    RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
+
+    std::cout << "User: " << id << "'s RPC restarted successfully!\n";
+}
+
 void RPCManager::rescanAll()
 {
     for (auto & wallet : RPCMap)
