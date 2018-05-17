@@ -22,7 +22,7 @@ GNU General Public License for more details.
 #include <memory>
 
 #define        VERSION_MAJOR 1
-#define        VERSION_MINOR 5
+#define        VERSION_MINOR 6
 
 extern const char *aboutStr;
 
