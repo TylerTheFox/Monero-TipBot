@@ -1,5 +1,5 @@
 # Monero-TipBot
-Discord Tipbot built in C++ for IntenseCoin/Monero
+Discord Tipbot built in C++ for Monero/IntenseCoin
 
 ## Compile
 
@@ -10,7 +10,11 @@ Discord Tipbot built in C++ for IntenseCoin/Monero
 * cmake .
 * make 
 
-## Commands
+## Applications
+
+### Tip
+
+#### Commands
 * !about
 * !help
 * !balance
@@ -20,6 +24,25 @@ Discord Tipbot built in C++ for IntenseCoin/Monero
 * !withdrawall [address]
 * !give [amount] [@User1 @User2...]
 * !giveall [@User]
+* !tip [amount] [@User1 @User2...]
+* !tipall [@User]
+* !give [amount] [@User1 @User2...]
+* !blockheight
+* !restartwallet
+
+### Faucet
+
+#### Commands
+* !faucet
+* !take
+
+### Lottery
+#### Commands
+* !lottery
+* !jackpot
+* !gameinfo
+* !mytickets
+* !buytickets [amount]
 
 ## Requirements
 * IntenseCon Daemon
@@ -38,14 +61,14 @@ Discord Tipbot built in C++ for IntenseCoin/Monero
 * libssl-dev
 
 ## RPC Setup
-You need to download the RPC from IntenseCoin if you haven't already (https://github.com/valiant1x/intensecoin/releases). Unzip it to whereever you built the TIPBOT.
+You need to download the RPC for the coin you want to setup the bot with, for example, IntenseCoin (https://github.com/valiant1x/intensecoin/releases). Unzip it to whereever you built the TIPBOT.
 
-## IntenseCoin Deamon setup
-Just open `intensecoind` normally.
+## Deamon setup
+Next you'll need to open the daemon for the coin, for example, `intensecoind` for IntenseCoin.
 
 The file structure should look like this:
-* intensecoind
-* intense-wallet-rpc
+* intensecoind/monerocoind
+* intense-wallet-rpc/monero-wallet-rpc
 * TIPBOT <- This programs executable. 
 * Wallets/ <-- this is a directory. This will be created after running TIPBOT.
 
