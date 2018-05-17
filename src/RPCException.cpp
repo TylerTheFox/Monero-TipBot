@@ -20,12 +20,12 @@ RPCConnectionError::RPCConnectionError(std::string general_error) : genErr(std::
 
 const std::string & RPCConnectionError::getGeneralError()
 {
-	return genErr;
+    return genErr;
 }
 
 const char * RPCConnectionError::what()
 {
-	return "Connection to the RPC Failed! Ensure RPC is running and the port is correct. Contact @Admins for help.";
+    return "Connection to the RPC Failed! Ensure RPC is running and the port is correct. Contact @Admins for help.";
 }
 
 RPCGeneralError::RPCGeneralError(const std::string& code, std::string general_error) : genErr(std::move(general_error))
@@ -34,10 +34,10 @@ RPCGeneralError::RPCGeneralError(const std::string& code, std::string general_er
 
 const std::string & RPCGeneralError::getGeneralError()
 {
-	return genErr;
+    return genErr;
 }
 
 const char * RPCGeneralError::what()
 {
-	return "RPC error, check logs for more infomation. If this continues contact @Admins";
+    return "RPC error, check logs for more infomation. If this continues contact @Admins";
 }

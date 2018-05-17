@@ -16,44 +16,118 @@ GNU General Public License for more details.
 #include <iostream>
 #include "Poco/File.h"
 #include <fstream>
+#include "RPCManager.h"
+#include "Poco/Thread.h"
+#include "RPCException.h"
+#include "Config.h"
+#include "Faucet.h"
+#include "Lottery.h"
 
-#define TOKEN_FILE "token.discord"
-std::string myToken;
+#include "Poco/File.h"
+#define COIN_CONFIG "Coins/"
+
+std::string coin_config;
 
 void setup()
 {
-	Poco::File discordToken(TOKEN_FILE);
+    // Coin Select
+    std::ifstream in("coin_config.json");
+    if (in.is_open())
+    {
+        std::cout << "Loading Coin Config to disk...\n";
+        {
+            cereal::JSONInputArchive ar(in);
+            ar(CEREAL_NVP(coin_config));
+        }
+        in.close();
+    }
 
-	if (discordToken.exists())
-	{
-		std::ifstream infile(TOKEN_FILE);
-		assert(infile.is_open());
-		myToken.assign(std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
-		infile.close();
-		return; // Exit Setup
-	}
+    if (coin_config.empty())
+    {
+        std::cout << "Welcome to Tipbot!\n"
+            << "Created by Brandan Tyler Lasley\n";
 
-	std::cout	<< "Welcome to ITNS Tipbot!\n"
-				<< "Created by Brandan Tyler Lasley\n"
-				<< "Please enter Discord Token: "; 
-	
-	std::cin >> myToken;
+        Poco::File coindir(COIN_CONFIG);
+        std::vector<Poco::File> config_files;
+        coindir.list(config_files);
 
-	std::ofstream out(TOKEN_FILE, std::ios::trunc);
-	assert(out.is_open());
-	out << myToken;
-	out.close();
+        std::map<unsigned int, std::string> config_map;
+        unsigned int selected = 0;
+        unsigned int i = 0;
+        std::cout << "Select Config: \n";
+        for (auto file : config_files)
+        {
+            std::cout << "[" << ++i << "]" << " " << file.path() << "\n";
+            config_map[i] = file.path();
+        }
 
-	std::cout << "Token saved to " << TOKEN_FILE << ", delete this file to rerun setup. \n";
+        while (selected == 0 || selected > config_map.size())
+        {
+            std::cout << "Select: ";
+            std::cin >> selected;
+        }
+        coin_config = config_map[selected];
+
+        std::ofstream out("coin_config.json", std::ios::trunc);
+        if (out.is_open())
+        {
+            std::cout << "Saving Coin Config to disk...\n";
+            {
+                cereal::JSONOutputArchive ar(out);
+                ar(CEREAL_NVP(coin_config));
+            }
+            out.close();
+        }
+    }
+
+    // Load Config
+    GlobalConfig.load_config(coin_config);
+
+    // Token setup.
+    if (GlobalConfig.General.discordToken.empty())
+    {
+        std::cout << "Please enter Discord Token: ";
+        std::cin >> GlobalConfig.General.discordToken;
+        GlobalConfig.save_config();
+        std::cout << "Token saved to coin config\n";
+    }
 }
 
 int main()
 {
-	// Setup routine
-	setup();
+    try
+    {
+        // Setup routine
+        setup();
 
-	// Run bot with token.
-	ITNS_TIPBOT client(myToken, 2);
-	client.run();
-	return 0;
+        // Init RPCMan
+        RPCMan.reset(new RPCManager);
+
+        // Load RPCs
+        RPCMan->load();
+
+        // Run bot with token.
+        TIPBOT client(GlobalConfig.General.discordToken, 2);
+        client.init();
+        RPCMan->setDiscordPtr(&client);
+
+        // Create RPC threads
+        Poco::Thread thread;
+        thread.start(*RPCMan);
+
+        client.run();
+    }
+    catch (const Poco::Exception & exp)
+    {
+        std::cerr << "Poco Error: " << exp.what() << "\n";
+    }
+    catch (AppGeneralException & exp)
+    {
+        std::cerr << "App Error: " << exp.getGeneralError() << "\n";
+    }
+    catch (const SleepyDiscord::ErrorCode & exp)
+    {
+        std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
+    }
+    return 0;
 }

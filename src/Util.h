@@ -14,26 +14,18 @@ GNU General Public License for more details.
 #pragma once
 #include <string>
 #include "Poco/Process.h"
-#include "Poco/Pipe.h"
+#include "types.h"
 
 #define DISCORD_WALLET_MASK "Discord-User-%Lu"
 
 class Util
 {
 public:
-	Util() = delete;
-	~Util() = delete;
+    Util() = delete;
+    ~Util() = delete;
 
-	static void start_RPC();
-	static void stop_RPC();
+    static bool doesWalletExist(const std::string & name);
+    static bool doesWalletExist(DiscordID DIS_ID);
 
-	static bool doesWalletExist(const std::string & name);
-	static bool doesWalletExist(std::uint64_t DIS_ID);
-
-	static std::string getWalletStrFromIID(std::uint64_t DIS_ID);
-
-private:
-	static bool			RPC_RUNNING;
-	static Poco::Pipe	rpc_pipe;
-	static int			rpc_pid;
+    static std::string getWalletStrFromIID(DiscordID DIS_ID);
 };
