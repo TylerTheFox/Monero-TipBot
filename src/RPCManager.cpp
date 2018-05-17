@@ -178,6 +178,8 @@ void RPCManager::processNewTransactions()
             std::set_difference(newTransactions.tx_in.begin(), newTransactions.tx_in.end(), account.second.Transactions.tx_in.begin(), account.second.Transactions.tx_in.end(),
                 std::inserter(diff, diff.begin()));
 
+            account.second.Transactions = newTransactions;
+
             if (!diff.empty())
             {
                 try
@@ -195,10 +197,7 @@ void RPCManager::processNewTransactions()
                         std::cerr << "Error while posting transactions for user: " << account.first << " Error code: " << exp << '\n';
                     }
 
-                    account.second.Transactions = newTransactions;
-
                     diff.clear();
-
                     account.second.MyRPC.store();
                 }
                 catch (const Poco::Exception & exp)
