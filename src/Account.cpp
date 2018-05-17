@@ -20,6 +20,7 @@ GNU General Public License for more details.
 #include "RPCManager.h"
 #include <fstream>
 #include "Poco/Thread.h"
+#include "Config.h"
 
 Account::Account() : RPCPtr(nullptr), Discord_ID(0), Balance(0), UnlockedBalance(0)
 {
@@ -78,7 +79,7 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
         throw InsufficientBalance("You do not have enough money for the fee, try !giveall instead");
 
     if (amount > UnlockedBalance)
-        throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, UnlockedBalance / ITNS_OFFSET));
+        throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / GlobalConfig.RPC.coin_offset, UnlockedBalance / GlobalConfig.RPC.coin_offset));
 
     if (amount == 0)
         throw ZeroTransferAmount("You are trying to transfer a zero amount");
@@ -87,13 +88,13 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
         throw GeneralAccountError("You need to specify an account to send to.");
 
     // Open (or create) other Discord User account to get the address
-    auto recieveAccount = RPCMan.getAccount(DIS_ID);
+    auto recieveAccount = RPCMan->getAccount(DIS_ID);
     const std::string DiscordUserAddress = recieveAccount.getMyAddress();
 
     if (DiscordUserAddress == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
-    if (DiscordUserAddress.length() != VALID_ADDRESS_LENGTH)
+    if (DiscordUserAddress.length() != GlobalConfig.RPC.address_length)
         throw GeneralAccountError("Invalid Address.");
 
     auto ret = RPCPtr->tranfer(Discord_ID, amount, DiscordUserAddress);
@@ -120,13 +121,13 @@ TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
         throw GeneralAccountError("You need to specify an account to send to.");
 
     // Open (or create) other Discord User account to get the address
-    auto recieveAccount = RPCMan.getAccount(DIS_ID);
+    auto recieveAccount = RPCMan->getAccount(DIS_ID);
     const std::string DiscordUserAddress = recieveAccount.getMyAddress();
 
     if (DiscordUserAddress == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
-    if (DiscordUserAddress.length() != VALID_ADDRESS_LENGTH)
+    if (DiscordUserAddress.length() != GlobalConfig.RPC.address_length)
         throw GeneralAccountError("Invalid Address.");
 
     auto ret = RPCPtr->sweepAll(Discord_ID, DiscordUserAddress);
@@ -146,14 +147,14 @@ TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::str
     // Resync account.
     resyncAccount();
 
-    if (address.length() != VALID_ADDRESS_LENGTH)
+    if (address.length() != GlobalConfig.RPC.address_length)
         throw GeneralAccountError("Invalid Address.");
 
     if (amount == UnlockedBalance)
         throw InsufficientBalance("You do not have enough money for the fee, try !giveall instead");
 
     if (amount > UnlockedBalance)
-        throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / ITNS_OFFSET, UnlockedBalance / ITNS_OFFSET));
+        throw InsufficientBalance(Poco::format("You are trying to send %f while only having %f!", amount / GlobalConfig.RPC.coin_offset, UnlockedBalance / GlobalConfig.RPC.coin_offset));
 
     if (amount == 0)
         throw ZeroTransferAmount("You are trying to transfer a zero amount");
@@ -181,11 +182,11 @@ TransferRet Account::transferAllMoneyToAddress(const std::string& address)
     // Resync account.
     resyncAccount();
 
-    if (address.length() != VALID_ADDRESS_LENGTH)
+    if (address.length() != GlobalConfig.RPC.address_length)
         throw GeneralAccountError("Invalid Address.");
 
     if (UnlockedBalance == 0)
-        throw InsufficientBalance(Poco::format("You are trying to send all your money to an address while only having %f!", UnlockedBalance / ITNS_OFFSET));
+        throw InsufficientBalance(Poco::format("You are trying to send all your money to an address while only having %f!", UnlockedBalance / GlobalConfig.RPC.coin_offset));
 
     if (address.empty())
         throw GeneralAccountError("You need to specify an address to send to.");
@@ -205,7 +206,7 @@ TransferRet Account::transferAllMoneyToAddress(const std::string& address)
 TransferList Account::getTransactions()
 {
     assert(RPCPtr);
-    auto ret = RPCMan.getTransfers(Discord_ID);
+    auto ret = RPCMan->getTransfers(Discord_ID);
 
     std::vector<std::string> TXs;
 
@@ -261,10 +262,10 @@ const std::string Account::getWalletAddress(DiscordID Discord_ID)
 {
     const std::string & walletStr = Util::getWalletStrFromIID(Discord_ID);
 
-    if (!Util::doesWalletExist(WALLET_PATH + walletStr))
+    if (!Util::doesWalletExist(GlobalConfig.RPC.wallet_path + walletStr))
         RPCManager::getGlobalBotRPC().createWallet(walletStr);
 
-    const auto addressStr = WALLET_PATH + walletStr + ".address.txt";
+    const auto addressStr = GlobalConfig.RPC.wallet_path + walletStr + ".address.txt";
 
     std::ifstream infile(addressStr);
     assert(infile.is_open());

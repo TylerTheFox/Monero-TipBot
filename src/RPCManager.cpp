@@ -25,10 +25,10 @@ GNU General Public License for more details.
 #include <fstream>
 #include "AccountException.h"
 #include "Poco/ScopedLock.h"
+#include "Config.h"
+std::unique_ptr<RPCManager>      RPCMan;
 
-RPCManager      RPCMan;
-
-RPCManager::RPCManager() : currPortNum(STARTING_PORT_NUMBER), DiscordPtr(nullptr)
+RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr)
 {
 
 }
@@ -52,7 +52,7 @@ void RPCManager::setBotUser(DiscordID id)
     BotID = id;
 }
 
-void RPCManager::setDiscordPtr(ITNS_TIPBOT* ptr)
+void RPCManager::setDiscordPtr(TIPBOT* ptr)
 {
     DiscordPtr = ptr;
 }
@@ -73,7 +73,7 @@ Account& RPCManager::getAccount(DiscordID id)
 
     if (RPCMap.count(id) == 0)
     {
-        if (RPCMap.size() <= MAX_RPC_LIMIT)
+        if (RPCMap.size() <= GlobalConfig.RPCManager.max_rpc_limit)
             RPCMap[id] = SpinUpNewRPC(id);
         else
             RPCMap[id] = FindOldestRPC();
@@ -110,10 +110,10 @@ const TransferList RPCManager::getTransfers(DiscordID id)
 void RPCManager::run()
 {
     time_t  currTime = Poco::Timestamp().epochTime();
-    time_t  transactionTime     = currTime + SEARCH_FOR_NEW_TRANSACTIONS_TIME,
-            walletTime          = currTime + BLOCKCHAIN_SAVE_TIME,
-            saveTime            = currTime + RPC_WALLETS_SAVE_TIME,
-            walletWatchDog      = currTime + RPC_WALLET_WATCHDOG;
+    time_t  transactionTime     = currTime + GlobalConfig.RPCManager.search_for_new_transactions_time,
+            walletTime          = currTime + GlobalConfig.RPCManager.blockchain_save_time,
+            saveTime            = currTime + GlobalConfig.RPCManager.wallets_save_time,
+            walletWatchDog      = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
     while (true)
     {
         if (DiscordPtr)
@@ -123,25 +123,25 @@ void RPCManager::run()
                 if (currTime >= transactionTime)
                 {
                     processNewTransactions();
-                    transactionTime = currTime + SEARCH_FOR_NEW_TRANSACTIONS_TIME;
+                    transactionTime = currTime + GlobalConfig.RPCManager.search_for_new_transactions_time;
                 }
 
                 if (currTime >= walletTime)
                 {
                     SaveWallets();
-                    walletTime = currTime + BLOCKCHAIN_SAVE_TIME;
+                    walletTime = currTime + GlobalConfig.RPCManager.blockchain_save_time;
                 }
 
                 if (currTime >= saveTime)
                 {
                     save();
-                    saveTime = currTime + RPC_WALLETS_SAVE_TIME;
+                    saveTime = currTime + GlobalConfig.RPCManager.wallets_save_time;
                 }
 
                 if (currTime >= walletWatchDog)
                 {
                     watchDog();
-                    walletWatchDog = currTime + RPC_WALLET_WATCHDOG;
+                    walletWatchDog = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
                 }
             }
             catch (const Poco::Exception & exp)
@@ -188,8 +188,8 @@ void RPCManager::processNewTransactions()
                     {
                         for (auto newTx : diff)
                         {
-                            DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %0.8f ITNS :money_with_wings:", newTx.amount / ITNS_OFFSET));
-                            std::cout << Poco::format("User %Lu recived %0.8f ITNS\n", account.first, newTx.amount / ITNS_OFFSET);
+                            DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %0.8f %s :money_with_wings:", newTx.amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
+                            std::cout << Poco::format("User %Lu recived %0.8f %s\n", account.first, newTx.amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv);
                         }
                     }
                     catch (const SleepyDiscord::ErrorCode & exp)
@@ -221,9 +221,9 @@ void RPCManager::watchDog()
         }
         catch (...)
         {
-            std::cerr << "User " << rpc.first << "'s RPC is not responding/erroring for " << rpc.second.RPCFail << " Out of " << RPC_ERROR_GIVEUP << " attempts!\n";
+            std::cerr << "User " << rpc.first << "'s RPC is not responding/erroring for " << rpc.second.RPCFail << " Out of " << GlobalConfig.RPCManager.error_giveup << " attempts!\n";
             rpc.second.RPCFail++;
-            if (rpc.second.RPCFail > RPC_ERROR_GIVEUP)
+            if (rpc.second.RPCFail > GlobalConfig.RPCManager.error_giveup)
             {
                 // RPC not responding, kill it.
                 std::cerr << "User " << rpc.first << "'s RPC is not responding, RPC restarted!\n";
@@ -242,12 +242,12 @@ const RPC& RPCManager::getRPC(DiscordID id)
 
 const RPC & RPCManager::getGlobalBotRPC()
 {
-    return RPCMan.getRPC(RPCMan.getBotDiscordID());
+    return RPCMan->getRPC(RPCMan->getBotDiscordID());
 }
 
 Account & RPCManager::getGlobalBotAccount()
 {
-    return RPCMan.getAccount(RPCMan.getBotDiscordID());
+    return RPCMan->getAccount(RPCMan->getBotDiscordID());
 }
 
 const DiscordID& RPCManager::getBotDiscordID()
@@ -257,13 +257,13 @@ const DiscordID& RPCManager::getBotDiscordID()
 
 std::shared_ptr<RPCProc> RPCManager::manuallyCreateRPC(const std::string& walletname, unsigned short port)
 {
-    std::shared_ptr<RPCProc> ret(new RPCProc(RPCMan.SpinUpNewRPC(0, port)));
+    std::shared_ptr<RPCProc> ret(new RPCProc(RPCMan->SpinUpNewRPC(0, port)));
 
     // Setup Account
-    ret->MyAccount.open(RPCMan.getBotDiscordID(), &ret->MyRPC);
+    ret->MyAccount.open(RPCMan->getBotDiscordID(), &ret->MyRPC);
 
     // Wait for RPC to respond
-    RPCMan.waitForRPCToRespond(0, ret->MyRPC);
+    RPCMan->waitForRPCToRespond(0, ret->MyRPC);
 
     // Open Wallet
     ret->MyRPC.openWallet(walletname);
@@ -399,15 +399,21 @@ unsigned int RPCManager::LaunchRPC(unsigned short port)
 {
     std::vector<std::string> args;
     args.emplace_back("--wallet-dir");
-    args.emplace_back(WALLET_PATH);
+    args.emplace_back(GlobalConfig.RPC.wallet_path);
     args.emplace_back("--rpc-bind-port");
     args.push_back(Poco::format("%?i", port));
     args.emplace_back("--daemon-address");
-    args.emplace_back(DAEMON_ADDRESS);
+    args.emplace_back(GlobalConfig.RPC.daemon_hostname);
     args.emplace_back("--disable-rpc-login");
     args.emplace_back("--trusted-daemon");
 
-    Poco::ProcessHandle rpc_handle = Poco::Process::launch(RPC_FILENAME, args, nullptr, nullptr, nullptr);
+    std::string launchFile;
+#if _WIN32
+    launchFile = GlobalConfig.RPC.filename;
+#else
+    launchFile = "./" +  GlobalConfig.RPC.filename;
+#endif
+    Poco::ProcessHandle rpc_handle = Poco::Process::launch(launchFile, args, nullptr, nullptr, nullptr);
     return rpc_handle.id();
 }
 

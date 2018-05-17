@@ -21,21 +21,7 @@ GNU General Public License for more details.
 #include <vector>
 #include <memory>
 
-#define        VERSION_MAJOR 1
-#define        VERSION_MINOR 6
-
 extern const char *aboutStr;
-
-const DiscordID DiscordAdmins[] =
-{
-    380370690030829578, // Valiant
-    144619872444219392, // ddvs1
-    266700783897018369, // SlowGrowth
-    415162452725202944, // iedemam
-    345699014806732800, // ThePigwee
-    206430811430322176, // Brandan
-};
-
 const std::string AllowChannelTypeNames[] =
 {
     "Public Channel Only",
@@ -89,10 +75,10 @@ inline bool operator<(const DiscordUser &a, const DiscordUser &b)
 
 class AppBaseClass;
 #define DISCORD_USER_CACHE_FILENAME "DISCORDDATA.json"
-class ITNS_TIPBOT : public SleepyDiscord::DiscordClient {
+class TIPBOT : public SleepyDiscord::DiscordClient {
 public:
     using SleepyDiscord::DiscordClient::DiscordClient;
-    ~ITNS_TIPBOT();
+    ~TIPBOT();
 
     void                                            init();
     int                                             getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id);
@@ -122,7 +108,7 @@ private:
 };
 
 template<class t>
-DiscordID ITNS_TIPBOT::convertSnowflakeToInt64(t id)
+DiscordID TIPBOT::convertSnowflakeToInt64(t id)
 {
     return Poco::NumberParser::parseUnsigned64(static_cast<std::string>(id));
 }
@@ -130,7 +116,7 @@ DiscordID ITNS_TIPBOT::convertSnowflakeToInt64(t id)
 struct Command
 {
     std::string                                                                         name;
-    std::function<void(ITNS_TIPBOT *, const SleepyDiscord::Message &, const Command &)> func;
+    std::function<void(TIPBOT *, const SleepyDiscord::Message &, const Command &)> func;
     std::string                                                                         params;
     bool                                                                                opensWallet;
     bool                                                                                adminTools;
@@ -139,4 +125,4 @@ struct Command
 
 typedef std::vector<struct Command>::iterator       iterator;
 typedef std::vector<struct Command>::const_iterator const_iterator;
-typedef void(*CommandFunc)(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me);
+typedef void(*CommandFunc)(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me);

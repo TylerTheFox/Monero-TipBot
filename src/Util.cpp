@@ -14,6 +14,7 @@ GNU General Public License for more details.
 #include "Util.h"
 #include "RPC.h"
 #include "Poco/File.h"
+#include "Config.h"
 
 bool Util::doesWalletExist(const std::string & name)
 {

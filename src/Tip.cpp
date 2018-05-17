@@ -16,6 +16,7 @@ GNU General Public License for more details.
 #include "Discord.h"
 #include <Poco/StringTokenizer.h>
 #include "RPCManager.h"
+#include "Config.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Tip::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Tip::Tip() : MyAccount(nullptr)
@@ -61,24 +62,24 @@ void Tip::load()
 {
 }
 
-void Tip::Help(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Tip::Help(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
     const auto channelType = DiscordPtr->getDiscordChannelType(message.channelID);
-    const auto helpStr = ITNS_TIPBOT::generateHelpText("ITNS Bot Tip Commands:\\n", Commands, channelType, message);
+    const auto helpStr = TIPBOT::generateHelpText("TipBot Commands:\\n", Commands, channelType, message);
     DiscordPtr->sendMessage(message.channelID, helpStr);
 }
 
-void Tip::Balance(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
+void Tip::Balance(TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-    DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your Balance is %0.8f ITNS and your Unlocked Balance is %0.8f ITNS", message.author.username, message.author.discriminator, MyAccount->getBalance() / ITNS_OFFSET, MyAccount->getUnlockedBalance() / ITNS_OFFSET));
+    DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your Balance is %0.8f %s and your Unlocked Balance is %0.8f %s", message.author.username, message.author.discriminator, MyAccount->getBalance() / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, MyAccount->getUnlockedBalance() / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
 }
 
-void Tip::MyAddress(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
+void Tip::MyAddress(TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-    DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your ITNS Address is: %s", message.author.username, message.author.discriminator, Account::getWalletAddress(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID))));
+    DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Your %s Address is: %s", message.author.username, message.author.discriminator, GlobalConfig.RPC.coin_abbv, Account::getWalletAddress(TIPBOT::convertSnowflakeToInt64(message.author.ID))));
 }
 
-void Tip::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
+void Tip::History(TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
     const auto trxs = MyAccount->getTransactions();
 
@@ -92,7 +93,7 @@ void Tip::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& messag
         for (auto tx : sset)
         {
             if (i == 5) break;
-            ss << tx.amount / ITNS_OFFSET << " | " << DiscordPtr->findUser(tx.payment_id).username << " | " << tx.block_height << " | " << tx.tx_hash << "\\n";
+            ss << tx.amount / GlobalConfig.RPC.coin_offset << " | " << DiscordPtr->findUser(tx.payment_id).username << " | " << tx.block_height << " | " << tx.tx_hash << "\\n";
             i++;
         }
         ss << "```";
@@ -107,7 +108,7 @@ void Tip::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& messag
     DiscordPtr->sendMessage(message.channelID, ss.str());
 }
 
-void Tip::Withdraw(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
+void Tip::Withdraw(TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
     if (globalSettings.withdrawAllowed)
     {
@@ -119,8 +120,8 @@ void Tip::Withdraw(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& messa
         {
             const auto amount = Poco::NumberParser::parseFloat(cmd[1]);
             const auto& address = cmd[2];
-            const auto tx = MyAccount->transferMoneyToAddress(static_cast<std::uint64_t>(amount * ITNS_OFFSET), address);
-            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %0.8f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, tx.tx_hash));
+            const auto tx = MyAccount->transferMoneyToAddress(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), address);
+            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %0.8f %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
         }
     }
     else
@@ -129,7 +130,7 @@ void Tip::Withdraw(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& messa
     }
 }
 
-void Tip::WithdrawAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
+void Tip::WithdrawAll(TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
     if (globalSettings.withdrawAllowed)
     {
@@ -141,7 +142,7 @@ void Tip::WithdrawAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& me
         {
             const auto& address = cmd[1];
             const auto tx = MyAccount->transferAllMoneyToAddress(address);
-            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %0.8f ITNS with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, MyAccount->getUnlockedBalance() / ITNS_OFFSET, tx.tx_hash));
+            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Withdraw Complete Sent %0.8f %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, MyAccount->getUnlockedBalance() / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
         }
     }
     else
@@ -150,7 +151,7 @@ void Tip::WithdrawAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& me
     }
 }
 
-void Tip::Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
+void Tip::Give(TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
     if (globalSettings.giveAllowed)
     {
@@ -163,8 +164,8 @@ void Tip::Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, 
             const auto amount = Poco::NumberParser::parseFloat(cmd[1]);
             for (const auto& user : message.mentions)
             {
-                const auto tx = MyAccount->transferMoneytoAnotherDiscordUser(static_cast<std::uint64_t>(amount * ITNS_OFFSET), DiscordPtr->convertSnowflakeToInt64(user.ID));
-                DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %0.8f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, user.username, tx.tx_hash));
+                const auto tx = MyAccount->transferMoneytoAnotherDiscordUser(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), DiscordPtr->convertSnowflakeToInt64(user.ID));
+                DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %0.8f %s to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, amount, GlobalConfig.RPC.coin_abbv, user.username, tx.tx_hash));
             }
         }
     }
@@ -174,7 +175,7 @@ void Tip::Give(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, 
     }
 }
 
-void Tip::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
+void Tip::GiveAll(TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
     if (globalSettings.giveAllowed)
     {
@@ -185,7 +186,7 @@ void Tip::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& messag
         else
         {
             const auto tx = MyAccount->transferAllMoneytoAnotherDiscordUser(DiscordPtr->convertSnowflakeToInt64(message.mentions[0].ID));
-            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %0.8f ITNS to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, static_cast<double>(MyAccount->getUnlockedBalance() / ITNS_OFFSET), message.mentions[0].username, tx.tx_hash));
+            DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Giving %0.8f %s to %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, static_cast<double>(MyAccount->getUnlockedBalance() / GlobalConfig.RPC.coin_offset), GlobalConfig.RPC.coin_abbv, message.mentions[0].username, tx.tx_hash));
         }
     }
     else
@@ -194,48 +195,48 @@ void Tip::GiveAll(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& messag
     }
 }
 
-void Tip::About(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Tip::About(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
-    DiscordPtr->sendMessage(message.channelID, Poco::format(aboutStr, VERSION_MAJOR, VERSION_MINOR));
+    DiscordPtr->sendMessage(message.channelID, Poco::format(aboutStr, GlobalConfig.About.major, GlobalConfig.About.minor));
 }
 
-void Tip::BlockHeight(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Tip::BlockHeight(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
     DiscordPtr->sendMessage(message.channelID, Poco::format("Your wallet's current block height is: %?i", MyAccount->getBlockHeight()));
 }
 
-void Tip::RestartWallet(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
+void Tip::RestartWallet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
 {
-    RPCMan.restartWallet(MyAccount->getDiscordID());
+    RPCMan->restartWallet(MyAccount->getDiscordID());
     DiscordPtr->sendMessage(message.channelID,"Discord Wallet restarted successfully! It may take a minute to resync.");
 }
 
-void Tip::ToggleWithdraw(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Tip::ToggleWithdraw(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
     globalSettings.withdrawAllowed = !globalSettings.withdrawAllowed;
     DiscordPtr->sendMessage(message.channelID, Poco::format("Withdraw Enabled: %b", globalSettings.withdrawAllowed));
 }
 
-void Tip::ToggleGive(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Tip::ToggleGive(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
     globalSettings.giveAllowed = !globalSettings.giveAllowed;
     DiscordPtr->sendMessage(message.channelID, Poco::format("Give Enabled: %b", globalSettings.giveAllowed));
 }
 
-void Tip::RescanAllWallets(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Tip::RescanAllWallets(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
-    RPCMan.rescanAll();
+    RPCMan->rescanAll();
     DiscordPtr->sendMessage(message.channelID, "Rescan spent complete!");
 }
 
-void Tip::TotalBalance(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
+void Tip::TotalBalance(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
-    DiscordPtr->sendMessage(message.channelID, Poco::format("I currently manage %0.8f locked ITNS and %0.8f unlocked ITNS! (Excluding lottery)", RPCMan.getTotalBalance() / ITNS_OFFSET, RPCMan.getTotalUnlockedBalance() / ITNS_OFFSET));
+    DiscordPtr->sendMessage(message.channelID, Poco::format("I currently manage %0.8f locked %s and %0.8f unlocked %s! (Excluding lottery)", RPCMan->getTotalBalance() / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, RPCMan->getTotalUnlockedBalance() / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
 }
 
-void Tip::SaveWallets(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
+void Tip::SaveWallets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
 {
-    RPCMan.saveallWallets();
+    RPCMan->saveallWallets();
 }
 
 iterator Tip::begin()

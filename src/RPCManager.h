@@ -24,16 +24,9 @@ GNU General Public License for more details.
 #include <cereal/archives/json.hpp>
 #include "Poco/Process.h"
 
-#define                        RPC_DATABASE_FILENAME                "RPCDATA.json"
-#define                        STARTING_PORT_NUMBER                 11000
-#define                        MAX_RPC_LIMIT                        200
-#define                        RPC_ERROR_GIVEUP                     3
-#define                        BLOCKCHAIN_SAVE_TIME                 (5/* Minutes */*60)
-#define                        SEARCH_FOR_NEW_TRANSACTIONS_TIME     (10/*In Seconds*/)
-#define                        RPC_WALLETS_SAVE_TIME                (60/*In Seconds*/)
-#define                        RPC_WALLET_WATCHDOG                  (10/*In Minutes*/*60)
+#define RPC_DATABASE_FILENAME                   "RPCDATA.json"
 
-class ITNS_TIPBOT;
+class TIPBOT;
 
 struct RPCProc
 {
@@ -75,7 +68,7 @@ public:
     ~RPCManager();
 
     void                                    setBotUser(DiscordID id);
-    void                                    setDiscordPtr(ITNS_TIPBOT* ptr);
+    void                                    setDiscordPtr(TIPBOT* ptr);
 
     time_t                                  getTimeStarted(DiscordID id);
     Account &                               getAccount(DiscordID id);
@@ -101,7 +94,7 @@ private:
     unsigned short                          currPortNum;
     std::map<DiscordID, struct RPCProc>     RPCMap;
     DiscordID                               BotID;
-    ITNS_TIPBOT*                            DiscordPtr;
+    TIPBOT*                            DiscordPtr;
 
     void                                    processNewTransactions();
     void                                    watchDog();
@@ -114,4 +107,4 @@ private:
     unsigned int                            LaunchRPC(unsigned short port);
 };
 
-extern RPCManager                           RPCMan;
+extern std::unique_ptr<RPCManager>          RPCMan;

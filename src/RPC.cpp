@@ -23,6 +23,7 @@ GNU General Public License for more details.
 #include "Poco/Net/HTTPRequest.h"
 #include <Poco/Net/HTTPResponse.h>
 #include <cassert>
+#include "Config.h"
 
 void RPC::handleNetworkError(const std::string & msg) const
 {
@@ -50,8 +51,8 @@ Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const Poco::
     {
         // Networking
         std::string body = data.toString();
-        Poco::Net::HTTPClientSession s(RPC_HOSTNAME, port);
-        Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, RPC_JSON);
+        Poco::Net::HTTPClientSession s(GlobalConfig.RPC.hostname, port);
+        Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, GlobalConfig.RPC.json_uri);
         Poco::Net::HTTPResponse res;
         Poco::JSON::Parser parser;
         std::stringstream ss;
@@ -170,7 +171,7 @@ TransferRet RPC::tranfer(std::uint64_t payment_id, std::uint64_t amount, const s
 
     params["payment_id"] = Poco::format("%064Lu", payment_id);
     params["destinations"] = destinations;
-    params["mixin"] = DEFAULT_MIXIN;
+    params["mixin"] = GlobalConfig.RPC.mixin;
     params["get_tx_key"] = true;
     params["unlock_time"] = 0;
 
@@ -201,7 +202,7 @@ TransferRet RPC::sweepAll(std::uint64_t payment_id, const std::string & address,
 
     params["address"] = address;
     params["payment_id"] = Poco::format("%064Lu", payment_id);
-    params["mixin"] = DEFAULT_MIXIN;
+    params["mixin"] = GlobalConfig.RPC.mixin;
     params["get_tx_keys"] = true;
     params["unlock_time"] = 0;
 
@@ -281,7 +282,7 @@ TransferList RPC::getTransfers(int id) const
 bool RPC::createWallet(const std::string & name, const std::string & password, const std::string & language, int id) const
 {
     // Ensure we dont overwrite a wallet.
-    if (Util::doesWalletExist(WALLET_PATH + name)) return false;
+    if (Util::doesWalletExist(GlobalConfig.RPC.wallet_path + name)) return false;
 
     Poco::DynamicStruct data;
 
@@ -299,13 +300,13 @@ bool RPC::createWallet(const std::string & name, const std::string & password, c
     }
 
     // Ensure Wallet Exists
-    return Util::doesWalletExist(WALLET_PATH + name);
+    return Util::doesWalletExist(GlobalConfig.RPC.wallet_path + name);
 }
 
 bool RPC::openWallet(const std::string & name, const std::string & password, int id) const
 {
     // Ensure Wallet Exists
-    if (!Util::doesWalletExist(WALLET_PATH + name))
+    if (!Util::doesWalletExist(GlobalConfig.RPC.wallet_path + name))
             createWallet(name, password);
 
     Poco::DynamicStruct data;

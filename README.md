@@ -1,4 +1,4 @@
-# IntenseCoin-TipBot
+# Monero-TipBot
 Discord Tipbot built in C++ for IntenseCoin/Monero
 
 ## Compile

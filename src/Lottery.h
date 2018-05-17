@@ -14,18 +14,11 @@
 
 #define    LOTTERY_USER            "LOTTERY" // Wallet
 #define    LOTTERY_SAVE_FILE       "LOTTERY.JSON"
-#define    TICKET_COST             100 // ITNS
-#define    FACUET_DONATION_PERCENT 0.20
-#define    NO_WINNER_CHANCE        0.20
-#define    LOTTERY_DAY             Poco::DateTime::FRIDAY
-#define    LOTTERY_CLOSE           18
-#define    LOTTERY_PICK            21
-#define    LOTTERY_FAUCET          23
 
 class Lottery : public Poco::Runnable, public AppBaseClass
 {
 public:
-    Lottery(ITNS_TIPBOT * DiscordPtr);
+    Lottery(TIPBOT * DiscordPtr);
     virtual ~Lottery();
 
     void                                save();
@@ -41,15 +34,15 @@ public:
 
     void                                run();
 
-    void                                gameInfo(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                LotteryHelp(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                Jackpot(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                BuyTicket(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                MyTickets(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                gameInfo(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                LotteryHelp(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                Jackpot(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                BuyTicket(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                MyTickets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
 
-    void                                ToggleLotterySuspend(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                                ToggleLotterySuspend(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 private:
-    ITNS_TIPBOT *                   DiscordPtr;
+    TIPBOT *                   DiscordPtr;
     bool                            lotterySuspended;
     std::uint64_t                   lastWinningTopBlock = 0;
     Account*                        currentUsrAccount{};

@@ -1,0 +1,53 @@
+{
+    "AppConfig": {
+        "About": {
+            "major": 2,
+            "minor": 0
+        },
+        "General": {
+            "discordToken": "",
+            "Admins": [
+                380370690030829578,
+                144619872444219392,
+                266700783897018369,
+                415162452725202944,
+                345699014806732800,
+                206430811430322176
+            ]
+        },
+        "RPC": {
+            "json_uri": "/json_rpc",
+            "wallet_path": "Wallets/",
+            "coin_offset": 100000000.0,
+            "mixin": 4,
+            "coin_abbv": "ITNS",
+            "address_length": 97,
+            "filename": "intense-wallet-rpc",
+            "hostname": "127.0.0.1",
+            "daemon_hostname": "127.0.0.1:48782"
+        },
+        "RPCManager": {
+            "starting_port_number": 11000,
+            "max_rpc_limit": 200,
+            "error_giveup": 3,
+            "blockchain_save_time": 300,
+            "search_for_new_transactions_time": 10,
+            "wallets_save_time": 60,
+            "wallet_watchdog_time": 600
+        },
+        "Faucet": {
+            "percentage_allowance": 0.0008,
+            "min_discord_account": 604800000000,
+            "timeout": 57600000000
+        },
+        "Lottery": {
+            "ticket_cost": 100.0,
+            "donation_percent": 0.2,
+            "no_winner_chance": 0.2,
+            "day": 5,
+            "close": 18,
+            "pick": 21,
+            "faucet": 23
+        }
+    }
+}

@@ -19,6 +19,7 @@ GNU General Public License for more details.
 #include "RPCManager.h"
 #include <utility>
 #include <map>
+#include "Config.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Faucet::Faucet()
@@ -80,14 +81,14 @@ const_iterator Faucet::cend() const
 
 }
 
-void Faucet::help(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
+void Faucet::help(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
 {
     const auto channelType = DiscordPtr->getDiscordChannelType(message.channelID);
-    const auto helpStr = ITNS_TIPBOT::generateHelpText("ITNS Bot Faucet Commands (use ``!give [amount] @Tip Bot`` to donate to faucet):\\n", Commands, channelType, message);
+    const auto helpStr = TIPBOT::generateHelpText("Faucet Commands (use ``!give [amount] @Tip Bot`` to donate to faucet):\\n", Commands, channelType, message);
     DiscordPtr->sendMessage(message.channelID, helpStr);
 }
 
-void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
+void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
 {
     auto & myAccountPtr = RPCManager::getGlobalBotAccount();
 
@@ -95,30 +96,30 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
 
     std::stringstream ss;
 
-    const auto & user = DiscordPtr->findUser(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID));
+    const auto & user = DiscordPtr->findUser(TIPBOT::convertSnowflakeToInt64(message.author.ID));
     const Poco::Timestamp   current;
     const std::uint64_t     currentTime    = current.epochMicroseconds();
     const auto&             joinTime       = user.join_epoch_time;
     const auto&             faucetTime     = user.faucet_epoch_time;
 
-    if ((currentTime - joinTime) >= MIN_DISCORD_ACCOUNT_IN_DAYS)
+    if ((currentTime - joinTime) >= GlobalConfig.Faucet.min_discord_account)
     {
         if (currentTime > faucetTime)
         {
             if (myAccountPtr.getUnlockedBalance())
             {
-                const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE);
-                const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID)));
-                user.faucet_epoch_time = current.epochMicroseconds() + FAUCET_TIMEOUT;
+                const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*GlobalConfig.Faucet.percentage_allowance);
+                const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(TIPBOT::convertSnowflakeToInt64(message.author.ID)));
+                user.faucet_epoch_time = current.epochMicroseconds() + GlobalConfig.Faucet.timeout;
                 user.total_faucet_itns_sent += amount;
-                ss << Poco::format("%s#%s: You have been granted %0.8f ITNS with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / ITNS_OFFSET, tx.tx_hash);
+                ss << Poco::format("%s#%s: You have been granted %0.8f %s with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
                 DiscordPtr->saveUserList();
             }
             else if (myAccountPtr.getBalance())
                 ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
             else ss << "Bot is broke, try again later. :disappointed_relieved:\\n";
         }
-        else ss << "Too soon! You're allowed one ``!take`` every " << FAUCET_TIMEOUT / MICROSECOND_HOUR <<
+        else ss << "Too soon! You're allowed one ``!take`` every " << GlobalConfig.Faucet.timeout / MICROSECOND_HOUR <<
             " hours, remaining " << static_cast<double>(faucetTime - currentTime) / MICROSECOND_HOUR << " hours.\\n";
     }
     else ss << "Your Discord account must be older than 7 days.\\n";
@@ -126,10 +127,10 @@ void Faucet::take(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message & messa
     DiscordPtr->sendMessage(message.channelID, ss.str());
 }
 
-void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
+void Faucet::status(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
 {
     auto & myAccountPtr = RPCManager::getGlobalBotAccount();
-    const auto & user = DiscordPtr->findUser(ITNS_TIPBOT::convertSnowflakeToInt64(message.author.ID));
+    const auto & user = DiscordPtr->findUser(TIPBOT::convertSnowflakeToInt64(message.author.ID));
 
     std::stringstream ss;
     ss.precision(8);
@@ -162,19 +163,19 @@ void Faucet::status(ITNS_TIPBOT* DiscordPtr, const SleepyDiscord::Message& messa
     ss << "```";
     ss << "Your name is: " << user.username << ".\\n";
     ss << "Your ID is: " << user.id << ".\\n";
-    ss << "Bot current balance is: " << myAccountPtr.getBalance() / ITNS_OFFSET << ".\\n";
-    ss << "Bot current unlocked balance is: " << myAccountPtr.getUnlockedBalance() / ITNS_OFFSET << ".\\n";
+    ss << "Bot current balance is: " << myAccountPtr.getBalance() / GlobalConfig.RPC.coin_offset << ".\\n";
+    ss << "Bot current unlocked balance is: " << myAccountPtr.getUnlockedBalance() / GlobalConfig.RPC.coin_offset << ".\\n";
     ss << "Bot current address is: " << myAccountPtr.getMyAddress() << ".\\n";
-    ss << "Bot timeout is: " << FAUCET_TIMEOUT / MICROSECOND_HOUR << " hours\\n";
-    ss << "Minimum Discord Account: " << MIN_DISCORD_ACCOUNT_IN_DAYS / MICROSECOND_DAY << " days.\\n";
-    ss << "Current Award: " << (myAccountPtr.getUnlockedBalance()*FAUCET_PERCENTAGE_ALLOWANCE) / ITNS_OFFSET << ".\\n";
-    ss << "Current payout percentage: " << FAUCET_PERCENTAGE_ALLOWANCE*100 << "%.\\n";
-    ss << "Current Award Amount: " << sent / ITNS_OFFSET << ".\\n";
-    ss << "Current Donated From Users: " << recieved / ITNS_OFFSET << ".\\n";
+    ss << "Bot timeout is: " << GlobalConfig.Faucet.timeout / MICROSECOND_HOUR << " hours\\n";
+    ss << "Minimum Discord Account: " << GlobalConfig.Faucet.min_discord_account / MICROSECOND_DAY << " days.\\n";
+    ss << "Current Award: " << (myAccountPtr.getUnlockedBalance()*GlobalConfig.Faucet.percentage_allowance) / GlobalConfig.RPC.coin_offset << ".\\n";
+    ss << "Current payout percentage: " << GlobalConfig.Faucet.percentage_allowance *100 << "%.\\n";
+    ss << "Current Award Amount: " << sent / GlobalConfig.RPC.coin_offset << ".\\n";
+    ss << "Current Donated From Users: " << recieved / GlobalConfig.RPC.coin_offset << ".\\n";
     ss << "Current Top Donor: " << TopDonorUser.username << " (" << TopDonorUser.id << ").\\n";
-    ss << "Current Top Donor Amount: " << (TopDonor->second / ITNS_OFFSET) << ".\\n";
+    ss << "Current Top Donor Amount: " << (TopDonor->second / GlobalConfig.RPC.coin_offset) << ".\\n";
     ss << "Current Top Taker: " << TopTaker.me.username << " (" << TopTaker.me.id << ").\\n";
-    ss << "Current Top Taker Amount: " << (TopTaker.amount / ITNS_OFFSET) << ".\\n";
+    ss << "Current Top Taker Amount: " << (TopTaker.amount / GlobalConfig.RPC.coin_offset) << ".\\n";
     ss << "```";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());
