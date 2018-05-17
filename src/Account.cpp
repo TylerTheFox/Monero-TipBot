@@ -89,13 +89,20 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
 
     // Open (or create) other Discord User account to get the address
     auto recieveAccount = RPCMan->getAccount(DIS_ID);
-    const std::string DiscordUserAddress = recieveAccount.getMyAddress();
+    const std::string DiscordUserAddress = Account::getWalletAddress(DIS_ID);
+
+    if (DIS_ID != recieveAccount.getDiscordID())
+        throw GeneralAccountError("Internel Error: Trying to send money to a invalid user. v1");
+
+    if (DiscordUserAddress != recieveAccount.getMyAddress())
+        throw GeneralAccountError("Internel Error: Trying to send money to a invalid user. v2");
 
     if (DiscordUserAddress == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
     if (DiscordUserAddress.length() != GlobalConfig.RPC.address_length)
         throw GeneralAccountError("Invalid Address.");
+
 
     auto ret = RPCPtr->tranfer(Discord_ID, amount, DiscordUserAddress);
 
@@ -122,7 +129,13 @@ TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
 
     // Open (or create) other Discord User account to get the address
     auto recieveAccount = RPCMan->getAccount(DIS_ID);
-    const std::string DiscordUserAddress = recieveAccount.getMyAddress();
+    const std::string DiscordUserAddress = Account::getWalletAddress(DIS_ID);
+
+    if (DIS_ID != recieveAccount.getDiscordID())
+        throw GeneralAccountError("Internel Error: Trying to send money to a invalid user. v1");
+   
+    if (DiscordUserAddress != recieveAccount.getMyAddress())
+        throw GeneralAccountError("Internel Error: Trying to send money to a invalid user. v2");
 
     if (DiscordUserAddress == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
