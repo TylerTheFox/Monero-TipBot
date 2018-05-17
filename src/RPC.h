@@ -47,6 +47,8 @@ GNU General Public License for more details.
 #define RPC_METHOD_CLOSE_RPC                "stop_wallet"
 #define RPC_METHOD_STORE                    "store"
 #define RPC_METHOD_RESCAN_SPENT             "rescan_spent"
+#define RPC_METHOD_GET_TX_NOTE              "get_tx_notes"
+#define RPC_METHOD_SET_TX_NOTE              "set_tx_notes"
 
 struct BalanceRet
 {
@@ -65,7 +67,7 @@ struct TransferItem
 {
     std::string tx_hash;
     std::uint64_t amount;
-    std::uint64_t payment_id;
+    mutable std::uint64_t payment_id;
     unsigned int block_height;
 
     friend bool operator<(const struct TransferItem & lhs, const struct TransferItem & rhs)
@@ -106,6 +108,8 @@ public:
     void                            stopWallet(int id = 0) const;
     void                            store(int id = 0) const;
     void                            rescanSpent(int id = 0) const;
+    void                            setTXNote(const std::vector<std::string> & txVect, const std::vector<std::string> & noteVect, int id = 0) const;
+    std::vector<std::string>        getTXNote(const std::vector<std::string> & txVect, int id = 0) const;
 
     unsigned short                  getPort() const;
 

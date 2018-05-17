@@ -355,6 +355,44 @@ void RPC::rescanSpent(int id) const
     }
 }
 
+void RPC::setTXNote(const std::vector<std::string> & txVect, const std::vector<std::string> & noteVect, int id) const
+{
+    Poco::DynamicStruct params;
+    Poco::Dynamic::Array TX_ARR(txVect.begin(), txVect.end());
+    Poco::Dynamic::Array NOTE_ARR(noteVect.begin(), noteVect.end());
+    params["txids"] = TX_ARR;
+    params["notes"] = NOTE_ARR;
+
+    auto json = getDataFromRPC(RPC_METHOD_SET_TX_NOTE, params, id);
+
+    if (!json["error"].isEmpty())
+    {
+        handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+    }
+}
+
+std::vector<std::string> RPC::getTXNote(const std::vector<std::string> & txVect, int id) const
+{
+    Poco::DynamicStruct params;
+    Poco::Dynamic::Array TX_ARR(txVect.begin(), txVect.end());
+    params["txids"] = TX_ARR;
+    auto json = getDataFromRPC(RPC_METHOD_GET_TX_NOTE, params, id);
+
+    if (!json["error"].isEmpty())
+    {
+        handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+    }
+
+    auto result = json["result"]["notes"].extract<Poco::Dynamic::Array>();
+
+    std::vector<std::string> ret;
+    for (auto it : result)
+    {
+        ret.emplace_back(it.toString());
+    }
+    return ret;
+}
+
 unsigned short RPC::getPort() const
 {
     return port;
