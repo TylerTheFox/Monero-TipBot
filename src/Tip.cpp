@@ -50,6 +50,7 @@ Tip::Tip() : MyAccount(nullptr)
         { "!rescanallwallets",CLASS_RESOLUTION(RescanAllWallets),            "",                                 false,  true,   AllowChannelTypes::Private },
         { "!totalbalance",    CLASS_RESOLUTION(TotalBalance),                "",                                 false,  true,   AllowChannelTypes::Private },
         { "!savewallets",     CLASS_RESOLUTION(SaveWallets),                 "",                                 false,  true,   AllowChannelTypes::Private },
+        { "!restartfaucet",   CLASS_RESOLUTION(RestartFaucetWallet),         "",                                 false,  true,   AllowChannelTypes::Private },
 
     };
 }
@@ -236,7 +237,14 @@ void Tip::TotalBalance(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message
 
 void Tip::SaveWallets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
 {
-    RPCMan->saveallWallets();
+    RPCMan->saveallWallets();   
+    DiscordPtr->sendMessage(message.channelID, "Wallets saved!");
+}
+
+void Tip::RestartFaucetWallet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
+{
+    RPCMan->restartWallet(RPCMan->getBotDiscordID());
+    DiscordPtr->sendMessage(message.channelID, "Faucet Restarted!");
 }
 
 iterator Tip::begin()
