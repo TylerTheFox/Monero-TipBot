@@ -50,6 +50,14 @@ RPCManager::~RPCManager()
 void RPCManager::setBotUser(DiscordID id)
 {
     BotID = id;
+    try
+    {
+        getAccount(BotID); // Just open the wallet and discard the result.
+    }
+    catch (AppGeneralException & exp)
+    {
+        std::cerr << "App Error: " << exp.getGeneralError() << "\n";
+    }
 }
 
 void RPCManager::setDiscordPtr(TIPBOT* ptr)
@@ -110,10 +118,10 @@ const TransferList RPCManager::getTransfers(DiscordID id)
 void RPCManager::run()
 {
     time_t  currTime = Poco::Timestamp().epochTime();
-    time_t  transactionTime     = currTime + GlobalConfig.RPCManager.search_for_new_transactions_time,
-            walletTime          = currTime + GlobalConfig.RPCManager.blockchain_save_time,
-            saveTime            = currTime + GlobalConfig.RPCManager.wallets_save_time,
-            walletWatchDog      = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
+    time_t  transactionTime = currTime + GlobalConfig.RPCManager.search_for_new_transactions_time,
+        walletTime = currTime + GlobalConfig.RPCManager.blockchain_save_time,
+        saveTime = currTime + GlobalConfig.RPCManager.wallets_save_time,
+        walletWatchDog = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
     while (true)
     {
         if (DiscordPtr)
@@ -411,7 +419,7 @@ unsigned int RPCManager::LaunchRPC(unsigned short port)
 #if _WIN32
     launchFile = GlobalConfig.RPC.filename;
 #else
-    launchFile = "./" +  GlobalConfig.RPC.filename;
+    launchFile = "./" + GlobalConfig.RPC.filename;
 #endif
     Poco::ProcessHandle rpc_handle = Poco::Process::launch(launchFile, args, nullptr, nullptr, nullptr);
     return rpc_handle.id();
@@ -484,33 +492,35 @@ std::uint64_t RPCManager::getTotalUnlockedBalance()
 void RPCManager::restartWallet(DiscordID id)
 {
     Poco::Mutex::ScopedLock lock(mu);
-    std::cout << "Restarting User: " << id << "'s RPC \n";
-
-    try
+    if (RPCMap.count(id))
     {
-        Poco::Process::kill(RPCMap[id].pid);
+        std::cout << "Restarting User: " << id << "'s RPC \n";
+        try
+        {
+            Poco::Process::kill(RPCMap[id].pid);
+        }
+        catch (const Poco::Exception & exp)
+        {
+            std::cerr << "Error killing RPC " << exp.what() << '\n';
+        }
+
+        // Launch RPC
+        RPCMap[id].pid = LaunchRPC(RPCMap[id].MyRPC.getPort());
+
+        // Setup Accounts
+        RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
+
+        // Wait for RPC to respond
+        waitForRPCToRespond(id, RPCMap[id].MyRPC);
+
+        // Open Wallet
+        RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id));
+
+        // Get transactions
+        RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
+
+        std::cout << "User: " << id << "'s RPC restarted successfully!\n";
     }
-    catch (const Poco::Exception & exp)
-    {
-        std::cerr << "Error killing RPC " << exp.what() << '\n';
-    }
-
-    // Launch RPC
-    RPCMap[id].pid = LaunchRPC(RPCMap[id].MyRPC.getPort());
-
-    // Setup Accounts
-    RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
-
-    // Wait for RPC to respond
-    waitForRPCToRespond(id, RPCMap[id].MyRPC);
-
-    // Open Wallet
-    RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id));
-
-    // Get transactions
-    RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
-
-    std::cout << "User: " << id << "'s RPC restarted successfully!\n";
 }
 
 void RPCManager::rescanAll()

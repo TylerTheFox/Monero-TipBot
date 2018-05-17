@@ -100,6 +100,7 @@ BalanceRet RPC::getBalance(int id) const
     auto json = getDataFromRPC(RPC_METHOD_GET_BALANCE, {}, id);
 
     // Ensure RPC is happy.
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
 
@@ -123,6 +124,7 @@ std::string RPC::getAddress(int id) const
     auto json = getDataFromRPC(RPC_METHOD_GET_ADDRESS, {}, id);
 
     // Ensure RPC is happy.
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
 
@@ -142,6 +144,7 @@ unsigned int RPC::getBlockHeight(int id) const
     auto json = getDataFromRPC(RPC_METHOD_GET_BLK_HEIGHT, {}, id);
 
     // Ensure RPC is happy.
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
 
@@ -178,6 +181,7 @@ TransferRet RPC::tranfer(std::uint64_t payment_id, std::uint64_t amount, const s
     auto json = getDataFromRPC(RPC_METHOD_TRANSFER, params, id);
 
     // Ensure RPC is happy.
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
     {
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
@@ -209,6 +213,7 @@ TransferRet RPC::sweepAll(std::uint64_t payment_id, const std::string & address,
     auto json = getDataFromRPC(RPC_METHOD_SWEEP_ALL, params, id);
 
     // Ensure RPC is happy.
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
     {
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
@@ -237,6 +242,7 @@ TransferList RPC::getTransfers(int id) const
     auto json = getDataFromRPC(RPC_METHOD_GET_TRANSFERS, params, id);
 
     // Ensure RPC is happy.
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
 
@@ -293,6 +299,7 @@ bool RPC::createWallet(const std::string & name, const std::string & password, c
     auto json = getDataFromRPC(RPC_METHOD_CREATE_WALLET, data, id);
 
     // Ensure RPC is happy.
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
     {
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
@@ -307,7 +314,7 @@ bool RPC::openWallet(const std::string & name, const std::string & password, int
 {
     // Ensure Wallet Exists
     if (!Util::doesWalletExist(GlobalConfig.RPC.wallet_path + name))
-            createWallet(name, password);
+        createWallet(name, password);
 
     Poco::DynamicStruct data;
 
@@ -316,6 +323,7 @@ bool RPC::openWallet(const std::string & name, const std::string & password, int
 
     auto json = getDataFromRPC(RPC_METHOD_OPEN_WALLET, data, id);
 
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
     {
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
@@ -330,6 +338,7 @@ void RPC::stopWallet(int id) const
 {
     auto json = getDataFromRPC(RPC_METHOD_CLOSE_RPC, {}, id);
 
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
     {
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
@@ -340,10 +349,11 @@ void RPC::store(int id) const
 {
     auto json = getDataFromRPC(RPC_METHOD_STORE, {}, id);
 
-     if (!json["error"].isEmpty())
-     {
-         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
-     }
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
+    if (!json["error"].isEmpty())
+    {
+        handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+    }
 }
 
 void RPC::rescanSpent(int id) const
@@ -366,6 +376,7 @@ void RPC::setTXNote(const std::vector<std::string> & txVect, const std::vector<s
 
     auto json = getDataFromRPC(RPC_METHOD_SET_TX_NOTE, params, id);
 
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
     {
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
@@ -379,6 +390,7 @@ std::vector<std::string> RPC::getTXNote(const std::vector<std::string> & txVect,
     params["txids"] = TX_ARR;
     auto json = getDataFromRPC(RPC_METHOD_GET_TX_NOTE, params, id);
 
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
     if (!json["error"].isEmpty())
     {
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());

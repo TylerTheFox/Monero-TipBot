@@ -60,6 +60,7 @@ public:
     void                            RescanAllWallets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            TotalBalance(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            SaveWallets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                            RestartFaucetWallet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 
     private:
     Settings                        globalSettings{};
