@@ -93,8 +93,16 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
     if (DiscordUserAddress == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
+    if (DiscordUserAddress.length() != VALID_ADDRESS_LENGTH)
+        throw GeneralAccountError("Invalid Address.");
+
+    auto ret = RPCPtr->tranfer(Discord_ID, amount, DiscordUserAddress);
+
+    // Set Outgoing TX Note
+    RPCPtr->setTXNote({ ret.tx_hash }, { Poco::format("%Lu", DIS_ID) });
+
     // Send the money
-    return RPCPtr->tranfer(Discord_ID, amount, DiscordUserAddress);
+    return ret;
 }
 
 TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
@@ -118,8 +126,16 @@ TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
     if (DiscordUserAddress == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
+    if (DiscordUserAddress.length() != VALID_ADDRESS_LENGTH)
+        throw GeneralAccountError("Invalid Address.");
+
+    auto ret = RPCPtr->sweepAll(Discord_ID, DiscordUserAddress);
+
+    // Set Outgoing TX Note
+    RPCPtr->setTXNote({ ret.tx_hash }, { Poco::format("%Lu", DIS_ID) });
+
     // Send the money
-    return RPCPtr->sweepAll(Discord_ID, DiscordUserAddress);
+    return ret;
 }
 
 TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::string & address)
@@ -129,6 +145,9 @@ TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::str
 
     // Resync account.
     resyncAccount();
+
+    if (address.length() != VALID_ADDRESS_LENGTH)
+        throw GeneralAccountError("Invalid Address.");
 
     if (amount == UnlockedBalance)
         throw InsufficientBalance("You do not have enough money for the fee, try !giveall instead");
@@ -145,8 +164,13 @@ TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::str
     if (address == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
+    auto ret = RPCPtr->tranfer(Discord_ID, amount, address);
+
+    // Set Outgoing TX Note
+    RPCPtr->setTXNote({ ret.tx_hash }, { "-1" });
+
     // Send the money
-    return RPCPtr->tranfer(Discord_ID, amount, address);
+    return ret;
 }
 
 TransferRet Account::transferAllMoneyToAddress(const std::string& address)
@@ -157,6 +181,9 @@ TransferRet Account::transferAllMoneyToAddress(const std::string& address)
     // Resync account.
     resyncAccount();
 
+    if (address.length() != VALID_ADDRESS_LENGTH)
+        throw GeneralAccountError("Invalid Address.");
+
     if (UnlockedBalance == 0)
         throw InsufficientBalance(Poco::format("You are trying to send all your money to an address while only having %f!", UnlockedBalance / ITNS_OFFSET));
 
@@ -166,14 +193,46 @@ TransferRet Account::transferAllMoneyToAddress(const std::string& address)
     if (address == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
+    auto ret = RPCPtr->sweepAll(Discord_ID, address);
+
+    // Set Outgoing TX Note
+    RPCPtr->setTXNote({ ret.tx_hash }, { "-1" });
+
     // Send the money
-    return RPCPtr->sweepAll(Discord_ID, address);
+    return ret;
 }
 
 TransferList Account::getTransactions()
 {
     assert(RPCPtr);
-    return RPCPtr->getTransfers();
+    auto ret = RPCMan.getTransfers(Discord_ID);
+
+    std::vector<std::string> TXs;
+
+    for (const auto & tx : ret.tx_out)
+        TXs.emplace_back(tx.tx_hash);
+
+    if (!TXs.empty())
+    {
+        auto notes = RPCPtr->getTXNote(TXs);
+
+        auto note_it = notes.begin();
+
+        // Filter Transactions
+        for (auto & tx : ret.tx_out)
+        {
+            if (*note_it != "-1")
+            {
+                if (!Poco::NumberParser::tryParseUnsigned64(*note_it, tx.payment_id))
+                {
+                    tx.payment_id = 0;
+                }
+            }
+            else tx.payment_id = 0;
+            note_it++;
+        }
+    }
+    return ret;
 }
 
 void Account::resyncAccount()
@@ -203,7 +262,7 @@ const std::string Account::getWalletAddress(DiscordID Discord_ID)
     const std::string & walletStr = Util::getWalletStrFromIID(Discord_ID);
 
     if (!Util::doesWalletExist(WALLET_PATH + walletStr))
-            RPCManager::getGlobalBotRPC().createWallet(walletStr);
+        RPCManager::getGlobalBotRPC().createWallet(walletStr);
 
     const auto addressStr = WALLET_PATH + walletStr + ".address.txt";
 

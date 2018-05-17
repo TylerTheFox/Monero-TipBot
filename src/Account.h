@@ -16,6 +16,8 @@ GNU General Public License for more details.
 #include <string>
 #include "types.h"
 
+#define VALID_ADDRESS_LENGTH 97
+
 class Account
 {
 public:

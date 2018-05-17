@@ -80,7 +80,7 @@ void Tip::MyAddress(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& mess
 
 void Tip::History(ITNS_TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, const struct Command & me)
 {
-    const auto trxs = RPCMan.getTransfers(MyAccount->getDiscordID());
+    const auto trxs = MyAccount->getTransactions();
 
     std::stringstream ss;
 
