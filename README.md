@@ -45,10 +45,10 @@ Discord Tipbot built in C++ for Monero/IntenseCoin
 * !buytickets [amount]
 
 ## Requirements
-* IntenseCon Daemon
-* IntenseCoin RPC
+* IntenseCon/Monero Daemon
+* IntenseCoin/Monero RPC
 * Discord Token 
-* TCP Port 11000 to 11100 free to bind
+* TCP Port 11000 to 11100 free to bind (can be redefined in config)
 
 ## Dependencies (included)
 
