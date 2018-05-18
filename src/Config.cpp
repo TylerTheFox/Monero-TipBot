@@ -21,8 +21,6 @@ GNU General Public License for more details.
 AppConfig GlobalConfig;
 
 // IntenseCoin Config (Default)
-#define VERSION_MAJOR                           2
-#define VERSION_MINOR                           1
 #define RPC_FILENAME                            "intense-wallet-rpc"
 #define RPC_HOSTNAME                            "127.0.0.1"
 #define DAEMON_ADDRESS                          "127.0.0.1:48782"

@@ -20,6 +20,7 @@ GNU General Public License for more details.
 #include "Poco/Runnable.h"
 #include "Discord.h"
 #include <memory>
+#include "Config.h"
 
 #include <cereal/archives/json.hpp>
 #include "Poco/Process.h"
@@ -27,8 +28,6 @@ GNU General Public License for more details.
 #define RPC_DATABASE_FILENAME                   "RPCDATA.json"
 
 class TIPBOT;
-
-extern bool useOldConfig;
 
 struct RPCProc
 {
