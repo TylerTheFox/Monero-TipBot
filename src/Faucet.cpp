@@ -29,7 +29,7 @@ Faucet::Faucet()
         // User Commands 
         // Command            Function                                      Params                              Wallet  Admin   Allowed Channel
         { "!faucet",          CLASS_RESOLUTION(help),                       "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!take",            CLASS_RESOLUTION(take),                       "",                                 false,  false,  AllowChannelTypes::Any },
+        { "!take",            CLASS_RESOLUTION(take),                       "",                                 false,  false,  AllowChannelTypes::Public },
         { "!status",          CLASS_RESOLUTION(status),                     "",                                 false,  true,   AllowChannelTypes::Private },
     };
 }
