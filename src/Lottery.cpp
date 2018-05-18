@@ -110,7 +110,10 @@ void Lottery::run()
     bool rewardGivenout = false;
     bool sweepComplete = false;
     bool noWinner = false;
-    while (true)
+
+    GlobalConfig.General.Threads++;
+
+    while (!GlobalConfig.General.Shutdown)
     {
         if (!lotterySuspended)
         {
@@ -207,6 +210,8 @@ void Lottery::run()
         }
         Poco::Thread::sleep(1000);
     }
+
+    GlobalConfig.General.Threads--;
 }
 
 void Lottery::gameInfo(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
@@ -263,7 +268,7 @@ void Lottery::BuyTicket(TIPBOT* DiscordPtr, const SleepyDiscord::Message& messag
                 LotteryAccount->MyAccount.resyncAccount();
                 const auto tickets = Poco::NumberParser::parseUnsigned(cmd[1]);
                 const auto tx = currentUsrAccount->transferMoneyToAddress((tickets * GlobalConfig.Lottery.ticket_cost) * GlobalConfig.RPC.coin_offset, LotteryAccount->MyAccount.getMyAddress());
-                DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Purchased %?i tickets for %?i %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, tickets, tickets * GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
+                DiscordPtr->sendMessage(message.channelID, Poco::format("%s#%s: Purchased %?i tickets for %0.8f %s with TX Hash: %s :smiley:", message.author.username, message.author.discriminator, tickets, tickets * GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
             }
         }
         else DiscordPtr->sendMessage(message.channelID, "Lottery is currently suspended.");

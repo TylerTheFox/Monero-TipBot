@@ -95,39 +95,64 @@ void setup()
 
 int main()
 {
-    try
+    while (!GlobalConfig.General.Quitting)
     {
-        // Setup routine
-        setup();
+        try
+        {
+            // Setup routine
+            setup();
 
-        // Init RPCMan
-        RPCMan.reset(new RPCManager);
+            // Init RPCMan
+            RPCMan.reset(new RPCManager);
 
-        // Load RPCs
-        RPCMan->load();
+            // Load RPCs
+            RPCMan->load();
 
-        // Run bot with token.
-        TIPBOT client(GlobalConfig.General.discordToken, 2);
-        client.init();
-        RPCMan->setDiscordPtr(&client);
+            // Run bot with token.
+            TIPBOT client(GlobalConfig.General.discordToken, 2);
+            client.init();
+            RPCMan->setDiscordPtr(&client);
 
-        // Create RPC threads
-        Poco::Thread thread;
-        thread.start(*RPCMan);
+            // Create RPC threads
+            Poco::Thread thread;
+            thread.start(*RPCMan);
 
-        client.run();
+            client.run();
+
+            GlobalConfig.General.Shutdown = true;
+            while (GlobalConfig.General.Threads);
+
+            RPCMan.reset(nullptr);
+
+            // Upgrade save file
+            if (REAL_VERSION_MAJOR != GlobalConfig.About.major || REAL_VERSION_MINOR != GlobalConfig.About.minor)
+            {
+                std::cout << "Upgrading Save file...\n";
+                GlobalConfig.About.major = REAL_VERSION_MAJOR;
+                GlobalConfig.About.minor = REAL_VERSION_MINOR;
+                GlobalConfig.save_config();
+            }
+
+            // Shutdown Complete!
+            GlobalConfig.General.Shutdown = false;
+        }
+        catch (const Poco::Exception & exp)
+        {
+            std::cerr << "Poco Error: " << exp.what() << "\n";
+            return -1;
+        }
+        catch (AppGeneralException & exp)
+        {
+            GlobalConfig.General.Shutdown = true;
+            return -2;
+        }
+        catch (const SleepyDiscord::ErrorCode & exp)
+        {
+            GlobalConfig.General.Shutdown = true;
+            return -3;
+        }
     }
-    catch (const Poco::Exception & exp)
-    {
-        std::cerr << "Poco Error: " << exp.what() << "\n";
-    }
-    catch (AppGeneralException & exp)
-    {
-        std::cerr << "App Error: " << exp.getGeneralError() << "\n";
-    }
-    catch (const SleepyDiscord::ErrorCode & exp)
-    {
-        std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
-    }
+    std::cout << "Bot safely shutdown!";
+    std::cin.get();
     return 0;
 }

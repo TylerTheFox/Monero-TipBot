@@ -22,7 +22,7 @@ AppConfig GlobalConfig;
 
 // IntenseCoin Config (Default)
 #define VERSION_MAJOR                           2
-#define VERSION_MINOR                           0
+#define VERSION_MINOR                           1
 #define RPC_FILENAME                            "intense-wallet-rpc"
 #define RPC_HOSTNAME                            "127.0.0.1"
 #define DAEMON_ADDRESS                          "127.0.0.1:48782"
@@ -38,7 +38,7 @@ AppConfig GlobalConfig;
 #define SEARCH_FOR_NEW_TRANSACTIONS_TIME        (10/*In Seconds*/)
 #define RPC_WALLETS_SAVE_TIME                   (60/*In Seconds*/)
 #define RPC_WALLET_WATCHDOG                     (10/*In Minutes*/*60)
-#define FAUCET_PERCENTAGE_ALLOWANCE             0.0008
+#define FAUCET_PERCENTAGE_ALLOWANCE             0.0001
 #define MIN_DISCORD_ACCOUNT_IN_DAYS             (7.0*MICROSECOND_DAY)   // Days
 #define FAUCET_TIMEOUT                          (16.0*MICROSECOND_HOUR) // Hours
 #define VALID_ADDRESS_LENGTH                    97
@@ -67,7 +67,10 @@ AppConfig::AppConfig()
     About.minor = VERSION_MINOR;
 
     // Admins
-    General.Admins = std::vector<DiscordID>(DiscordAdmins, DiscordAdmins + sizeof DiscordAdmins / sizeof DiscordAdmins[0]);
+    General.Admins  = std::vector<DiscordID>(DiscordAdmins, DiscordAdmins + sizeof DiscordAdmins / sizeof DiscordAdmins[0]);
+    General.Quitting = false;
+    General.Shutdown = false;
+    General.Threads = 0;
 
     // RPC
     RPC.coin_abbv = COIN_ABBV;

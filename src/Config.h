@@ -11,12 +11,16 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
+#pragma once
 #include <string>
 #include <vector>
 #include "cereal/cereal.hpp"
 #include "cereal/types/vector.hpp"
 #include "cereal/archives/json.hpp"
 #include "types.h"
+
+#define REAL_VERSION_MAJOR                      2
+#define REAL_VERSION_MINOR                      1
 
 struct AboutConfig
 {
@@ -36,6 +40,9 @@ struct AboutConfig
 struct GeneralConfig
 {
     std::string             discordToken;
+    bool                    Quitting;
+    bool                    Shutdown;
+    unsigned int            Threads;
     std::vector<DiscordID>  Admins;
 
     template <class Archive>

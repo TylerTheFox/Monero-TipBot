@@ -27,6 +27,7 @@ GNU General Public License for more details.
 #include "Poco/ScopedLock.h"
 #include "Config.h"
 std::unique_ptr<RPCManager>      RPCMan;
+bool useOldConfig = false;
 
 RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr)
 {
@@ -35,15 +36,27 @@ RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_num
 
 RPCManager::~RPCManager()
 {
-    // Save blockchain on exit.
-    try
+    save();
+    SaveWallets();
+
+    // Kill all running RPCs
+    for (auto account : this->RPCMap)
     {
-        save();
-        SaveWallets();
-    }
-    catch (...)
-    {
-        // We need to shutdown RPCs and we can't crash else they don't get shutdown.
+        try
+        {
+            account.second.MyRPC.stopWallet();
+        }
+        catch (...)
+        {
+            try
+            {
+                Poco::Process::kill(account.second.pid);
+            }
+            catch (...)
+            {
+                // Ignore.
+            }
+        }
     }
 }
 
@@ -81,10 +94,15 @@ Account& RPCManager::getAccount(DiscordID id)
 
     if (RPCMap.count(id) == 0)
     {
-        if (RPCMap.size() <= GlobalConfig.RPCManager.max_rpc_limit)
+        if (RPCMap.size() < GlobalConfig.RPCManager.max_rpc_limit)
             RPCMap[id] = SpinUpNewRPC(id);
         else
-            RPCMap[id] = FindOldestRPC();
+        {
+            RPCProc oldAcc = FindOldestRPC(); // Deep copy
+            auto oldAccID = oldAcc.MyAccount.getDiscordID();
+            RPCMap.erase(oldAccID); // Ensure we destroy the old account --- SECURITY BUG FIX ---
+            RPCMap[id] = oldAcc;
+        }
 
         // Setup Account
         RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
@@ -97,6 +115,14 @@ Account& RPCManager::getAccount(DiscordID id)
 
         // Get transactions
         RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
+    }
+
+    // Ensure we are the correct account owners.
+    if (Account::getWalletAddress(id) != RPCMap[id].MyRPC.getAddress())
+    {
+        // ABORT ABORT ABORT!
+        RPCMap.erase(id);
+        throw RPCGeneralError("-1", "You do not own this account!");
     }
 
     // Update timestamp
@@ -122,7 +148,10 @@ void RPCManager::run()
         walletTime = currTime + GlobalConfig.RPCManager.blockchain_save_time,
         saveTime = currTime + GlobalConfig.RPCManager.wallets_save_time,
         walletWatchDog = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
-    while (true)
+
+    GlobalConfig.General.Threads++;
+
+    while (!GlobalConfig.General.Shutdown)
     {
         if (DiscordPtr)
         {
@@ -168,6 +197,8 @@ void RPCManager::run()
         Poco::Thread::sleep(1);
         currTime = Poco::Timestamp().epochTime();
     }
+
+    GlobalConfig.General.Threads--;
 }
 
 void RPCManager::processNewTransactions()
@@ -291,7 +322,11 @@ void RPCManager::save()
         std::cout << "Saving wallet data to disk...\n";
         {
             cereal::JSONOutputArchive ar(out);
-            ar(/*CEREAL_NVP(currPortNum), */CEREAL_NVP(RPCMap));
+            ar(
+                ::cereal::make_nvp("major", GlobalConfig.About.major),
+                ::cereal::make_nvp("minor", GlobalConfig.About.minor),
+                CEREAL_NVP(RPCMap)
+            );
         }
         out.close();
     }
@@ -309,10 +344,21 @@ void RPCManager::load()
         {
             {
                 cereal::JSONInputArchive ar(in);
-                ar(/*CEREAL_NVP(currPortNum),*/CEREAL_NVP(RPCMap));
+
+                if (GlobalConfig.About.major > 2 || GlobalConfig.About.major > 2 && GlobalConfig.About.minor > 0)
+                {
+                    ar(
+                        ::cereal::make_nvp("major", GlobalConfig.About.major),
+                        ::cereal::make_nvp("minor", GlobalConfig.About.minor)
+                    );
+                }
+
+                ar(
+                    CEREAL_NVP(RPCMap)
+                );
             }
-            in.close();
             ReloadSavedRPCs();
+            in.close();
         }
     }
 }
@@ -339,7 +385,7 @@ void RPCManager::SpinDownRPC(DiscordID id)
     RPCMap.erase(id);
 }
 
-RPCProc& RPCManager::FindOldestRPC()
+RPCProc & RPCManager::FindOldestRPC()
 {
     auto it = std::min_element(RPCMap.begin(), RPCMap.end(),
         [](decltype(RPCMap)::value_type& l, decltype(RPCMap)::value_type& r) -> bool { return l.second.timestamp < r.second.timestamp; });
@@ -532,4 +578,22 @@ void RPCManager::rescanAll()
 void RPCManager::saveallWallets()
 {
     SaveWallets();
+}
+
+std::string RPCManager::status()
+{
+    std::stringstream ss;
+    std::uint64_t totalUnlocked = 0, TotalLocked = 0;
+
+    for (auto account : RPCMap)
+    {
+        totalUnlocked += account.second.MyAccount.getUnlockedBalance();
+        TotalLocked += account.second.MyAccount.getBalance() - account.second.MyAccount.getUnlockedBalance();
+    }
+
+    ss << "There is currently " << RPCMap.size() << " RPC's running\\n";
+    ss << "There is a total of " << totalUnlocked / GlobalConfig.RPC.coin_offset << " Unlocked " << GlobalConfig.RPC.coin_abbv << " and a total of " << TotalLocked / GlobalConfig.RPC.coin_offset << " " << GlobalConfig.RPC.coin_abbv << " locked\\n";
+    ss << "The current port number is " << currPortNum << "\\n";
+    ss << "There is currently " << GlobalConfig.General.Threads << " Threads running \\n";
+    return ss.str();
 }

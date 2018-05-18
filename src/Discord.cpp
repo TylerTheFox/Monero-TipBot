@@ -159,22 +159,29 @@ std::string TIPBOT::generateHelpText(const std::string & title, const std::vecto
 
 void dispatcher(const std::function<void(TIPBOT *, const SleepyDiscord::Message &, const Command &)> & func, TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
 {
-    try
+    GlobalConfig.General.Threads++;
+
+    if (!GlobalConfig.General.Shutdown)
     {
-        func(DiscordPtr, message, me);
+        try
+        {
+            func(DiscordPtr, message, me);
+        }
+        catch (const Poco::Exception & exp)
+        {
+            DiscordPtr->sendMessage(message.channelID, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
+        }
+        catch (const SleepyDiscord::ErrorCode & exp)
+        {
+            std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
+        }
+        catch (AppGeneralException & exp)
+        {
+            DiscordPtr->sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
+        }
     }
-    catch (const Poco::Exception & exp)
-    {
-        DiscordPtr->sendMessage(message.channelID, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
-    }
-    catch (const SleepyDiscord::ErrorCode & exp)
-    {
-        std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
-    }
-    catch (AppGeneralException & exp)
-    {
-        DiscordPtr->sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
-    }
+
+    GlobalConfig.General.Threads--;
 }
 
 void TIPBOT::onMessage(SleepyDiscord::Message message)
