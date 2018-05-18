@@ -31,6 +31,7 @@ Lottery::~Lottery()
     try 
     {
         LotteryAccount->MyRPC.store();
+        LotteryAccount->MyRPC.stopWallet();
     }
     catch (...)
     {
