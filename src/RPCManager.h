@@ -28,6 +28,8 @@ GNU General Public License for more details.
 
 class TIPBOT;
 
+extern bool useOldConfig;
+
 struct RPCProc
 {
     RPCProc() : pid(0), RPCFail(0) {}
@@ -54,9 +56,21 @@ struct RPCProc
     }
 
     template <class Archive>
-    void serialize(Archive & ar)
+    void save(Archive & ar) const
     {
-        //ar(CEREAL_NVP(MyRPC));
+        Poco::Int64 val = timestamp.epochMicroseconds();
+        ar(::cereal::make_nvp("timestamp", val));
+    }
+
+    template <class Archive>
+    void load(Archive & ar)
+    {
+        if (GlobalConfig.About.major > 2 || GlobalConfig.About.major > 2 && GlobalConfig.About.minor > 0)
+        {
+            Poco::Int64 val = timestamp.epochMicroseconds();
+            ar(::cereal::make_nvp("timestamp", val));
+            timestamp = val;
+        }
     }
 };
 

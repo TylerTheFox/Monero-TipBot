@@ -27,6 +27,7 @@ GNU General Public License for more details.
 #include "Poco/ScopedLock.h"
 #include "Config.h"
 std::unique_ptr<RPCManager>      RPCMan;
+bool useOldConfig = false;
 
 RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr)
 {
@@ -321,7 +322,11 @@ void RPCManager::save()
         std::cout << "Saving wallet data to disk...\n";
         {
             cereal::JSONOutputArchive ar(out);
-            ar(/*CEREAL_NVP(currPortNum), */CEREAL_NVP(RPCMap));
+            ar(
+                ::cereal::make_nvp("major", GlobalConfig.About.major),
+                ::cereal::make_nvp("minor", GlobalConfig.About.minor),
+                CEREAL_NVP(RPCMap)
+            );
         }
         out.close();
     }
@@ -339,10 +344,21 @@ void RPCManager::load()
         {
             {
                 cereal::JSONInputArchive ar(in);
-                ar(/*CEREAL_NVP(currPortNum),*/CEREAL_NVP(RPCMap));
+
+                if (GlobalConfig.About.major > 2 || GlobalConfig.About.major > 2 && GlobalConfig.About.minor > 0)
+                {
+                    ar(
+                        ::cereal::make_nvp("major", GlobalConfig.About.major),
+                        ::cereal::make_nvp("minor", GlobalConfig.About.minor)
+                    );
+                }
+
+                ar(
+                    CEREAL_NVP(RPCMap)
+                );
             }
-            in.close();
             ReloadSavedRPCs();
+            in.close();
         }
     }
 }
