@@ -19,8 +19,8 @@ GNU General Public License for more details.
 #include "cereal/archives/json.hpp"
 #include "types.h"
 
-#define REAL_VERSION_MAJOR                      2
-#define REAL_VERSION_MINOR                      1
+#define VERSION_MAJOR                           2
+#define VERSION_MINOR                           1
 
 struct AboutConfig
 {

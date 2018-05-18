@@ -125,11 +125,11 @@ int main()
             RPCMan.reset(nullptr);
 
             // Upgrade save file
-            if (REAL_VERSION_MAJOR != GlobalConfig.About.major || REAL_VERSION_MINOR != GlobalConfig.About.minor)
+            if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
             {
                 std::cout << "Upgrading Save file...\n";
-                GlobalConfig.About.major = REAL_VERSION_MAJOR;
-                GlobalConfig.About.minor = REAL_VERSION_MINOR;
+                GlobalConfig.About.major = VERSION_MAJOR;
+                GlobalConfig.About.minor = VERSION_MINOR;
                 GlobalConfig.save_config();
             }
 
