@@ -113,16 +113,16 @@ Account& RPCManager::getAccount(DiscordID id)
         // Open Wallet
         RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id));
 
-        // Ensure we are the correct account owners.
-        if (Account::getWalletAddress(id) != RPCMap[id].MyRPC.getAddress())
-        {
-            // ABORT ABORT ABORT!
-            RPCMap.erase(id);
-            throw RPCGeneralError("-1", "You do not own this account!");
-        }
-
         // Get transactions
         RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
+    }
+
+    // Ensure we are the correct account owners.
+    if (Account::getWalletAddress(id) != RPCMap[id].MyRPC.getAddress())
+    {
+        // ABORT ABORT ABORT!
+        RPCMap.erase(id);
+        throw RPCGeneralError("-1", "You do not own this account!");
     }
 
     // Update timestamp
