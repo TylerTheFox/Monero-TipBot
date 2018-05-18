@@ -27,7 +27,6 @@ GNU General Public License for more details.
 #include "Poco/ScopedLock.h"
 #include "Config.h"
 std::unique_ptr<RPCManager>      RPCMan;
-bool useOldConfig = false;
 
 RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr)
 {
