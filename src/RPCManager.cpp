@@ -81,10 +81,15 @@ Account& RPCManager::getAccount(DiscordID id)
 
     if (RPCMap.count(id) == 0)
     {
-        if (RPCMap.size() <= GlobalConfig.RPCManager.max_rpc_limit)
+        if (RPCMap.size() < GlobalConfig.RPCManager.max_rpc_limit)
             RPCMap[id] = SpinUpNewRPC(id);
         else
-            RPCMap[id] = FindOldestRPC();
+        {
+            RPCProc oldAcc = FindOldestRPC(); // Deep copy
+            auto oldAccID = oldAcc.MyAccount.getDiscordID();
+            RPCMap.erase(oldAccID); // Ensure we destroy the old account --- SECURITY BUG FIX ---
+            RPCMap[id] = oldAcc;
+        }
 
         // Setup Account
         RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
@@ -94,6 +99,14 @@ Account& RPCManager::getAccount(DiscordID id)
 
         // Open Wallet
         RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id));
+
+        // Ensure we are the correct account owners.
+        if (Account::getWalletAddress(id) != RPCMap[id].MyRPC.getAddress())
+        {
+            // ABORT ABORT ABORT!
+            RPCMap.erase(id);
+            throw RPCGeneralError("-1", "You do not own this account!");
+        }
 
         // Get transactions
         RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
@@ -339,7 +352,7 @@ void RPCManager::SpinDownRPC(DiscordID id)
     RPCMap.erase(id);
 }
 
-RPCProc& RPCManager::FindOldestRPC()
+RPCProc & RPCManager::FindOldestRPC()
 {
     auto it = std::min_element(RPCMap.begin(), RPCMap.end(),
         [](decltype(RPCMap)::value_type& l, decltype(RPCMap)::value_type& r) -> bool { return l.second.timestamp < r.second.timestamp; });
