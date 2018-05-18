@@ -20,6 +20,7 @@ GNU General Public License for more details.
 #include <utility>
 #include <map>
 #include "Config.h"
+#include "RPCException.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Faucet::Faucet() : enabled(true)
@@ -103,6 +104,10 @@ void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, c
         const std::uint64_t     currentTime = current.epochMicroseconds();
         const auto&             joinTime = user.join_epoch_time;
         const auto&             faucetTime = user.faucet_epoch_time;
+
+        //  Security check: Is this the real faucet account?
+        if (Account::getWalletAddress(RPCMan->getBotDiscordID()) != myAccountPtr.getMyAddress())
+            throw RPCGeneralError("-1", "Faucet Account Error.");
 
         if ((currentTime - joinTime) >= GlobalConfig.Faucet.min_discord_account)
         {
