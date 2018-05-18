@@ -110,7 +110,10 @@ void Lottery::run()
     bool rewardGivenout = false;
     bool sweepComplete = false;
     bool noWinner = false;
-    while (true)
+
+    GlobalConfig.General.Threads++;
+
+    while (!GlobalConfig.General.Shutdown)
     {
         if (!lotterySuspended)
         {
@@ -207,6 +210,8 @@ void Lottery::run()
         }
         Poco::Thread::sleep(1000);
     }
+
+    GlobalConfig.General.Threads--;
 }
 
 void Lottery::gameInfo(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const

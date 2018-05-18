@@ -67,7 +67,10 @@ AppConfig::AppConfig()
     About.minor = VERSION_MINOR;
 
     // Admins
-    General.Admins = std::vector<DiscordID>(DiscordAdmins, DiscordAdmins + sizeof DiscordAdmins / sizeof DiscordAdmins[0]);
+    General.Admins  = std::vector<DiscordID>(DiscordAdmins, DiscordAdmins + sizeof DiscordAdmins / sizeof DiscordAdmins[0]);
+    General.Quitting = false;
+    General.Shutdown = false;
+    General.Threads = 0;
 
     // RPC
     RPC.coin_abbv = COIN_ABBV;

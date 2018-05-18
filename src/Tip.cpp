@@ -51,7 +51,8 @@ Tip::Tip() : MyAccount(nullptr)
         { "!totalbalance",    CLASS_RESOLUTION(TotalBalance),                "",                                 false,  true,   AllowChannelTypes::Private },
         { "!savewallets",     CLASS_RESOLUTION(SaveWallets),                 "",                                 false,  true,   AllowChannelTypes::Private },
         { "!restartfaucet",   CLASS_RESOLUTION(RestartFaucetWallet),         "",                                 false,  true,   AllowChannelTypes::Private },
-
+        { "!softrestart",     CLASS_RESOLUTION(SoftRestartBot),              "",                                 false,  true,   AllowChannelTypes::Private },
+        { "!shutdown",        CLASS_RESOLUTION(Shutdown),                    "",                                 false,  true,   AllowChannelTypes::Private },
     };
 }
 
@@ -280,4 +281,18 @@ const_iterator Tip::cend() const
 void Tip::setAccount(Account* acc)
 {
     this->MyAccount = acc;
+}
+
+void Tip::SoftRestartBot(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+{
+    // Send restart message.
+    DiscordPtr->sendMessage(message.channelID, "Restart Command sent!");
+    DiscordPtr->quit();
+}
+
+void Tip::Shutdown(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+{
+    DiscordPtr->sendMessage(message.channelID, "Shutdown Command sent! -- Good bye.");
+    GlobalConfig.General.Quitting = true;
+    DiscordPtr->quit();
 }

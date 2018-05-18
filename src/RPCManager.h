@@ -94,7 +94,7 @@ private:
     unsigned short                          currPortNum;
     std::map<DiscordID, struct RPCProc>     RPCMap;
     DiscordID                               BotID;
-    TIPBOT*                            DiscordPtr;
+    TIPBOT*                                 DiscordPtr;
 
     void                                    processNewTransactions();
     void                                    watchDog();

@@ -36,6 +36,9 @@ struct AboutConfig
 struct GeneralConfig
 {
     std::string             discordToken;
+    bool                    Quitting;
+    bool                    Shutdown;
+    unsigned int            Threads;
     std::vector<DiscordID>  Admins;
 
     template <class Archive>

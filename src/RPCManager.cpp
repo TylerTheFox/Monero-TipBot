@@ -35,15 +35,27 @@ RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_num
 
 RPCManager::~RPCManager()
 {
-    // Save blockchain on exit.
-    try
+    save();
+    SaveWallets();
+
+    // Kill all running RPCs
+    for (auto account : this->RPCMap)
     {
-        save();
-        SaveWallets();
-    }
-    catch (...)
-    {
-        // We need to shutdown RPCs and we can't crash else they don't get shutdown.
+        try
+        {
+            account.second.MyRPC.stopWallet();
+        }
+        catch (...)
+        {
+            try
+            {
+                Poco::Process::kill(account.second.pid);
+            }
+            catch (...)
+            {
+                // Ignore.
+            }
+        }
     }
 }
 
@@ -135,7 +147,10 @@ void RPCManager::run()
         walletTime = currTime + GlobalConfig.RPCManager.blockchain_save_time,
         saveTime = currTime + GlobalConfig.RPCManager.wallets_save_time,
         walletWatchDog = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
-    while (true)
+
+    GlobalConfig.General.Threads++;
+
+    while (!GlobalConfig.General.Shutdown)
     {
         if (DiscordPtr)
         {
@@ -181,6 +196,8 @@ void RPCManager::run()
         Poco::Thread::sleep(1);
         currTime = Poco::Timestamp().epochTime();
     }
+
+    GlobalConfig.General.Threads--;
 }
 
 void RPCManager::processNewTransactions()
