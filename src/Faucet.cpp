@@ -166,6 +166,7 @@ void Faucet::status(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, c
     ss << "```";
     ss << "Your name is: " << user.username << ".\\n";
     ss << "Your ID is: " << user.id << ".\\n";
+    ss << "Bot ID is: " << myAccountPtr.getDiscordID() << ".\\n";
     ss << "Bot current balance is: " << myAccountPtr.getBalance() / GlobalConfig.RPC.coin_offset << ".\\n";
     ss << "Bot current unlocked balance is: " << myAccountPtr.getUnlockedBalance() / GlobalConfig.RPC.coin_offset << ".\\n";
     ss << "Bot current address is: " << myAccountPtr.getMyAddress() << ".\\n";
@@ -173,12 +174,13 @@ void Faucet::status(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, c
     ss << "Minimum Discord Account: " << GlobalConfig.Faucet.min_discord_account / MICROSECOND_DAY << " days.\\n";
     ss << "Current Award: " << (myAccountPtr.getUnlockedBalance()*GlobalConfig.Faucet.percentage_allowance) / GlobalConfig.RPC.coin_offset << ".\\n";
     ss << "Current payout percentage: " << GlobalConfig.Faucet.percentage_allowance *100 << "%.\\n";
-    ss << "Current Award Amount: " << sent / GlobalConfig.RPC.coin_offset << ".\\n";
+    ss << "Current Amount Awarded: " << sent / GlobalConfig.RPC.coin_offset << ".\\n";
     ss << "Current Donated From Users: " << recieved / GlobalConfig.RPC.coin_offset << ".\\n";
     ss << "Current Top Donor: " << TopDonorUser.username << " (" << TopDonorUser.id << ").\\n";
     ss << "Current Top Donor Amount: " << (TopDonor->second / GlobalConfig.RPC.coin_offset) << ".\\n";
     ss << "Current Top Taker: " << TopTaker.me.username << " (" << TopTaker.me.id << ").\\n";
     ss << "Current Top Taker Amount: " << (TopTaker.amount / GlobalConfig.RPC.coin_offset) << ".\\n";
+    ss << "Faucet Enabled: " << enabled << ".\\n";
     ss << "```";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());
