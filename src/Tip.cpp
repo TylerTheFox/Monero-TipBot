@@ -53,6 +53,7 @@ Tip::Tip() : MyAccount(nullptr)
         { "!restartfaucet",   CLASS_RESOLUTION(RestartFaucetWallet),         "",                                 false,  true,   AllowChannelTypes::Private },
         { "!softrestart",     CLASS_RESOLUTION(SoftRestartBot),              "",                                 false,  true,   AllowChannelTypes::Private },
         { "!shutdown",        CLASS_RESOLUTION(Shutdown),                    "",                                 false,  true,   AllowChannelTypes::Private },
+        { "!rpcstatus",       CLASS_RESOLUTION(RPCStatus),                   "",                                 false,  true,   AllowChannelTypes::Private },
     };
 }
 
@@ -295,4 +296,9 @@ void Tip::Shutdown(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, 
     DiscordPtr->sendMessage(message.channelID, "Shutdown Command sent! -- Good bye.");
     GlobalConfig.General.Quitting = true;
     DiscordPtr->quit();
+}
+
+void Tip::RPCStatus(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+{
+    DiscordPtr->sendMessage(message.channelID, RPCMan->status());
 }

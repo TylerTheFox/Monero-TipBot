@@ -63,6 +63,7 @@ public:
     void                            RestartFaucetWallet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            SoftRestartBot(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            Shutdown(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                            RPCStatus(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 
     private:
     Settings                        globalSettings{};

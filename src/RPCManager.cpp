@@ -579,3 +579,21 @@ void RPCManager::saveallWallets()
 {
     SaveWallets();
 }
+
+std::string RPCManager::status()
+{
+    std::stringstream ss;
+    std::uint64_t totalUnlocked = 0, TotalLocked = 0;
+
+    for (auto account : RPCMap)
+    {
+        totalUnlocked += account.second.MyAccount.getUnlockedBalance();
+        TotalLocked += account.second.MyAccount.getBalance() - account.second.MyAccount.getUnlockedBalance();
+    }
+
+    ss << "There is currently " << RPCMap.size() << " RPC's running\\n";
+    ss << "There is a total of " << totalUnlocked / GlobalConfig.RPC.coin_offset << " Unlocked " << GlobalConfig.RPC.coin_abbv << " and a total of " << TotalLocked / GlobalConfig.RPC.coin_offset << " " << GlobalConfig.RPC.coin_abbv << " locked\\n";
+    ss << "The current port number is " << currPortNum << "\\n";
+    ss << "There is currently " << GlobalConfig.General.Threads << " Threads running \\n";
+    return ss.str();
+}

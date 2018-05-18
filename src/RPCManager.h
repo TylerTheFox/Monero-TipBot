@@ -103,6 +103,8 @@ public:
 
     void                                    save();
     void                                    load();
+
+    std::string                             status();
 private:
     Poco::Mutex                             mu;
     unsigned short                          currPortNum;
