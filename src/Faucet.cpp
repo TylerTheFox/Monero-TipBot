@@ -22,7 +22,7 @@ GNU General Public License for more details.
 #include "Config.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Faucet::Faucet()
+Faucet::Faucet() : enabled(true)
 {
     Commands =
     {
@@ -31,6 +31,7 @@ Faucet::Faucet()
         { "!faucet",          CLASS_RESOLUTION(help),                       "",                                 false,  false,  AllowChannelTypes::Any },
         { "!take",            CLASS_RESOLUTION(take),                       "",                                 false,  false,  AllowChannelTypes::Public },
         { "!status",          CLASS_RESOLUTION(status),                     "",                                 false,  true,   AllowChannelTypes::Private },
+        { "!togglefaucet",    CLASS_RESOLUTION(ToggleFaucet),               "",                                 false,  true,   AllowChannelTypes::Private },
     };
 }
 
@@ -90,40 +91,42 @@ void Faucet::help(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, c
 
 void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
 {
-    auto & myAccountPtr = RPCManager::getGlobalBotAccount();
-
-    myAccountPtr.resyncAccount();
-
     std::stringstream ss;
-
-    const auto & user = DiscordPtr->findUser(TIPBOT::convertSnowflakeToInt64(message.author.ID));
-    const Poco::Timestamp   current;
-    const std::uint64_t     currentTime    = current.epochMicroseconds();
-    const auto&             joinTime       = user.join_epoch_time;
-    const auto&             faucetTime     = user.faucet_epoch_time;
-
-    if ((currentTime - joinTime) >= GlobalConfig.Faucet.min_discord_account)
+    if (enabled)
     {
-        if (currentTime > faucetTime)
-        {
-            if (myAccountPtr.getUnlockedBalance())
-            {
-                const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*GlobalConfig.Faucet.percentage_allowance);
-                const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(TIPBOT::convertSnowflakeToInt64(message.author.ID)));
-                user.faucet_epoch_time = current.epochMicroseconds() + GlobalConfig.Faucet.timeout;
-                user.total_faucet_itns_sent += amount;
-                ss << Poco::format("%s#%s: You have been granted %0.8f %s with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
-                DiscordPtr->saveUserList();
-            }
-            else if (myAccountPtr.getBalance())
-                ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
-            else ss << "Bot is broke, try again later. :disappointed_relieved:\\n";
-        }
-        else ss << "Too soon! You're allowed one ``!take`` every " << GlobalConfig.Faucet.timeout / MICROSECOND_HOUR <<
-            " hours, remaining " << static_cast<double>(faucetTime - currentTime) / MICROSECOND_HOUR << " hours.\\n";
-    }
-    else ss << "Your Discord account must be older than 7 days.\\n";
+        auto & myAccountPtr = RPCManager::getGlobalBotAccount();
 
+        myAccountPtr.resyncAccount();
+
+        const auto & user = DiscordPtr->findUser(TIPBOT::convertSnowflakeToInt64(message.author.ID));
+        const Poco::Timestamp   current;
+        const std::uint64_t     currentTime = current.epochMicroseconds();
+        const auto&             joinTime = user.join_epoch_time;
+        const auto&             faucetTime = user.faucet_epoch_time;
+
+        if ((currentTime - joinTime) >= GlobalConfig.Faucet.min_discord_account)
+        {
+            if (currentTime > faucetTime)
+            {
+                if (myAccountPtr.getUnlockedBalance())
+                {
+                    const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*GlobalConfig.Faucet.percentage_allowance);
+                    const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(TIPBOT::convertSnowflakeToInt64(message.author.ID)));
+                    user.faucet_epoch_time = current.epochMicroseconds() + GlobalConfig.Faucet.timeout;
+                    user.total_faucet_itns_sent += amount;
+                    ss << Poco::format("%s#%s: You have been granted %0.8f %s with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
+                    DiscordPtr->saveUserList();
+                }
+                else if (myAccountPtr.getBalance())
+                    ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
+                else ss << "Bot is broke, try again later. :disappointed_relieved:\\n";
+            }
+            else ss << "Too soon! You're allowed one ``!take`` every " << GlobalConfig.Faucet.timeout / MICROSECOND_HOUR <<
+                " hours, remaining " << static_cast<double>(faucetTime - currentTime) / MICROSECOND_HOUR << " hours.\\n";
+        }
+        else ss << "Your Discord account must be older than 7 days.\\n";
+    }
+    else ss << "Faucet Disabled!\\n";
     DiscordPtr->sendMessage(message.channelID, ss.str());
 }
 
@@ -179,4 +182,10 @@ void Faucet::status(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, c
     ss << "```";
 
     DiscordPtr->sendMessage(message.channelID, ss.str());
+}
+
+void Faucet::ToggleFaucet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+{
+    enabled = !enabled;
+    DiscordPtr->sendMessage(message.channelID, Poco::format("Faucet Enabled: %b", enabled));
 }

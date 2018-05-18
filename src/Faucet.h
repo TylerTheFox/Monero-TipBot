@@ -39,7 +39,8 @@ public:
     void                                help(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                status(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-
+    void                                ToggleFaucet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 private:
+    bool                            enabled;
     std::vector<struct Command>     Commands;
 };
