@@ -275,11 +275,8 @@ const std::string Account::getWalletAddress(DiscordID Discord_ID)
 {
     const std::string & walletStr = Util::getWalletStrFromIID(Discord_ID);
 
-    if (!Util::doesWalletExist(GlobalConfig.RPC.wallet_path + walletStr))
-    {
-        // This will open and create the wallet if there is no existing wallet.
-        RPCMan->getAccount(Discord_ID); 
-    }
+    // This will open and create the wallet if there is no existing wallet.
+    RPCMan->getAccount(Discord_ID); 
 
     const auto addressStr = GlobalConfig.RPC.wallet_path + walletStr + ".address.txt";
 
