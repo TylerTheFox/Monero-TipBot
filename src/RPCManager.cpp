@@ -156,6 +156,13 @@ void RPCManager::run()
         {
             try
             {
+
+                if (currTime >= walletWatchDog)
+                {
+                    watchDog();
+                    walletWatchDog = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
+                }
+
                 if (currTime >= transactionTime)
                 {
                     processNewTransactions();
@@ -172,12 +179,6 @@ void RPCManager::run()
                 {
                     save();
                     saveTime = currTime + GlobalConfig.RPCManager.wallets_save_time;
-                }
-
-                if (currTime >= walletWatchDog)
-                {
-                    watchDog();
-                    walletWatchDog = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
                 }
             }
             catch (const Poco::Exception & exp)
@@ -254,8 +255,17 @@ void RPCManager::watchDog()
     {
         try
         {
-            rpc.second.MyRPC.getBlockHeight();
-            rpc.second.RPCFail = 0;
+            if (Poco::Process::isRunning(rpc.second.pid))
+            {
+                rpc.second.MyRPC.getBlockHeight();
+                rpc.second.RPCFail = 0;
+            }
+            else
+            {
+                // RPC is not running, kill it.
+                std::cerr << "User " << rpc.first << "'s RPC is not running, RPC restarted!\n";
+                restartWallet(rpc.first);
+            }
         }
         catch (...)
         {
