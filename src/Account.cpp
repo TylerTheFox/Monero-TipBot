@@ -273,37 +273,12 @@ Account& Account::operator=(const Account& rhs)
 
 const std::string Account::getWalletAddress(DiscordID Discord_ID)
 {
-    static unsigned int tmp_rpc_counter = 1; // Lottery is on port starting - 1.
-                                             // when it enters the code below it'll be 2. 
     const std::string & walletStr = Util::getWalletStrFromIID(Discord_ID);
 
     if (!Util::doesWalletExist(GlobalConfig.RPC.wallet_path + walletStr))
     {
-        // All this code is a hack because the Monero RPC documentation didn't mention that
-        // when you create a wallet the RPC opens that wallet automatically so theres a design flaw.
-        tmp_rpc_counter++;
-        std::shared_ptr<RPCProc> rpcptr;
-        try
-        {
-            rpcptr = RPCManager::manuallyCreateRPC(walletStr, GlobalConfig.RPCManager.starting_port_number - tmp_rpc_counter);
-            rpcptr->MyRPC.createWallet(walletStr);
-            try
-            {
-                rpcptr->MyRPC.stopWallet();
-            }
-            catch (...)
-            {
-                Poco::Process::kill(rpcptr->pid);
-            }
-            RPCMan->getAccount(Discord_ID); // Add account to the RPCManager. 
-        }
-        catch (...)
-        {
-            if (rpcptr && rpcptr->pid)
-                Poco::Process::kill(rpcptr->pid);
-            throw RPCGeneralError("-1", "Could not create wallet!");
-        }
-        tmp_rpc_counter--;
+        // This will open and create the wallet if there is no existing wallet.
+        RPCMan->getAccount(Discord_ID); 
     }
 
     const auto addressStr = GlobalConfig.RPC.wallet_path + walletStr + ".address.txt";
