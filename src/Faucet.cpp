@@ -165,7 +165,7 @@ void Faucet::status(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, c
         [](const std::pair<DiscordID, std::uint64_t>& p1, const std::pair<DiscordID, std::uint64_t>& p2) {
         return p1.second < p2.second; });
 
-    const auto & TopDonorUser = DiscordPtr->findUser(TopDonor->first);
+
     auto TopTaker =  DiscordPtr->findTopTaker();
 
     ss << "```";
@@ -181,7 +181,11 @@ void Faucet::status(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, c
     ss << "Current payout percentage: " << GlobalConfig.Faucet.percentage_allowance *100 << "%.\\n";
     ss << "Current Amount Awarded: " << sent / GlobalConfig.RPC.coin_offset << ".\\n";
     ss << "Current Donated From Users: " << recieved / GlobalConfig.RPC.coin_offset << ".\\n";
-    ss << "Current Top Donor: " << TopDonorUser.username << " (" << TopDonorUser.id << ").\\n";
+    if (!topDonorList.empty())
+    {
+        const auto & TopDonorUser = DiscordPtr->findUser(TopDonor->first);
+        ss << "Current Top Donor: " << TopDonorUser.username << " (" << TopDonorUser.id << ").\\n";
+    }
     ss << "Current Top Donor Amount: " << (TopDonor->second / GlobalConfig.RPC.coin_offset) << ".\\n";
     ss << "Current Top Taker: " << TopTaker.me.username << " (" << TopTaker.me.id << ").\\n";
     ss << "Current Top Taker Amount: " << (TopTaker.amount / GlobalConfig.RPC.coin_offset) << ".\\n";
