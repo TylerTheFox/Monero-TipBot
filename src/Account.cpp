@@ -295,6 +295,7 @@ const std::string Account::getWalletAddress(DiscordID Discord_ID)
             {
                 Poco::Process::kill(rpcptr->pid);
             }
+            RPCMan->getAccount(Discord_ID); // Add account to the RPCManager. 
         }
         catch (...)
         {
