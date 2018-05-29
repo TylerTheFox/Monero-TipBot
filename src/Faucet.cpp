@@ -34,6 +34,7 @@ Faucet::Faucet() : enabled(true)
         { "!status",          CLASS_RESOLUTION(status),                     "",                                 false,  true,   AllowChannelTypes::Private },
         { "!togglefaucet",    CLASS_RESOLUTION(ToggleFaucet),               "",                                 false,  true,   AllowChannelTypes::Private },
     };
+    PLog = &Poco::Logger::get("Faucet");
 }
 
 void Faucet::save()
@@ -90,7 +91,7 @@ void Faucet::help(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, c
     DiscordPtr->sendMessage(message.channelID, helpStr);
 }
 
-void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
+void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
 {
     std::stringstream ss;
     if (enabled)
@@ -119,6 +120,7 @@ void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, c
                     const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(TIPBOT::convertSnowflakeToInt64(message.author.ID)));
                     user.faucet_epoch_time = current.epochMicroseconds() + GlobalConfig.Faucet.timeout;
                     user.total_faucet_itns_sent += amount;
+                    PLog->information("User %s was issued %0.8f %s with TX Hash %s", static_cast<std::string>(message.author.ID), amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
                     ss << Poco::format("%s#%s: You have been granted %0.8f %s with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
                     DiscordPtr->saveUserList();
                 }
@@ -198,5 +200,6 @@ void Faucet::status(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, c
 void Faucet::ToggleFaucet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
 {
     enabled = !enabled;
+    PLog->information("Faucet Status: %b", enabled);
     DiscordPtr->sendMessage(message.channelID, Poco::format("Faucet Enabled: %b", enabled));
 }

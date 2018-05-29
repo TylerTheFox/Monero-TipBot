@@ -15,7 +15,8 @@ GNU General Public License for more details.
 #include "Discord.h"
 #include "Account.h"
 #include "AppBaseClass.h"
-
+#include "Poco/Logger.h"
+#include "Poco/AutoPtr.h"
 #define MICROSECOND_HOUR            3600000000
 #define MICROSECOND_DAY             (MICROSECOND_HOUR*24.0)
 
@@ -37,10 +38,11 @@ public:
     const_iterator                      cend() const;
 
     void                                help(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                                status(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                ToggleFaucet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 private:
+    Poco::AutoPtr<Poco::Logger>     PLog;
     bool                            enabled;
     std::vector<struct Command>     Commands;
 };

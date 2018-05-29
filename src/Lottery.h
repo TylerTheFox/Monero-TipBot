@@ -11,7 +11,8 @@
 #include "Account.h"
 #include "AppBaseClass.h"
 #include "RPCManager.h"
-
+#include "Poco/Logger.h"
+#include "Poco/AutoPtr.h"
 #define    LOTTERY_USER            "LOTTERY" // Wallet
 #define    LOTTERY_SAVE_FILE       "LOTTERY.JSON"
 
@@ -42,7 +43,8 @@ public:
 
     void                                ToggleLotterySuspend(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 private:
-    TIPBOT *                   DiscordPtr;
+    Poco::AutoPtr<Poco::Logger>     PLog;
+    TIPBOT *                        DiscordPtr;
     bool                            lotterySuspended;
     std::uint64_t                   lastWinningTopBlock = 0;
     Account*                        currentUsrAccount{};

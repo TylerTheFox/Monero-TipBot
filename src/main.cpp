@@ -23,17 +23,41 @@ GNU General Public License for more details.
 #include "Faucet.h"
 #include "Lottery.h"
 #include "Poco/File.h"
+
+#include "Poco/Logger.h"
+#include "Poco/SplitterChannel.h"
+#include "Poco/ConsoleChannel.h"
+#include "Poco/SimpleFileChannel.h"
+#include "Poco/AutoPtr.h"
+#include "Poco/FormattingChannel.h"
+#include "Poco/PatternFormatter.h"
 #define COIN_CONFIG "Coins/"
 
 std::string coin_config;
 
+void setupLogging()
+{
+    Poco::AutoPtr<Poco::ConsoleChannel> pCons(new Poco::ConsoleChannel);
+    Poco::AutoPtr<Poco::SimpleFileChannel> pFile(new Poco::SimpleFileChannel("tipbot.log"));
+    Poco::AutoPtr<Poco::PatternFormatter> pPF(new Poco::PatternFormatter);
+    Poco::AutoPtr<Poco::SplitterChannel> pSplitter(new Poco::SplitterChannel);
+    pFile->setProperty("rotation", "2 K");
+    pSplitter->addChannel(pCons);
+    pSplitter->addChannel(pFile);
+    pPF->setProperty("pattern", "%Y-%m-%d %H:%M:%S [%p] %s: %t");
+    Poco::AutoPtr<Poco::FormattingChannel> pFC(new Poco::FormattingChannel(pPF, pSplitter));
+    Poco::Logger::root().setChannel(pFC);
+}
+
 void setup()
 {
+    auto & logger = Poco::Logger::get("Setup");
+
     // Coin Select
     std::ifstream in("coin_config.json");
     if (in.is_open())
     {
-        std::cout << "Loading Coin Config to disk...\n";
+        logger.information("Loading Coin Config to disk...");
         {
             cereal::JSONInputArchive ar(in);
             ar(CEREAL_NVP(coin_config));
@@ -70,7 +94,7 @@ void setup()
         std::ofstream out("coin_config.json", std::ios::trunc);
         if (out.is_open())
         {
-            std::cout << "Saving Coin Config to disk...\n";
+            logger.information("Saving Coin Config to disk...");
             {
                 cereal::JSONOutputArchive ar(out);
                 ar(CEREAL_NVP(coin_config));
@@ -88,7 +112,7 @@ void setup()
         std::cout << "Please enter Discord Token: ";
         std::cin >> GlobalConfig.General.discordToken;
         GlobalConfig.save_config();
-        std::cout << "Token saved to coin config\n";
+        logger.information("Token saved to coin config");
     }
 }
 
@@ -96,6 +120,11 @@ int main()
 {
     while (!GlobalConfig.General.Quitting)
     {
+        // Enable logging.
+        setupLogging();
+        auto & logger = Poco::Logger::get("Main");
+        logger.information("Tipbot starting up...");
+
         try
         {
             // Setup routine
@@ -119,37 +148,40 @@ int main()
         }
         catch (const websocketpp::exception & err)
         {
-            std::cerr << "websocketpp Code: " << err.code() << " Message: " << err.m_msg  << "\n";
+            logger.error("websocketpp Code: %?i Message: %s", err.code(), err.m_msg);
         }
         catch (const Poco::Exception & exp)
         {
-            std::cerr << "Poco Error: " << exp.what() << "\n";
+            logger.error("Poco Error:  %s", std::string(exp.what()));
         }
         catch (AppGeneralException & exp)
         {
-            std::cerr << "App Error: " << exp.what() << "\n";
+            logger.error("App Error:  %s", std::string(exp.what()));
 
         }
         catch (const SleepyDiscord::ErrorCode & exp)
         {
-            std::cerr << "Discord Error: " << exp << "\n";
+            logger.error("Discord Error: %?i", exp);
         }
+
+        logger.information("Tipbot shutting down...");
 
         RPCMan.reset(nullptr);
 
         // Upgrade save file
         if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
         {
-            std::cout << "Upgrading Save file...\n";
+            logger.information("Upgrading Save file...");
             GlobalConfig.About.major = VERSION_MAJOR;
             GlobalConfig.About.minor = VERSION_MINOR;
             GlobalConfig.save_config();
         }
 
         // Shutdown Complete!
+        Poco::Logger::shutdown();
         GlobalConfig.General.Shutdown = false;
+
+        logger.information("Tipbot shutdown complete...");
     }
-    std::cout << "Bot safely shutdown!";
-    std::cin.get();
     return 0;
 }

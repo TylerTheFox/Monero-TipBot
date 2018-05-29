@@ -20,7 +20,8 @@ GNU General Public License for more details.
 #include <map>
 #include <vector>
 #include <memory>
-
+#include "Poco/Logger.h"
+#include "Poco/AutoPtr.h"
 extern const char *aboutStr;
 const std::string AllowChannelTypeNames[] =
 {
@@ -100,6 +101,7 @@ public:
     void                                            onMessage(SleepyDiscord::Message message);
     void                                            onReady(SleepyDiscord::Ready readyData);
 private:
+    Poco::AutoPtr<Poco::Logger>                     PLog;
     void                                            refreshUserList();
     void                                            loadUserList();
     std::vector<std::shared_ptr<AppBaseClass>>      Apps;
