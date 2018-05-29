@@ -290,7 +290,7 @@ void TIPBOT::saveUserList()
     std::ofstream out(DISCORD_USER_CACHE_FILENAME, std::ios::trunc);
     if (out.is_open())
     {
-        std::cout << "Saving wallet data to disk...\n";
+        std::cout << "Saving discord user list to disk...\n";
         {
             cereal::JSONOutputArchive ar(out);
             ar(CEREAL_NVP(UserList));
@@ -346,7 +346,7 @@ void TIPBOT::loadUserList()
     std::ifstream in(DISCORD_USER_CACHE_FILENAME);
     if (in.is_open())
     {
-        std::cout << "Saving wallet data to disk...\n";
+        std::cout << "Loading discord user list to disk...\n";
         {
             cereal::JSONInputArchive ar(in);
             ar(CEREAL_NVP(UserList));
