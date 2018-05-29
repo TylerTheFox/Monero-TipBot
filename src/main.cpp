@@ -135,9 +135,6 @@ int main()
             std::cerr << "Discord Error: " << exp << "\n";
         }
 
-        GlobalConfig.General.Shutdown = true;
-        while (GlobalConfig.General.Threads);
-
         RPCMan.reset(nullptr);
 
         // Upgrade save file

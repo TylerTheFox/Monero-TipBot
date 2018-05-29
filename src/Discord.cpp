@@ -41,6 +41,8 @@ const char *aboutStr =
 
 TIPBOT::~TIPBOT()
 {
+    GlobalConfig.General.Shutdown = true;
+    while (GlobalConfig.General.Threads);
 }
 
 void TIPBOT::init()
