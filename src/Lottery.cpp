@@ -174,7 +174,7 @@ void Lottery::run()
                             }
                             DiscordPtr->AppSave();
                             rewardGivenout = true;
-                        } std::cerr << "No Active Tickets!\n";
+                        } else std::cerr << "No Active Tickets!\n";
                     }
                     else std::cerr << "Error transaction list is empty!\n";
                 }
