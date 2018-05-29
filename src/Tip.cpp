@@ -54,6 +54,7 @@ Tip::Tip() : MyAccount(nullptr)
         { "!softrestart",     CLASS_RESOLUTION(SoftRestartBot),              "",                                 false,  true,   AllowChannelTypes::Private },
         { "!shutdown",        CLASS_RESOLUTION(Shutdown),                    "",                                 false,  true,   AllowChannelTypes::Private },
         { "!rpcstatus",       CLASS_RESOLUTION(RPCStatus),                   "",                                 false,  true,   AllowChannelTypes::Private },
+        { "!whois",           CLASS_RESOLUTION(WhoIs),                      "[DiscordID]",                       false,  true,   AllowChannelTypes::Private },
     };
 }
 
@@ -211,7 +212,7 @@ void Tip::BlockHeight(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message,
 void Tip::RestartWallet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
 {
     RPCMan->restartWallet(MyAccount->getDiscordID());
-    DiscordPtr->sendMessage(message.channelID,"Discord Wallet restarted successfully! It may take a minute to resync.");
+    DiscordPtr->sendMessage(message.channelID, "Discord Wallet restarted successfully! It may take a minute to resync.");
 }
 
 void Tip::ToggleWithdraw(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
@@ -239,7 +240,7 @@ void Tip::TotalBalance(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message
 
 void Tip::SaveWallets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
 {
-    RPCMan->saveallWallets();   
+    RPCMan->saveallWallets();
     DiscordPtr->sendMessage(message.channelID, "Wallets saved!");
 }
 
@@ -303,4 +304,21 @@ void Tip::Shutdown(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, 
 void Tip::RPCStatus(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
 {
     DiscordPtr->sendMessage(message.channelID, RPCMan->status());
+}
+
+void Tip::WhoIs(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
+{
+    Poco::StringTokenizer cmd(message.content, " ");
+
+    if (cmd.count() != 2)
+        DiscordPtr->CommandParseError(message, me);
+    else
+    {
+        const auto discordId = Poco::NumberParser::parseUnsigned64(cmd[1]);
+        auto user = DiscordPtr->findUser(discordId);
+        if (user.id == discordId)
+            DiscordPtr->sendMessage(message.channelID, Poco::format("User %?i is %s", discordId, user.username));
+        else
+            DiscordPtr->sendMessage(message.channelID, "Unknown!");
+    }
 }

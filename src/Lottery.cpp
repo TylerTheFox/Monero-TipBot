@@ -22,7 +22,7 @@ Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false), prevWin
         { "!gameinfo",                  CLASS_RESOLUTION(gameInfo),                   "",               false,  false,  AllowChannelTypes::Any        },
         { "!mytickets",                 CLASS_RESOLUTION(MyTickets),                  "",               false,  false,  AllowChannelTypes::Any        },
         { "!buytickets",                CLASS_RESOLUTION(BuyTicket),                  "[amount]",       true,   false,  AllowChannelTypes::Any        },
-        { "!waslotterywon",             CLASS_RESOLUTION(LotteryWon),                 "",               false,   false, AllowChannelTypes::Any        },
+        { "!waslotterywon",             CLASS_RESOLUTION(LotteryWon),                 "",               false,  false,  AllowChannelTypes::Any        },
 
         { "!togglelotterysuspend",      CLASS_RESOLUTION(ToggleLotterySuspend),       "",               false,  true,   AllowChannelTypes::Private    },
         { "!lastwinner",                CLASS_RESOLUTION(lastWinner),                 "",               false,  true,   AllowChannelTypes::Private    },

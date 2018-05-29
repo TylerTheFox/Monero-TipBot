@@ -64,6 +64,7 @@ public:
     void                            SoftRestartBot(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            Shutdown(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            RPCStatus(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                            WhoIs(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 
     private:
     Settings                        globalSettings{};
