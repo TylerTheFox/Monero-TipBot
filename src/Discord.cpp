@@ -239,9 +239,9 @@ void getDiscordUsers(TIPBOT & me, std::set<DiscordUser> & myList, const SleepyDi
 {
     auto guildInfo = me.listMembers(snowyServer, limit, snowyUser).vector();
 
+    struct DiscordUser newUser;
     for (auto user : guildInfo)
     {
-        struct DiscordUser newUser;
         newUser.username = user.user.username;
         newUser.id = TIPBOT::convertSnowflakeToInt64(user.user.ID);
         newUser.join_epoch_time = ((newUser.id >> 22) + 1420070400000) * 1000;
