@@ -1,8 +1,8 @@
 {
     "AppConfig": {
         "About": {
-            "major": 7,
-            "minor": 7
+            "major": 2,
+            "minor": 0
         },
         "General": {
             "discordToken": "",
