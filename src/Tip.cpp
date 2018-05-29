@@ -288,12 +288,14 @@ void Tip::SoftRestartBot(TIPBOT * DiscordPtr, const SleepyDiscord::Message & mes
 {
     // Send restart message.
     DiscordPtr->sendMessage(message.channelID, "Restart Command sent!");
+    GlobalConfig.General.Shutdown = true;
     DiscordPtr->quit();
 }
 
 void Tip::Shutdown(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
 {
     DiscordPtr->sendMessage(message.channelID, "Shutdown Command sent! -- Good bye.");
+    GlobalConfig.General.Shutdown = true;
     GlobalConfig.General.Quitting = true;
     DiscordPtr->quit();
 }

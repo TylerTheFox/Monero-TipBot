@@ -22,7 +22,6 @@ GNU General Public License for more details.
 #include "Config.h"
 #include "Faucet.h"
 #include "Lottery.h"
-
 #include "Poco/File.h"
 #define COIN_CONFIG "Coins/"
 
@@ -116,41 +115,42 @@ int main()
             // Create RPC threads
             Poco::Thread thread;
             thread.start(*RPCMan);
-
             client.run();
-
-            GlobalConfig.General.Shutdown = true;
-            while (GlobalConfig.General.Threads);
-
-            RPCMan.reset(nullptr);
-
-            // Upgrade save file
-            if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
-            {
-                std::cout << "Upgrading Save file...\n";
-                GlobalConfig.About.major = VERSION_MAJOR;
-                GlobalConfig.About.minor = VERSION_MINOR;
-                GlobalConfig.save_config();
-            }
-
-            // Shutdown Complete!
-            GlobalConfig.General.Shutdown = false;
+        }
+        catch (const websocketpp::exception & err)
+        {
+            std::cerr << "websocketpp Code: " << err.code() << " Message: " << err.m_msg  << "\n";
         }
         catch (const Poco::Exception & exp)
         {
             std::cerr << "Poco Error: " << exp.what() << "\n";
-            return -1;
         }
         catch (AppGeneralException & exp)
         {
-            GlobalConfig.General.Shutdown = true;
-            return -2;
+            std::cerr << "App Error: " << exp.what() << "\n";
+
         }
         catch (const SleepyDiscord::ErrorCode & exp)
         {
-            GlobalConfig.General.Shutdown = true;
-            return -3;
+            std::cerr << "Discord Error: " << exp << "\n";
         }
+
+        GlobalConfig.General.Shutdown = true;
+        while (GlobalConfig.General.Threads);
+
+        RPCMan.reset(nullptr);
+
+        // Upgrade save file
+        if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
+        {
+            std::cout << "Upgrading Save file...\n";
+            GlobalConfig.About.major = VERSION_MAJOR;
+            GlobalConfig.About.minor = VERSION_MINOR;
+            GlobalConfig.save_config();
+        }
+
+        // Shutdown Complete!
+        GlobalConfig.General.Shutdown = false;
     }
     std::cout << "Bot safely shutdown!";
     std::cin.get();
