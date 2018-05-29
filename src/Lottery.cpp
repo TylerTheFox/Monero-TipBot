@@ -11,7 +11,7 @@
 #include "RPCException.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false)
+Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false), prevWinner(0)
 {
     Commands =
     {
@@ -22,7 +22,10 @@ Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false)
         { "!gameinfo",                  CLASS_RESOLUTION(gameInfo),                   "",               false,  false,  AllowChannelTypes::Any        },
         { "!mytickets",                 CLASS_RESOLUTION(MyTickets),                  "",               false,  false,  AllowChannelTypes::Any        },
         { "!buytickets",                CLASS_RESOLUTION(BuyTicket),                  "[amount]",       true,   false,  AllowChannelTypes::Any        },
+        { "!waslotterywon",             CLASS_RESOLUTION(LotteryWon),                 "",               false,   false, AllowChannelTypes::Any        },
+
         { "!togglelotterysuspend",      CLASS_RESOLUTION(ToggleLotterySuspend),       "",               false,  true,   AllowChannelTypes::Private    },
+        { "!lastwinner",                CLASS_RESOLUTION(lastWinner),                 "",               false,  true,   AllowChannelTypes::Private    },
     };
     LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, GlobalConfig.RPCManager.starting_port_number - 1);
     PLog = &Poco::Logger::get("Lottery");
@@ -49,7 +52,7 @@ void Lottery::save()
         PLog->information("Saving lottery data to disk...");
         {
             cereal::JSONOutputArchive ar(out);
-            ar(CEREAL_NVP(lastWinningTopBlock));
+            ar(CEREAL_NVP(lastWinningTopBlock), CEREAL_NVP(prevWinner));
         }
         out.close();
     }
@@ -64,6 +67,11 @@ void Lottery::load()
         {
             cereal::JSONInputArchive ar(in);
             ar(CEREAL_NVP(lastWinningTopBlock));
+
+            if (GlobalConfig.About.major > 2 || GlobalConfig.About.major > 2 && GlobalConfig.About.minor > 1)
+            {
+                ar(CEREAL_NVP(prevWinner));
+            }
         }
         in.close();
     }
@@ -168,10 +176,12 @@ void Lottery::run()
                                 auto WinnerAccount = RPCMan->getAccount(winner);
                                 DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(winner), Poco::format("You've won %0.8f %s from the lottery! :money_with_wings:", reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
                                 LotteryAccount->MyAccount.transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
+                                prevWinner = winner;
                             }
                             else
                             {
                                 PLog->information("No Winner!");
+                                prevWinner = 0;
                                 noWinner = true;
                             }
                             DiscordPtr->AppSave();
@@ -305,6 +315,19 @@ void Lottery::MyTickets(TIPBOT* DiscordPtr, const SleepyDiscord::Message& messag
         }
     }
     DiscordPtr->sendMessage(message.channelID, Poco::format("You currently have %Lu active tickets.", static_cast<uint64_t>((bal / GlobalConfig.RPC.coin_offset) / GlobalConfig.Lottery.ticket_cost)));
+}
+
+void Lottery::LotteryWon(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me) const
+{
+    if (prevWinner)
+        DiscordPtr->sendMessage(message.channelID, "There was a winner last lottery!");
+    else 
+        DiscordPtr->sendMessage(message.channelID, "There was no winner last lottery!");
+}
+
+void Lottery::lastWinner(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me) const
+{
+    DiscordPtr->sendMessage(message.channelID, Poco::format("The last winner was: %?i", prevWinner));
 }
 
 void Lottery::ToggleLotterySuspend(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)

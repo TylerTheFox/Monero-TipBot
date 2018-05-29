@@ -40,7 +40,9 @@ public:
     void                                Jackpot(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                BuyTicket(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                MyTickets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                LotteryWon(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
 
+    void                                lastWinner(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                ToggleLotterySuspend(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 private:
     Poco::AutoPtr<Poco::Logger>     PLog;
@@ -50,4 +52,5 @@ private:
     Account*                        currentUsrAccount{};
     std::shared_ptr<RPCProc>        LotteryAccount;
     std::vector<struct Command>     Commands;
+    DiscordID                       prevWinner;
 };
