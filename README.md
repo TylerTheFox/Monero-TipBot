@@ -58,7 +58,7 @@ Discord Tipbot built in C++ for Monero/IntenseCoin
 
 ### Linux Packages
 * libcurl4-openssl-dev
-* libssl-dev
+* libssl-dev (OpenSSL 1.1.0g and above)
 
 ## RPC Setup
 You need to download the RPC for the coin you want to setup the bot with, for example, IntenseCoin (https://github.com/valiant1x/intensecoin/releases). Unzip it to whereever you built the TIPBOT.
