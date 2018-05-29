@@ -1,0 +1,48 @@
+{
+    "AppConfig": {
+        "About": {
+            "major": 7,
+            "minor": 7
+        },
+        "General": {
+            "discordToken": "",
+            "Admins": [
+                437971784223031297
+            ]
+        },
+        "RPC": {
+            "json_uri": "/json_rpc",
+            "wallet_path": "Wallets/",
+            "coin_offset": 100000000000.0,
+            "mixin": 9,
+            "coin_abbv": "WOW",
+            "address_length": 97,
+            "filename": "wownero-wallet-rpc",
+            "hostname": "127.0.0.1",
+            "daemon_hostname": "127.0.0.1:34568"
+        },
+        "RPCManager": {
+            "starting_port_number": 15000,
+            "max_rpc_limit": 200,
+            "error_giveup": 3,
+            "blockchain_save_time": 300,
+            "search_for_new_transactions_time": 10,
+            "wallets_save_time": 60,
+            "wallet_watchdog_time": 600
+        },
+        "Faucet": {
+            "percentage_allowance": 0.0008,
+            "min_discord_account": 604800000000,
+            "timeout": 57600000000
+        },
+        "Lottery": {
+            "ticket_cost": 0.001877,
+            "donation_percent": 0.2,
+            "no_winner_chance": 0.2,
+            "day": 5,
+            "close": 18,
+            "pick": 21,
+            "faucet": 23
+        }
+    }
+}
