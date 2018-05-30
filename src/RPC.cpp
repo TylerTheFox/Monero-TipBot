@@ -24,6 +24,7 @@ GNU General Public License for more details.
 #include <Poco/Net/HTTPResponse.h>
 #include <cassert>
 #include "Config.h"
+#include <fstream>
 
 void RPC::handleNetworkError(const std::string & msg) const
 {
@@ -304,6 +305,27 @@ bool RPC::createWallet(const std::string & name, const std::string & password, c
     {
         handleRPCError(json["error"].extract<Poco::DynamicStruct>());
         return false;
+    }
+
+    // Monero Issue #3315 (https://github.com/monero-project/monero/pull/3315)
+    // Monero removed the automation creation of wallet.address.txt files
+    // Which is required for TIPBOT to function securely.
+
+    // Therefore, this code is to create that if the RPC doesn't.
+    const auto addressPathStr = GlobalConfig.RPC.wallet_path + name + ".address.txt";
+    if (!Util::doesWalletExist(addressPathStr))
+    {
+        // Create Address .txt
+        const auto myAddress = this->getAddress();
+
+        std::ofstream addressOut(addressPathStr, std::ios::trunc);
+
+        if (addressOut.is_open())
+            addressOut << myAddress;
+        else
+            throw RPCGeneralError("-1", "Could not create wallet.address.txt file. This wallet will not function correctly!");
+
+        addressOut.close();
     }
 
     // Ensure Wallet Exists

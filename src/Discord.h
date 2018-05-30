@@ -20,7 +20,8 @@ GNU General Public License for more details.
 #include <map>
 #include <vector>
 #include <memory>
-
+#include "Poco/Logger.h"
+#include "Poco/AutoPtr.h"
 extern const char *aboutStr;
 const std::string AllowChannelTypeNames[] =
 {
@@ -80,7 +81,6 @@ public:
     using SleepyDiscord::DiscordClient::DiscordClient;
     ~TIPBOT();
 
-    void                                            init();
     int                                             getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id);
     std::string                                     getDiscordDMChannel(DiscordID id);
 
@@ -100,11 +100,14 @@ public:
     void                                            onMessage(SleepyDiscord::Message message);
     void                                            onReady(SleepyDiscord::Ready readyData);
 private:
-    void                                            refreshUserList();
-    void                                            loadUserList();
+    Poco::Logger*                                   PLog;
     std::vector<std::shared_ptr<AppBaseClass>>      Apps;
     std::map<std::uint64_t, std::set<DiscordUser> > UserList;
     SleepyDiscord::User                             BotUser;
+
+    void                                            init();
+    void                                            refreshUserList();
+    void                                            loadUserList();
 };
 
 template<class t>

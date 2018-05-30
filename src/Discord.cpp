@@ -41,10 +41,14 @@ const char *aboutStr =
 
 TIPBOT::~TIPBOT()
 {
+    GlobalConfig.General.Shutdown = true;
+    while (GlobalConfig.General.Threads);
 }
 
 void TIPBOT::init()
 {
+    PLog = &Poco::Logger::get("Tipbot");
+
     Apps = { 
         {(std::shared_ptr<AppBaseClass>(std::make_unique<Tip>()))},
         {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))},
@@ -124,6 +128,7 @@ bool TIPBOT::isUserAdmin(const SleepyDiscord::Message& message)
 
 void TIPBOT::CommandParseError(const SleepyDiscord::Message& message, const Command& me)
 {
+    PLog->warning("User command error: User %s gave '%s' expected format '%s'", static_cast<std::string>(message.author.ID), message.content, me.params);
     sendMessage(message.channelID, Poco::format("Command Error --- Correct Usage: %s %s :cold_sweat:", me.name, me.params));
 }
 
@@ -159,6 +164,7 @@ std::string TIPBOT::generateHelpText(const std::string & title, const std::vecto
 
 void dispatcher(const std::function<void(TIPBOT *, const SleepyDiscord::Message &, const Command &)> & func, TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
 {
+    static Poco::Logger & tlog = Poco::Logger::get("CommandDispatch");
     GlobalConfig.General.Threads++;
 
     if (!GlobalConfig.General.Shutdown)
@@ -169,14 +175,16 @@ void dispatcher(const std::function<void(TIPBOT *, const SleepyDiscord::Message 
         }
         catch (const Poco::Exception & exp)
         {
+            tlog.error("Poco Error: --- %s", std::string(exp.what()));
             DiscordPtr->sendMessage(message.channelID, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
         }
         catch (const SleepyDiscord::ErrorCode & exp)
         {
-            std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
+            tlog.error("Sleepy Discord Error: --- %?i", exp);
         }
         catch (AppGeneralException & exp)
         {
+            tlog.error("App Error: --- %s: %s", std::string(exp.what()), exp.getGeneralError());
             DiscordPtr->sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
         }
     }
@@ -209,6 +217,7 @@ void TIPBOT::onMessage(SleepyDiscord::Message message)
 
                             if (TIPBOT::isCommandAllowedToBeExecuted(message, command, channelType))
                             {
+                                PLog->information("User %s issued command: %s", static_cast<std::string>(message.author.ID), message.content);
                                 // Create command thread
                                 std::thread t1(dispatcher, command.func, this, message, command);
                                 t1.detach();
@@ -219,14 +228,16 @@ void TIPBOT::onMessage(SleepyDiscord::Message message)
                 }
                 catch (const Poco::Exception & exp)
                 {
+                    PLog->error("Poco Error: --- %s", std::string(exp.what()));
                     sendMessage(message.channelID, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
                 }
                 catch (const SleepyDiscord::ErrorCode & exp)
                 {
-                    std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
+                    PLog->error("Sleepy Discord Error: --- %?i", exp);
                 }
                 catch (AppGeneralException & exp)
                 {
+                    PLog->error("App Error: --- %s: %s", std::string(exp.what()), exp.getGeneralError());
                     sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
                 }
             }
@@ -239,9 +250,9 @@ void getDiscordUsers(TIPBOT & me, std::set<DiscordUser> & myList, const SleepyDi
 {
     auto guildInfo = me.listMembers(snowyServer, limit, snowyUser).vector();
 
+    struct DiscordUser newUser;
     for (auto user : guildInfo)
     {
-        struct DiscordUser newUser;
         newUser.username = user.user.username;
         newUser.id = TIPBOT::convertSnowflakeToInt64(user.user.ID);
         newUser.join_epoch_time = ((newUser.id >> 22) + 1420070400000) * 1000;
@@ -257,6 +268,9 @@ void getDiscordUsers(TIPBOT & me, std::set<DiscordUser> & myList, const SleepyDi
 
 void TIPBOT::onReady(SleepyDiscord::Ready readyData)
 {
+    // Start application
+    init();
+
     loadUserList();
     BotUser = readyData.user;
     RPCMan->setBotUser(convertSnowflakeToInt64(BotUser.ID));
@@ -267,7 +281,7 @@ void TIPBOT::refreshUserList()
 {
     auto servs = this->getServers().vector();
 
-    std::cout << "Loading Discord Users...\n";
+    PLog->information("Loading Discord Users...");
     for (auto serv : servs)
     {
         Poco::Thread::sleep(3000); // Wait a bit.
@@ -279,10 +293,10 @@ void TIPBOT::refreshUserList()
         {
             getDiscordUsers(*this, UserList[convertSnowflakeToInt64(serv.ID)], serv.ID, DISCORD_MAX_GET_USERS, Poco::format("%?i", UserList[convertSnowflakeToInt64(serv.ID)].rbegin()->id));
         }
-        std::cout << "Saving Discord Users To Disk...\n";
+        PLog->information("Saving Discord Users To Disk...");
         saveUserList();
     }
-    std::cout << "Discord Users Load Completed... Ready!\n";
+    PLog->information("Discord Users Load Completed... Ready!");
 }
 
 void TIPBOT::saveUserList()
@@ -290,7 +304,7 @@ void TIPBOT::saveUserList()
     std::ofstream out(DISCORD_USER_CACHE_FILENAME, std::ios::trunc);
     if (out.is_open())
     {
-        std::cout << "Saving wallet data to disk...\n";
+        PLog->information("Saving discord user list to disk...");
         {
             cereal::JSONOutputArchive ar(out);
             ar(CEREAL_NVP(UserList));
@@ -346,7 +360,7 @@ void TIPBOT::loadUserList()
     std::ifstream in(DISCORD_USER_CACHE_FILENAME);
     if (in.is_open())
     {
-        std::cout << "Saving wallet data to disk...\n";
+        PLog->information("Loading discord user list from disk...");
         {
             cereal::JSONInputArchive ar(in);
             ar(CEREAL_NVP(UserList));

@@ -28,9 +28,9 @@ GNU General Public License for more details.
 #include "Config.h"
 std::unique_ptr<RPCManager>      RPCMan;
 
-RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr)
+RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr), BotID(0)
 {
-
+    PLog = &Poco::Logger::get("RPCManager");
 }
 
 RPCManager::~RPCManager()
@@ -68,7 +68,7 @@ void RPCManager::setBotUser(DiscordID id)
     }
     catch (AppGeneralException & exp)
     {
-        std::cerr << "App Error: " << exp.getGeneralError() << "\n";
+        PLog->error("App Error: %s", exp.getGeneralError());
     }
 }
 
@@ -156,6 +156,12 @@ void RPCManager::run()
         {
             try
             {
+                if (currTime >= walletWatchDog)
+                {
+                    watchDog();
+                    walletWatchDog = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
+                }
+
                 if (currTime >= transactionTime)
                 {
                     processNewTransactions();
@@ -173,24 +179,18 @@ void RPCManager::run()
                     save();
                     saveTime = currTime + GlobalConfig.RPCManager.wallets_save_time;
                 }
-
-                if (currTime >= walletWatchDog)
-                {
-                    watchDog();
-                    walletWatchDog = currTime + GlobalConfig.RPCManager.wallet_watchdog_time;
-                }
             }
             catch (const Poco::Exception & exp)
             {
-                std::cerr << "Poco Error: " << exp.what() << "\n";
+                PLog->error("Poco Error: %s", std::string(exp.what()));
             }
             catch (AppGeneralException & exp)
             {
-                std::cerr << "App Error: " << exp.what() << "\n";
+                PLog->error("App Error: %s", std::string(exp.what()));
             }
             catch (const SleepyDiscord::ErrorCode & exp)
             {
-                std::cerr << Poco::format("Discord Error Code: --- %d\n", exp);
+                PLog->error(Poco::format("Discord Error Code: --- %d\n", exp));
             }
         }
         Poco::Thread::sleep(1);
@@ -203,7 +203,7 @@ void RPCManager::run()
 void RPCManager::processNewTransactions()
 {
     Poco::Mutex::ScopedLock lock(mu);
-    std::cout << "Searching for new transactions...\n";
+    PLog->information("Searching for new transactions...");
     std::vector<struct TransferItem> diff;
     TransferList newTransactions;
 
@@ -227,12 +227,12 @@ void RPCManager::processNewTransactions()
                         for (auto newTx : diff)
                         {
                             DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %0.8f %s :money_with_wings:", newTx.amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
-                            std::cout << Poco::format("User %Lu recived %0.8f %s\n", account.first, newTx.amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv);
+                            PLog->information(Poco::format("User %Lu recived %0.8f %s\n", account.first, newTx.amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
                         }
                     }
                     catch (const SleepyDiscord::ErrorCode & exp)
                     {
-                        std::cerr << "Error while posting transactions for user: " << account.first << " Error code: " << exp << '\n';
+                        PLog->error("Error while posting transactions for user: %?i Error code: %?i", account.first, exp);
                     }
 
                     diff.clear();
@@ -254,18 +254,28 @@ void RPCManager::watchDog()
     {
         try
         {
-            rpc.second.MyRPC.getBlockHeight();
+            if (Poco::Process::isRunning(rpc.second.pid))
+            {
+                rpc.second.MyRPC.getBlockHeight();
+            }
+            else
+            {
+                // RPC is not running, kill it.
+                PLog->error("User %?i's RPC is not running, RPC restarted!", rpc.first);
+                restartWallet(rpc.first);
+            }
             rpc.second.RPCFail = 0;
         }
         catch (...)
         {
-            std::cerr << "User " << rpc.first << "'s RPC is not responding/erroring for " << rpc.second.RPCFail << " Out of " << GlobalConfig.RPCManager.error_giveup << " attempts!\n";
+            PLog->error("User %?i's RPC is not responding/erroring for %?i out of %?i attempts!", rpc.first, rpc.second.RPCFail, GlobalConfig.RPCManager.error_giveup);
             rpc.second.RPCFail++;
             if (rpc.second.RPCFail > GlobalConfig.RPCManager.error_giveup)
             {
                 // RPC not responding, kill it.
-                std::cerr << "User " << rpc.first << "'s RPC is not responding, RPC restarted!\n";
+                PLog->error("User %?i's RPC is not responding, RPC restarted!", rpc.first);
                 restartWallet(rpc.first);
+                rpc.second.RPCFail = 0;
             }
         }
     }
@@ -318,7 +328,7 @@ void RPCManager::save()
     std::ofstream out(RPC_DATABASE_FILENAME, std::ios::trunc);
     if (out.is_open())
     {
-        std::cout << "Saving wallet data to disk...\n";
+        PLog->information("Saving wallet data to disk...");
         {
             cereal::JSONOutputArchive ar(out);
             ar(
@@ -337,7 +347,7 @@ void RPCManager::load()
     Poco::File RPCFile(RPC_DATABASE_FILENAME);
     if (RPCFile.exists())
     {
-        std::cout << "Loading wallet files and spinning up RPCs..\n";
+        PLog->information("Loading wallet files and spinning up RPCs..");
         std::ifstream in(RPC_DATABASE_FILENAME);
         if (in.is_open())
         {
@@ -395,7 +405,7 @@ RPCProc & RPCManager::FindOldestRPC()
 void RPCManager::SaveWallets()
 {
     Poco::Mutex::ScopedLock lock(mu);
-    std::cout << "Saving blockchain...\n";
+    PLog->information("Saving blockchain...");
 
     // Save blockchain on exit.
     for (auto account : this->RPCMap)
@@ -406,7 +416,7 @@ void RPCManager::SaveWallets()
         }
         catch (...)
         {
-            std::cerr << "Error cannot save " << account.first << "'s wallet!\n";
+            PLog->error("Error cannot save %?i's wallet!", account.first);
         }
     }
 }
@@ -439,11 +449,11 @@ void RPCManager::ReloadSavedRPCs()
         }
         catch (const Poco::Exception & exp)
         {
-            std::cerr << "Poco Error: " << exp.what();
+            PLog->error("Poco Error: %s", std::string(exp.what()));
         }
         catch (AppGeneralException & exp)
         {
-            std::cerr << "App Error: " << exp.what();
+            PLog->error("App Error: %s", std::string(exp.what()));
         }
     }
 }
@@ -539,14 +549,14 @@ void RPCManager::restartWallet(DiscordID id)
     Poco::Mutex::ScopedLock lock(mu);
     if (RPCMap.count(id))
     {
-        std::cout << "Restarting User: " << id << "'s RPC \n";
+        PLog->information("Restarting User: %?i's RPC ", id);
         try
         {
             Poco::Process::kill(RPCMap[id].pid);
         }
         catch (const Poco::Exception & exp)
         {
-            std::cerr << "Error killing RPC " << exp.what() << '\n';
+            PLog->error("Error killing RPC: %s", std::string(exp.what()));
         }
 
         // Launch RPC
@@ -564,7 +574,7 @@ void RPCManager::restartWallet(DiscordID id)
         // Get transactions
         RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
 
-        std::cout << "User: " << id << "'s RPC restarted successfully!\n";
+        PLog->information("User: %?i's RPC restarted successfully!", id);
     }
 }
 

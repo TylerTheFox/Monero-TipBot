@@ -11,7 +11,8 @@
 #include "Account.h"
 #include "AppBaseClass.h"
 #include "RPCManager.h"
-
+#include "Poco/Logger.h"
+#include "Poco/AutoPtr.h"
 #define    LOTTERY_USER            "LOTTERY" // Wallet
 #define    LOTTERY_SAVE_FILE       "LOTTERY.JSON"
 
@@ -39,13 +40,17 @@ public:
     void                                Jackpot(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                BuyTicket(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                MyTickets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                LotteryWon(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
 
+    void                                lastWinner(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                ToggleLotterySuspend(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 private:
-    TIPBOT *                   DiscordPtr;
+    Poco::Logger*                   PLog;
+    TIPBOT *                        DiscordPtr;
     bool                            lotterySuspended;
     std::uint64_t                   lastWinningTopBlock = 0;
     Account*                        currentUsrAccount{};
     std::shared_ptr<RPCProc>        LotteryAccount;
     std::vector<struct Command>     Commands;
+    DiscordID                       prevWinner;
 };

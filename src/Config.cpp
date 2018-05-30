@@ -15,7 +15,7 @@ GNU General Public License for more details.
 #include <fstream>
 #include "Poco/DateTime.h"
 #include <string>
-
+#include "Poco/Logger.h"
 #include "Faucet.h"
 
 AppConfig GlobalConfig;
@@ -107,11 +107,12 @@ AppConfig::AppConfig()
 
 void AppConfig::load_config(const std::string & file)
 {
+    auto & logger = Poco::Logger::get("AppConfig");
     currentConfig = file;
     std::ifstream in(currentConfig);
     if (in.is_open())
     {
-        std::cout << "Loading Config from disk...\n";
+        logger.information("Loading Config from disk...");
         {
             cereal::JSONInputArchive ar(in);
             ar(cereal::make_nvp("AppConfig", *this));
@@ -122,10 +123,11 @@ void AppConfig::load_config(const std::string & file)
 
 void AppConfig::save_config()
 {
+    auto & logger = Poco::Logger::get("AppConfig");
     std::ofstream out(currentConfig, std::ios::trunc);
     if (out.is_open())
     {
-        std::cout << "Saving Config to disk...\n";
+        logger.information("Saving Config to disk...");
         {
             cereal::JSONOutputArchive ar(out);
             ar(cereal::make_nvp("AppConfig", *this));

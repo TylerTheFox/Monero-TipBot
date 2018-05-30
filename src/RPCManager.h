@@ -24,6 +24,8 @@ GNU General Public License for more details.
 
 #include <cereal/archives/json.hpp>
 #include "Poco/Process.h"
+#include "Poco/Logger.h"
+#include "Poco/AutoPtr.h"
 
 #define RPC_DATABASE_FILENAME                   "RPCDATA.json"
 
@@ -105,6 +107,7 @@ public:
 
     std::string                             status();
 private:
+    Poco::Logger*                           PLog;
     Poco::Mutex                             mu;
     unsigned short                          currPortNum;
     std::map<DiscordID, struct RPCProc>     RPCMap;
