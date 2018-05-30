@@ -1,12 +1,12 @@
 #pragma once
 #include "http.h"
-#include "json_wrapper.h"
+#include "json.h"
 #include "error.h"
 
 namespace SleepyDiscord {
 	struct StandardResponse : Response {	//this is just used for the constructor
 		StandardResponse(const Response& response) : Response(response) {}
-		//operator const Response&() { return *this; }	//never used
+		operator const Response&() { return *this; }
 	};
 
 	struct BooleanResponse : public StandardResponse {

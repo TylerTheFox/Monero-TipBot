@@ -15,25 +15,25 @@ namespace SleepyDiscord {
 
 	//typedef GenericMessageReceiver MessageProcssor;
 
-	class WebsocketppDiscordClient : public BaseDiscordClient {
+	class WebsocketppWebsocketClient : public BaseDiscordClient {
 	public:
-		WebsocketppDiscordClient() : maxNumOfThreads(0) {}
-		WebsocketppDiscordClient(const std::string token, const char numOfThreads = 3);
-		~WebsocketppDiscordClient();
+		WebsocketppWebsocketClient() : maxNumOfThreads(0) {}
+		WebsocketppWebsocketClient(const std::string token, const char numOfThreads = 3);
+		~WebsocketppWebsocketClient();
 
 		void run();
-		Timer schedule(TimedTask code, const time_t milliseconds);
+		Timer schedule(std::function<void()> code, const time_t milliseconds);
 	protected:
 #include "standard_config_header.h"
 	private:
 		void init();
 		bool connect(const std::string & uri,
 			GenericMessageReceiver* messageProcessor,
-			WebsocketConnection& connection
-		) override;
-		void disconnect(unsigned int code, const std::string reason, WebsocketConnection& connection);
+			WebsocketConnection* connection
+		);
+		void disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection);
 		void onClose(_client * client, websocketpp::connection_hdl handle);
-		void send(std::string message, WebsocketConnection& connection);
+		void send(std::string message, WebsocketConnection* connection);
 		void runAsync();
 		void onOpen(websocketpp::connection_hdl hdl, GenericMessageReceiver* messageProcessor);
 		void onMessage(
@@ -46,7 +46,7 @@ namespace SleepyDiscord {
 		websocketpp::connection_hdl handle;
 		const char maxNumOfThreads;
 	};
-	typedef WebsocketppDiscordClient DiscordClient;
+	typedef WebsocketppWebsocketClient DiscordClient;
 }
 #else
 #ifndef BOOST_VERSION

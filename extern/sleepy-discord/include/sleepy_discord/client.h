@@ -32,15 +32,14 @@
 namespace SleepyDiscord {
 #define TOKEN_SIZE 64
 
-	//Modes
-	enum Mode : char {
-		USER_CONTROLED_THREADS = 1,
-		USE_RUN_THREAD = 3
-	};
-
+	//template <
+	//	class Session          = SleepyDiscord::Session        ,
+	//	class WebsocketClient  = SleepyDiscord::WebsocketClient,
+	//	class UDPClient        = SleepyDiscord::UDPClient
+	//>
 	class BaseDiscordClient : public GenericMessageReceiver {
 	public:
-		BaseDiscordClient();
+		BaseDiscordClient() {}
 		BaseDiscordClient(const std::string _token) { start(_token); }
 		virtual ~BaseDiscordClient();
 
@@ -178,6 +177,7 @@ namespace SleepyDiscord {
 			TilDueTime = 0,
 			EpochTime  = 1,
 		};
+		typedef std::function<void()> TimedTask;
 		virtual Timer  schedule(TimedTask                 code   , const time_t millisecondsTilDueTime) { return Timer([](){}); }
 		inline  Timer  schedule(TimedTask                 code   , const time_t milliseconds, AssignmentType mode) {
 			return     schedule(code, mode == TilDueTime ? milliseconds : milliseconds - getEpochTimeMillisecond());
@@ -200,11 +200,14 @@ namespace SleepyDiscord {
 			deafen = 1 << 1
 		};
 
-		VoiceContext& createVoiceContext(Snowflake<Channel> channel, Snowflake<Server> server = "", BaseVoiceEventHandler* eventHandler = nullptr);
-		void connectToVoiceChannel(VoiceContext& voiceContext, VoiceMode settings);
 		VoiceContext& connectToVoiceChannel(Snowflake<Channel> channel, Snowflake<Server> server = "", VoiceMode settings = normal);
 
 #endif
+		//Modes
+		enum Mode : char {
+			USER_CONTROLED_THREADS = 1,
+			USE_RUN_THREAD = 3
+		};
 
 	protected:
 		/* list of events
@@ -306,31 +309,29 @@ namespace SleepyDiscord {
 
 		/*do not use or overwrite the protected values below,
 		unless you know what you are doing*/
-		void processMessage(const std::string &message) override;
+		void processMessage(std::string message);
 		void heartbeat();
 		void sendHeartbeat();
 		inline std::string getToken() { return *token.get(); }
 		void start(const std::string _token, const char maxNumOfThreads = 2);
 		virtual bool connect(
-			const std::string & uri,                    //IN
+			const std::string & uri,                   //IN
 			GenericMessageReceiver* messageProcessor,  //IN  When a message is receved, this will process it
-			WebsocketConnection& connection             //OUT data needed in order to send a message. nullptr by default
+			WebsocketConnection* connection            //OUT data needed in order to send a message
 		) { return false; }
-		virtual void send(std::string message, WebsocketConnection& connection) {}
-		virtual void disconnect(unsigned int code, const std::string reason, WebsocketConnection& connection) {}
+		virtual void send(std::string message, WebsocketConnection* connection) {}
+		virtual void disconnect(unsigned int code, const std::string reason, WebsocketConnection* connection) {}
 		//the next 2 functions are part of BaseDiscordClient because VoiceConnection is a private nested class
-		inline void processMessage(GenericMessageReceiver*& messageProcessor, const std::string& message) const {
+		inline void processMessage(GenericMessageReceiver* messageProcessor, std::string message) const {
 			messageProcessor->processMessage(message);
 		}
-		inline void initialize(GenericMessageReceiver*& messageProcessor) const {
+		inline void initialize(GenericMessageReceiver* messageProcessor) const {
 			messageProcessor->initialize();
 		}
 		virtual void runAsync();
 		virtual const time_t getEpochTimeMillisecond();
 
 	private:
-		using GenericMessageReceiver::initialize;
-
 		int heartbeatInterval = 0;
 		int64_t lastHeartbeat = 0;
 		int lastSReceived = 0;
@@ -364,6 +365,7 @@ namespace SleepyDiscord {
 		std::string theGateway;
 		bool ready;
 		bool bot;
+		//WebsocketConnection connection;
 		void sendIdentity();
 		void sendResume();
 		void restart();

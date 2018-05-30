@@ -64,11 +64,11 @@ namespace SleepyDiscord {
 		User author;
 		std::string content;
 		std::string timestamp;
-		std::string editedTimestamp;
+		std::string edited_timestamp;
 		bool tts;
-		bool mentionEveryone;
+		bool mention_everyone;
 		std::vector<User> mentions;
-		std::vector<Snowflake<User>> mentionRoles;
+		std::vector<Snowflake<User>> mention_roles;
 		std::vector<Attachment> attachments;
 		std::vector<Embed> embeds;
 		std::vector<Reaction> reactions;
