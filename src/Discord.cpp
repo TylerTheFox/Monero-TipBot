@@ -360,7 +360,7 @@ void TIPBOT::loadUserList()
     std::ifstream in(DISCORD_USER_CACHE_FILENAME);
     if (in.is_open())
     {
-        PLog->information("Loading discord user list to disk...");
+        PLog->information("Loading discord user list from disk...");
         {
             cereal::JSONInputArchive ar(in);
             ar(CEREAL_NVP(UserList));
