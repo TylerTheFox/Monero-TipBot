@@ -41,7 +41,7 @@ void setupLogging()
     Poco::AutoPtr<Poco::SimpleFileChannel> pFile(new Poco::SimpleFileChannel("tipbot.log"));
     Poco::AutoPtr<Poco::PatternFormatter> pPF(new Poco::PatternFormatter);
     Poco::AutoPtr<Poco::SplitterChannel> pSplitter(new Poco::SplitterChannel);
-    pFile->setProperty("rotation", "2 K");
+    pFile->setProperty("rotation", "2000 K");
     pSplitter->addChannel(pCons);
     pSplitter->addChannel(pFile);
     pPF->setProperty("pattern", "%Y-%m-%d %H:%M:%S [%p] %s: %t");
