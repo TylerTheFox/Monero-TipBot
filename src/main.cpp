@@ -176,11 +176,11 @@ int main()
             GlobalConfig.save_config();
         }
 
+        logger.information("Tipbot shutdown complete...");
+
         // Shutdown Complete!
         Poco::Logger::shutdown();
         GlobalConfig.General.Shutdown = false;
-
-        logger.information("Tipbot shutdown complete...");
     }
     return 0;
 }
