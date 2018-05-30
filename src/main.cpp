@@ -137,8 +137,7 @@ int main()
             RPCMan->load();
 
             // Run bot with token.
-            TIPBOT client(GlobalConfig.General.discordToken, 2);
-            client.init();
+            TIPBOT client(GlobalConfig.General.discordToken);
             RPCMan->setDiscordPtr(&client);
 
             // Create RPC threads

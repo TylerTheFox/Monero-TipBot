@@ -81,7 +81,6 @@ public:
     using SleepyDiscord::DiscordClient::DiscordClient;
     ~TIPBOT();
 
-    void                                            init();
     int                                             getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id);
     std::string                                     getDiscordDMChannel(DiscordID id);
 
@@ -102,11 +101,13 @@ public:
     void                                            onReady(SleepyDiscord::Ready readyData);
 private:
     Poco::AutoPtr<Poco::Logger>                     PLog;
-    void                                            refreshUserList();
-    void                                            loadUserList();
     std::vector<std::shared_ptr<AppBaseClass>>      Apps;
     std::map<std::uint64_t, std::set<DiscordUser> > UserList;
     SleepyDiscord::User                             BotUser;
+
+    void                                            init();
+    void                                            refreshUserList();
+    void                                            loadUserList();
 };
 
 template<class t>

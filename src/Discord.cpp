@@ -47,6 +47,8 @@ TIPBOT::~TIPBOT()
 
 void TIPBOT::init()
 {
+    PLog = &Poco::Logger::get("Tipbot");
+
     Apps = { 
         {(std::shared_ptr<AppBaseClass>(std::make_unique<Tip>()))},
         {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))},
@@ -55,8 +57,6 @@ void TIPBOT::init()
 
     for (auto & app : Apps)
         app->load();
-
-    PLog = &Poco::Logger::get("Tipbot");
 }
 
 int TIPBOT::getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id)
@@ -268,6 +268,9 @@ void getDiscordUsers(TIPBOT & me, std::set<DiscordUser> & myList, const SleepyDi
 
 void TIPBOT::onReady(SleepyDiscord::Ready readyData)
 {
+    // Start application
+    init();
+
     loadUserList();
     BotUser = readyData.user;
     RPCMan->setBotUser(convertSnowflakeToInt64(BotUser.ID));
