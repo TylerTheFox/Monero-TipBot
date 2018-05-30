@@ -169,6 +169,9 @@ int main()
 
         logger.information("Tipbot shutting down...");
 
+        // Ensure all threads are exited.
+        while (GlobalConfig.General.Threads);
+
         RPCMan.reset(nullptr);
 
         // Upgrade save file
