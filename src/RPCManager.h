@@ -107,7 +107,7 @@ public:
 
     std::string                             status();
 private:
-    Poco::AutoPtr<Poco::Logger>             PLog;
+    Poco::Logger*                           PLog;
     Poco::Mutex                             mu;
     unsigned short                          currPortNum;
     std::map<DiscordID, struct RPCProc>     RPCMap;

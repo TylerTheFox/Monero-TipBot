@@ -42,7 +42,7 @@ public:
     void                                status(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                ToggleFaucet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 private:
-    Poco::AutoPtr<Poco::Logger>     PLog;
+    Poco::Logger*                   PLog;
     bool                            enabled;
     std::vector<struct Command>     Commands;
 };

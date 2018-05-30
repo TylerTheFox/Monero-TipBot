@@ -45,7 +45,7 @@ public:
     void                                lastWinner(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
     void                                ToggleLotterySuspend(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 private:
-    Poco::AutoPtr<Poco::Logger>     PLog;
+    Poco::Logger*                   PLog;
     TIPBOT *                        DiscordPtr;
     bool                            lotterySuspended;
     std::uint64_t                   lastWinningTopBlock = 0;

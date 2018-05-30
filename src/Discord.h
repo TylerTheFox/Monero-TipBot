@@ -100,7 +100,7 @@ public:
     void                                            onMessage(SleepyDiscord::Message message);
     void                                            onReady(SleepyDiscord::Ready readyData);
 private:
-    Poco::AutoPtr<Poco::Logger>                     PLog;
+    Poco::Logger*                                   PLog;
     std::vector<std::shared_ptr<AppBaseClass>>      Apps;
     std::map<std::uint64_t, std::set<DiscordUser> > UserList;
     SleepyDiscord::User                             BotUser;
