@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #include "Config.h"
 std::unique_ptr<RPCManager>      RPCMan;
 
-RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr)
+RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr), BotID(0)
 {
     PLog = &Poco::Logger::get("RPCManager");
 }
