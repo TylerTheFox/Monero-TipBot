@@ -147,19 +147,23 @@ int main()
         }
         catch (const websocketpp::exception & err)
         {
+            GlobalConfig.General.Shutdown = true;
             logger.error("websocketpp Code: %?i Message: %s", err.code(), err.m_msg);
         }
         catch (const Poco::Exception & exp)
         {
+            GlobalConfig.General.Shutdown = true;
             logger.error("Poco Error:  %s", std::string(exp.what()));
         }
         catch (AppGeneralException & exp)
         {
+            GlobalConfig.General.Shutdown = true;
             logger.error("App Error:  %s", std::string(exp.what()));
 
         }
         catch (const SleepyDiscord::ErrorCode & exp)
         {
+            GlobalConfig.General.Shutdown = true;
             logger.error("Discord Error: %?i", exp);
         }
 
