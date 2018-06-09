@@ -68,8 +68,6 @@ struct RPCConfig
     std::string             daemon_hostname;
     bool                    use_test_net;
 
-
-
     template <class Archive>
     void save(Archive & ar) const
     {
@@ -106,22 +104,6 @@ struct RPCConfig
         {
             ar(CEREAL_NVP(use_test_net));
         }
-    }
-
-    template <class Archive>
-    void serialize(Archive & ar)
-    {
-        ar(
-            CEREAL_NVP(json_uri),
-            CEREAL_NVP(wallet_path),
-            CEREAL_NVP(coin_offset),
-            CEREAL_NVP(mixin),
-            CEREAL_NVP(coin_abbv),
-            CEREAL_NVP(address_length),
-            CEREAL_NVP(filename),
-            CEREAL_NVP(hostname),
-            CEREAL_NVP(daemon_hostname)
-        );
     }
 };
 
