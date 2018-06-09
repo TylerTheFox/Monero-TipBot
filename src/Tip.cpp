@@ -201,7 +201,7 @@ void Tip::GiveAll(TIPBOT * DiscordPtr, const SleepyDiscord::Message& message, co
 
 void Tip::About(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
-    DiscordPtr->sendMessage(message.channelID, Poco::format(aboutStr, GlobalConfig.About.major, GlobalConfig.About.minor));
+    DiscordPtr->sendMessage(message.channelID, Poco::format(aboutStr, VERSION_MAJOR, VERSION_MINOR, GlobalConfig.About.major, GlobalConfig.About.minor));
 }
 
 void Tip::BlockHeight(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)

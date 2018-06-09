@@ -32,7 +32,7 @@ GNU General Public License for more details.
 #include "Config.h"
 
 const char *aboutStr =
-"```TipBot v%?i.%?i\\n"
+"```TipBot v%?i.%?i (Config: v%?i.%?i)\\n"
 "(C) Brandan Tyler Lasley 2018\\n"
 "Github: https://github.com/Brandantl/Monero-TipBot \\n"
 "BTC: 1KsX66J98WMgtSbFA5UZhVDn1iuhN5B6Hm\\n"
