@@ -86,25 +86,7 @@ struct RPCConfig
     }
 
     template <class Archive>
-    void load(Archive & ar)
-    {
-        ar(
-            CEREAL_NVP(json_uri),
-            CEREAL_NVP(wallet_path),
-            CEREAL_NVP(coin_offset),
-            CEREAL_NVP(mixin),
-            CEREAL_NVP(coin_abbv),
-            CEREAL_NVP(address_length),
-            CEREAL_NVP(filename),
-            CEREAL_NVP(hostname),
-            CEREAL_NVP(daemon_hostname)
-        );
-
-        if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 2)
-        {
-            ar(CEREAL_NVP(use_test_net));
-        }
-    }
+    void load(Archive & ar);
 };
 
 struct RPCManagerConfig
@@ -206,3 +188,24 @@ private:
 };
 
 extern AppConfig GlobalConfig;
+
+template <class Archive>
+void RPCConfig::load(Archive & ar)
+{
+    ar(
+        CEREAL_NVP(json_uri),
+        CEREAL_NVP(wallet_path),
+        CEREAL_NVP(coin_offset),
+        CEREAL_NVP(mixin),
+        CEREAL_NVP(coin_abbv),
+        CEREAL_NVP(address_length),
+        CEREAL_NVP(filename),
+        CEREAL_NVP(hostname),
+        CEREAL_NVP(daemon_hostname)
+    );
+
+    if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 2)
+    {
+        ar(CEREAL_NVP(use_test_net));
+    }
+}
