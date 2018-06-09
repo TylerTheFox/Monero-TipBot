@@ -485,6 +485,9 @@ unsigned int RPCManager::LaunchRPC(unsigned short port)
     args.emplace_back("--disable-rpc-login");
     args.emplace_back("--trusted-daemon");
 
+    if (GlobalConfig.RPC.use_test_net)
+        args.emplace_back("--testnet");
+
     std::string launchFile;
 #if _WIN32
     launchFile = GlobalConfig.RPC.filename;

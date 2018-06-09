@@ -28,7 +28,7 @@ AppConfig GlobalConfig;
 #define WALLET_PATH                             "Wallets/"
 #define COIN_OFFSET                             100000000.0 // 1 x 10^8
 #define DEFAULT_MIXIN                           4
-#define COIN_ABBV                               std::string("ITNS");
+#define COIN_ABBV                               "ITNS";
 #define STARTING_PORT_NUMBER                    11000
 #define MAX_RPC_LIMIT                           200
 #define RPC_ERROR_GIVEUP                        3
@@ -47,6 +47,7 @@ AppConfig GlobalConfig;
 #define LOTTERY_CLOSE                           18
 #define LOTTERY_PICK                            21
 #define LOTTERY_FAUCET                          23
+#define USE_TEST_NET                            false
 
 const DiscordID DiscordAdmins[] =
 {
@@ -80,6 +81,7 @@ AppConfig::AppConfig()
     RPC.mixin = DEFAULT_MIXIN;
     RPC.wallet_path = WALLET_PATH;
     RPC.address_length = VALID_ADDRESS_LENGTH;
+    RPC.use_test_net = USE_TEST_NET;
 
     // RPCManager
     RPCManager.blockchain_save_time = BLOCKCHAIN_SAVE_TIME;
