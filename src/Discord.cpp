@@ -30,6 +30,7 @@ GNU General Public License for more details.
 #include "Lottery.h"
 #include "Poco/ThreadTarget.h"
 #include "Config.h"
+#include "Poco/Exception.h"
 
 const char *aboutStr =
 "```TipBot v%?i.%?i (Config: v%?i.%?i)\\n"
@@ -47,16 +48,37 @@ TIPBOT::~TIPBOT()
 
 void TIPBOT::init()
 {
-    PLog = &Poco::Logger::get("Tipbot");
+    try
+    {
+        PLog = &Poco::Logger::get("Tipbot");
 
-    Apps = { 
-        {(std::shared_ptr<AppBaseClass>(std::make_unique<Tip>()))},
-        {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))},
-        {(std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this)))}
-    };
+        Apps = {
+            {(std::shared_ptr<AppBaseClass>(std::make_unique<Tip>()))},
+            {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))},
+            {(std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this)))}
+        };
 
-    for (auto & app : Apps)
-        app->load();
+        for (auto & app : Apps)
+            app->load();
+    }
+    catch (AppGeneralException & exp)
+    {
+        PLog->error("FATAL ERROR (APPERR): COULD NOT BOOT! RESON: %s", std::string(exp.what()));
+        GlobalConfig.General.Shutdown = true;
+        this->quit();
+    }
+    catch (Poco::Exception & exp)
+    {
+        PLog->error("FATAL ERROR (POCO): COULD NOT BOOT! RESON: %s", std::string(exp.what()));
+        GlobalConfig.General.Shutdown = true;
+        this->quit();
+    }
+    catch (cereal::Exception exp)
+    {
+        PLog->error("FATAL ERROR (CEREAL): COULD NOT BOOT! RESON: %s", std::string(exp.what()));
+        GlobalConfig.General.Shutdown = true;
+        this->quit();
+    }
 }
 
 int TIPBOT::getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id)
