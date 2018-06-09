@@ -93,27 +93,42 @@ Account& RPCManager::getAccount(DiscordID id)
 
     if (RPCMap.count(id) == 0)
     {
-        if (RPCMap.size() < GlobalConfig.RPCManager.max_rpc_limit)
-            RPCMap[id] = SpinUpNewRPC(id);
-        else
+        try
         {
-            RPCProc oldAcc = FindOldestRPC(); // Deep copy
-            auto oldAccID = oldAcc.MyAccount.getDiscordID();
-            RPCMap.erase(oldAccID); // Ensure we destroy the old account --- SECURITY BUG FIX ---
-            RPCMap[id] = oldAcc;
+            if (RPCMap.size() < GlobalConfig.RPCManager.max_rpc_limit)
+                RPCMap[id] = SpinUpNewRPC(id);
+            else
+            {
+                RPCProc oldAcc = FindOldestRPC(); // Deep copy
+                auto oldAccID = oldAcc.MyAccount.getDiscordID();
+                RPCMap.erase(oldAccID); // Ensure we destroy the old account --- SECURITY BUG FIX ---
+                RPCMap[id] = oldAcc;
+            }
+
+            // Setup Account
+            RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
+
+            // Wait for RPC to respond
+            waitForRPCToRespond(id, RPCMap[id].MyRPC);
+
+            // Open Wallet
+            RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id));
+
+            // Get transactions
+            RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
         }
+        catch (AppGeneralException & exp)
+        {
+            // Shutdown running RPCs
+            if (RPCMap[id].pid)
+                Poco::Process::kill(RPCMap[id].pid);
 
-        // Setup Account
-        RPCMap[id].MyAccount.open(id, &RPCMap[id].MyRPC);
+            // Erase RPC
+            RPCMap.erase(id);
 
-        // Wait for RPC to respond
-        waitForRPCToRespond(id, RPCMap[id].MyRPC);
-
-        // Open Wallet
-        RPCMap[id].MyRPC.openWallet(Util::getWalletStrFromIID(id));
-
-        // Get transactions
-        RPCMap[id].Transactions = RPCMap[id].MyRPC.getTransfers();
+            // Continue Error throwing.
+            throw RPCGeneralError("-1", exp.what());
+        }
     }
 
     // Ensure we are the correct account owners.
