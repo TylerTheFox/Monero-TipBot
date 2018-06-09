@@ -379,11 +379,12 @@ void RPCManager::load()
             {
                 cereal::JSONInputArchive ar(in);
 
+                unsigned int ignore;
                 if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 0)
                 {
                     ar(
-                        ::cereal::make_nvp("major", GlobalConfig.About.major),
-                        ::cereal::make_nvp("minor", GlobalConfig.About.minor)
+                        ::cereal::make_nvp("major", ignore),
+                        ::cereal::make_nvp("minor", ignore)
                     );
                 }
 
