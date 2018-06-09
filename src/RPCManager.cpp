@@ -369,7 +369,7 @@ void RPCManager::load()
             {
                 cereal::JSONInputArchive ar(in);
 
-                if (GlobalConfig.About.major > 2 || GlobalConfig.About.major > 2 && GlobalConfig.About.minor > 0)
+                if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 0)
                 {
                     ar(
                         ::cereal::make_nvp("major", GlobalConfig.About.major),

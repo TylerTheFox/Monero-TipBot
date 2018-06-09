@@ -68,7 +68,7 @@ void Lottery::load()
             cereal::JSONInputArchive ar(in);
             ar(CEREAL_NVP(lastWinningTopBlock));
 
-            if (GlobalConfig.About.major > 2 || GlobalConfig.About.major > 2 && GlobalConfig.About.minor > 1)
+            if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 1)
             {
                 ar(CEREAL_NVP(prevWinner));
             }

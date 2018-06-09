@@ -102,7 +102,7 @@ struct RPCConfig
             CEREAL_NVP(daemon_hostname)
         );
 
-        if (GlobalConfig.About.major > 2 || GlobalConfig.About.major > 2 && GlobalConfig.About.minor > 2)
+        if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 2)
         {
             ar(CEREAL_NVP(use_test_net));
         }

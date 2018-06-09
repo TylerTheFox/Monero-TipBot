@@ -66,7 +66,7 @@ struct RPCProc
     template <class Archive>
     void load(Archive & ar)
     {
-        if (GlobalConfig.About.major > 2 || GlobalConfig.About.major > 2 && GlobalConfig.About.minor > 0)
+        if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 0)
         {
             Poco::Int64 val = timestamp.epochMicroseconds();
             ar(::cereal::make_nvp("timestamp", val));
