@@ -63,7 +63,7 @@ void TIPBOT::init()
     }
     catch (AppGeneralException & exp)
     {
-        PLog->error("FATAL ERROR (APPERR): COULD NOT BOOT! RESON: %s", std::string(exp.what()));
+        PLog->error("FATAL ERROR (APPERR): COULD NOT BOOT! RESON: %s --- %s", std::string(exp.what()), exp.getGeneralError());
         GlobalConfig.General.Shutdown = true;
         this->quit();
     }

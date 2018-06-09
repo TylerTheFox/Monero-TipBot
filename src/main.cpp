@@ -158,8 +158,7 @@ int main()
         catch (AppGeneralException & exp)
         {
             GlobalConfig.General.Shutdown = true;
-            logger.error("App Error:  %s", std::string(exp.what()));
-
+            logger.error("App Error:  %s --- %s", std::string(exp.what()), exp.getGeneralError());
         }
         catch (const SleepyDiscord::ErrorCode & exp)
         {

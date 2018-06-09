@@ -26,11 +26,21 @@ GNU General Public License for more details.
 #include "AccountException.h"
 #include "Poco/ScopedLock.h"
 #include "Config.h"
+#include "Poco/File.h"
+
 std::unique_ptr<RPCManager>      RPCMan;
 
 RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr), BotID(0)
 {
     PLog = &Poco::Logger::get("RPCManager");
+
+    // Check if RPC Exists.
+    std::string filename = GlobalConfig.RPC.filename;
+#ifdef WIN32
+    filename += ".exe";
+#endif
+    if (!Poco::File(filename).exists())
+        throw RPCGeneralError("-1", "RPC Binary Not Found!");
 }
 
 RPCManager::~RPCManager()
@@ -68,7 +78,7 @@ void RPCManager::setBotUser(DiscordID id)
     }
     catch (AppGeneralException & exp)
     {
-        PLog->error("App Error: %s", exp.getGeneralError());
+        PLog->error("App Error: %s --- %s", std::string(exp.what()), exp.getGeneralError());
     }
 }
 
@@ -127,7 +137,7 @@ Account& RPCManager::getAccount(DiscordID id)
             RPCMap.erase(id);
 
             // Continue Error throwing.
-            throw RPCGeneralError("-1", exp.what());
+            throw RPCGeneralError("-1", exp.getGeneralError());
         }
     }
 
@@ -201,7 +211,7 @@ void RPCManager::run()
             }
             catch (AppGeneralException & exp)
             {
-                PLog->error("App Error: %s", std::string(exp.what()));
+                PLog->error("App Error: %s --- %s", std::string(exp.what()), exp.getGeneralError());
             }
             catch (const SleepyDiscord::ErrorCode & exp)
             {
@@ -468,7 +478,7 @@ void RPCManager::ReloadSavedRPCs()
         }
         catch (AppGeneralException & exp)
         {
-            PLog->error("App Error: %s", std::string(exp.what()));
+            PLog->error("App Error: %s --- %s", std::string(exp.what()), exp.getGeneralError());
         }
     }
 }
