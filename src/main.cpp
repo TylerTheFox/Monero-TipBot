@@ -57,11 +57,14 @@ void setup()
 
     // Load Language
     std::ifstream langin(LANG_CONFIG);
+    if (langin.is_open())
     {
-        cereal::JSONInputArchive ar(langin);
-        ar(CEREAL_NVP(GlobalLanguage));
+        {
+            cereal::JSONInputArchive ar(langin);
+            ar(CEREAL_NVP(GlobalLanguage));
+        }
+        langin.close();
     }
-    langin.close();
 
     // Coin Select
     std::ifstream in("coin_config.json");
