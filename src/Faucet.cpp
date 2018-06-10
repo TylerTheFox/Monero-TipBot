@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include <map>
 #include "Config.h"
 #include "RPCException.h"
+#include "Language.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Faucet::Faucet() : enabled(true)
@@ -87,7 +88,7 @@ const_iterator Faucet::cend() const
 void Faucet::help(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
 {
     const auto channelType = DiscordPtr->getDiscordChannelType(message.channelID);
-    const auto helpStr = TIPBOT::generateHelpText("Faucet Commands (use ``!give [amount] @Tip Bot`` to donate to faucet):\\n", Commands, channelType, message);
+    const auto helpStr = TIPBOT::generateHelpText(GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_HELP"), Commands, channelType, message);
     DiscordPtr->sendMessage(message.channelID, helpStr);
 }
 
@@ -121,19 +122,18 @@ void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, c
                     user.faucet_epoch_time = current.epochMicroseconds() + GlobalConfig.Faucet.timeout;
                     user.total_faucet_itns_sent += amount;
                     PLog->information("User %s was issued %0.8f %s with TX Hash %s", static_cast<std::string>(message.author.ID), amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
-                    ss << Poco::format("%s#%s: You have been granted %0.8f %s with TX Hash: %s :smiley:\\n", message.author.username, message.author.discriminator, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
+                    ss << Poco::format(GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_SUCCESS"), message.author.username, message.author.discriminator, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
                     DiscordPtr->saveUserList();
                 }
                 else if (myAccountPtr.getBalance())
-                    ss << "Bot has pending transactions, try again later. :disappointed_relieved: \\n";
-                else ss << "Bot is broke, try again later. :disappointed_relieved:\\n";
+                    ss << GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_PENDING_TRANSACTIONS");
+                else ss << GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_IS_BROKE");
             }
-            else ss << "Too soon! You're allowed one ``!take`` every " << GlobalConfig.Faucet.timeout / MICROSECOND_HOUR <<
-                " hours, remaining " << static_cast<double>(faucetTime - currentTime) / MICROSECOND_HOUR << " hours.\\n";
+            else ss << Poco::format(GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_TOO_SOON"), GlobalConfig.Faucet.timeout / MICROSECOND_HOUR, static_cast<double>(faucetTime - currentTime) / MICROSECOND_HOUR);
         }
-        else ss << "Your Discord account must be older than 7 days.\\n";
+        else ss << GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_ACCOUNT_NOT_MATURE");
     }
-    else ss << "Faucet Disabled!\\n";
+    else ss << GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_DISABLED");
     DiscordPtr->sendMessage(message.channelID, ss.str());
 }
 

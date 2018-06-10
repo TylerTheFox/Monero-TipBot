@@ -125,7 +125,7 @@ const DiscordUser & TIPBOT::findUser(const DiscordID & id)
             Poco::JSON::Object::Ptr object;
             object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
 
-            struct DiscordUser newUser;
+            struct DiscordUser newUser = {};
             newUser.username = object->getValue<std::string>("username");
             newUser.id = TIPBOT::convertSnowflakeToInt64(object->getValue<std::string>("id"));
             newUser.join_epoch_time = ((newUser.id >> 22) + 1420070400000) * 1000;
@@ -274,7 +274,7 @@ void getDiscordUsers(TIPBOT & me, std::set<DiscordUser> & myList, const SleepyDi
 {
     auto guildInfo = me.listMembers(snowyServer, limit, snowyUser).vector();
 
-    struct DiscordUser newUser;
+    struct DiscordUser newUser = {};
     for (auto user : guildInfo)
     {
         newUser.username = user.user.username;
@@ -391,4 +391,23 @@ void TIPBOT::loadUserList()
         }
         in.close();
     }
+}
+
+uint8_t TIPBOT::getUserLang(const DiscordID & id)
+{
+    // Find user
+    for (auto & server : UserList)
+    {
+        for (auto & user : server.second)
+        {
+            if (id == user.id) return user.language;
+        }
+    }
+
+    return 0;
+}
+
+uint8_t TIPBOT::getUserLang(const SleepyDiscord::Snowflake<SleepyDiscord::User> & usr)
+{
+    return getUserLang(convertSnowflakeToInt64(usr));
 }

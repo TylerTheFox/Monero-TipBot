@@ -31,8 +31,10 @@ GNU General Public License for more details.
 #include "Poco/AutoPtr.h"
 #include "Poco/FormattingChannel.h"
 #include "Poco/PatternFormatter.h"
-#define COIN_CONFIG "Coins/"
+#include "Language.h"
 
+#define COIN_CONFIG "Coins/"
+#define LANG_CONFIG "language.json"
 std::string coin_config;
 
 void setupLogging()
@@ -52,6 +54,14 @@ void setupLogging()
 void setup()
 {
     auto & logger = Poco::Logger::get("Setup");
+
+    // Load Language
+    std::ifstream langin(LANG_CONFIG);
+    {
+        cereal::JSONInputArchive ar(langin);
+        ar(CEREAL_NVP(GlobalLanguage));
+    }
+    langin.close();
 
     // Coin Select
     std::ifstream in("coin_config.json");

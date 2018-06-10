@@ -53,6 +53,8 @@ public:
     void                            About(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            BlockHeight(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
     void                            RestartWallet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                            ListLanguages(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                            SelectLanguage(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
 
     // Admin
     void                            ToggleWithdraw(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);

@@ -1,0 +1,191 @@
+{
+    "GlobalLanguage": {
+        "LocalLanguage": [
+            {
+                "LangName": "English",
+                "LangMap": [
+                    {
+                        "key": "TIP_HISTORY_INC_HEADER",
+                        "value": "Your Incoming Transactions (last 5): \\n"
+                    },
+                    {
+                        "key": "TIP_HELP_COMMAND",
+                        "value": "TipBot Commands:\\n"
+                    },
+                    {
+                        "key": "TIP_ADDRESS",
+                        "value": "%s#%s: Your %s Address is: %s"
+                    },
+                    {
+                        "key": "TIP_BALANCE",
+                        "value": "%s#%s: Your Balance is %0.8f %s and your Unlocked Balance is %0.8f %s"
+                    },
+                    {
+                        "key": "TIP_WITHDRAW_SUSPENDED",
+                        "value": "%s#%s: Withdraws aren't allowed at the moment."
+                    },
+                    {
+                        "key": "TIP_HISTORY_HEADER",
+                        "value": "```Amount | User | Block Height | TX Hash\\n"
+                    },
+                    {
+                        "key": "TIP_HISTORY_OUT_HEADER",
+                        "value": "\\nYour Outgoing Transactions (last 5): \\n"
+                    },
+                    {
+                        "key": "TIP_GIVE_SUCESS",
+                        "value": "%s#%s: Giving %0.8f %s to %s with TX Hash: %s :smiley:"
+                    },
+                    {
+                        "key": "TIP_WITHDRAW_SUCCESS",
+                        "value": "%s#%s: Withdraw Complete Sent %0.8f %s with TX Hash: %s :smiley:"
+                    },
+                    {
+                        "key": "FAUCET_HELP",
+                        "value": "Faucet Commands (use ``!give [amount] @Tip Bot`` to donate to faucet):\\n"
+                    },
+                    {
+                        "key": "TIP_GIVE_SUSPENDED",
+                        "value": "%s#%s: Give isn't allowed at the moment. :cold_sweat:"
+                    },
+                    {
+                        "key": "LOTTERY_TICKETS",
+                        "value": "You currently have %Lu active tickets."
+                    },
+                    {
+                        "key": "TIP_BLOCK_HEIGHT",
+                        "value": "Your wallet's current block height is: %?i"
+                    },
+                    {
+                        "key": "TIP_WALLET_RESTART_SUCCESS",
+                        "value": "Discord Wallet restarted successfully! It may take a minute to resync."
+                    },
+                    {
+                        "key": "TIP_WITHDRAW_TOGGLE",
+                        "value": "Withdraw Enabled: %b"
+                    },
+                    {
+                        "key": "TIP_GIVE_TOGGLE",
+                        "value": "Give Enabled: %b"
+                    },
+                    {
+                        "key": "TIP_RESCAN_SUCCESS",
+                        "value": "Rescan spent complete!"
+                    },
+                    {
+                        "key": "TIP_FAUCET_RESTART_SUCCESS",
+                        "value": "Faucet Restarted!"
+                    },
+                    {
+                        "key": "TIP_TOTAL_BALANCE",
+                        "value": "I currently manage %0.8f locked %s and %0.8f unlocked %s! (Excluding lottery)"
+                    },
+                    {
+                        "key": "LOTTERY_WON_WITHOUT_WINNER",
+                        "value": "There was no winner last lottery!"
+                    },
+                    {
+                        "key": "FAUCET_TAKE_IS_BROKE",
+                        "value": "Bot is broke, try again later. :disappointed_relieved:\\n"
+                    },
+                    {
+                        "key": "TIP_WALLET_SAVE_SUCCESS",
+                        "value": "Wallets saved!"
+                    },
+                    {
+                        "key": "TIP_RESTART_SUCCESSS",
+                        "value": "Restart Command sent!"
+                    },
+                    {
+                        "key": "TIP_SHUTDOWN_SUCCESSS",
+                        "value": "Shutdown Command sent! -- Good bye."
+                    },
+                    {
+                        "key": "FAUCET_TAKE_DISABLED",
+                        "value": "Faucet Disabled!\\n"
+                    },
+                    {
+                        "key": "TIP_WHOIS_USER",
+                        "value": "User %?i is %s"
+                    },
+                    {
+                        "key": "TIP_WHOIS_USER_NOT_FOUND",
+                        "value": "Unknown!"
+                    },
+                    {
+                        "key": "TIP_LIST_LANGUAGE",
+                        "value": "Language List:\\n"
+                    },
+                    {
+                        "key": "LOTTERY_SUSPEND_TOGGLE",
+                        "value": "Lottery Suspended: %b"
+                    },
+                    {
+                        "key": "TIP_LIST_LANGUAGE_FORMAT",
+                        "value": "%?i. %s\\n"
+                    },
+                    {
+                        "key": "TIP_LANGUAGE_SELECT_SUCCESS",
+                        "value": "Language Changed Successfully!\\n"
+                    },
+                    {
+                        "key": "TIP_LANGUAGE_SELECT_FAIL",
+                        "value": "Invalid Language!\\n"
+                    },
+                    {
+                        "key": "LOTTERY_WINNER",
+                        "value": "The winner is %?i"
+                    },
+                    {
+                        "key": "LOTTERY_GAME_INFO",
+                        "value": "Game Info:\\n```Minimum Ticket Cost %f %s\\nFaucet Donation: %f% of the reward\\nNo Winner: %f%% of the drawing will be no winner.\\nDays: Lottery starts on Saturday 12 AM UTC and end on Friday 6 PM UTC. Winners announced on Friday 9 PM UTC\\nIn the event of no winner the jackpot is rolled over to next drawing\\nWinner will be direct messaged.\\n```"
+                    },
+                    {
+                        "key": "LOTTERY_HELP",
+                        "value": "Lottery Commands:\\n"
+                    },
+                    {
+                        "key": "LOTTERY_JACKPOT",
+                        "value": "The current jackpot is: %0.8f"
+                    },
+                    {
+                        "key": "LOTTERY_BUY_TICKET_SUCCESS",
+                        "value": "%s#%s: Purchased %?i tickets for %0.8f %s with TX Hash: %s :smiley:"
+                    },
+                    {
+                        "key": "LOTTERY_SUSPENDED",
+                        "value": "Lottery is currently suspended."
+                    },
+                    {
+                        "key": "LOTTERY_WON_WITH_WINNER",
+                        "value": "There was a winner last lottery!"
+                    },
+                    {
+                        "key": "LOTTERY_CLOSED",
+                        "value": "Lottery is closed until 12 AM UTC."
+                    },
+                    {
+                        "key": "LOTTERY_LAST_WINNER",
+                        "value": "The last winner was: %?i"
+                    },
+                    {
+                        "key": "FAUCET_TAKE_SUCCESS",
+                        "value": "%s#%s: You have been granted %0.8f %s with TX Hash: %s :smiley:\\n"
+                    },
+                    {
+                        "key": "FAUCET_TAKE_PENDING_TRANSACTIONS",
+                        "value": "Bot has pending transactions, try again later. :disappointed_relieved: \\n"
+                    },
+                    {
+                        "key": "FAUCET_TAKE_TOO_SOON",
+                        "value": "Too soon! You're allowed one ``!take`` every %f hours, remaining %f hours."
+                    },
+                    {
+                        "key": "FAUCET_TAKE_ACCOUNT_NOT_MATURE",
+                        "value": "Your Discord account must be older than 7 days.\\n"
+                    }
+                ]
+            }
+        ]
+    }
+}

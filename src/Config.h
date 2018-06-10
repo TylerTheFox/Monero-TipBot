@@ -20,7 +20,7 @@ GNU General Public License for more details.
 #include "types.h"
 
 #define VERSION_MAJOR                           2
-#define VERSION_MINOR                           3
+#define VERSION_MINOR                           4
 
 struct AboutConfig
 {

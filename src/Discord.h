@@ -47,12 +47,30 @@ struct DiscordUser
     mutable std::uint64_t       total_itns_given{};
     mutable std::uint64_t       total_itns_recieved{};
     mutable std::uint64_t       total_itns_withdrawn{};
+    mutable std::uint8_t        language;
+
     template <class Archive>
-    void serialize(Archive & ar)
+    void save(Archive & ar) const
     {
-        ar( CEREAL_NVP(id), 
-            CEREAL_NVP(username), 
-            CEREAL_NVP(join_epoch_time), 
+        ar(CEREAL_NVP(id),
+            CEREAL_NVP(username),
+            CEREAL_NVP(join_epoch_time),
+            CEREAL_NVP(faucet_epoch_time),
+            CEREAL_NVP(total_faucet_itns_donated),
+            CEREAL_NVP(total_faucet_itns_sent),
+            CEREAL_NVP(total_itns_given),
+            CEREAL_NVP(total_itns_recieved),
+            CEREAL_NVP(total_itns_withdrawn),
+            CEREAL_NVP(language)
+        );
+    }
+
+    template <class Archive>
+    void load(Archive & ar)
+    {
+        ar(CEREAL_NVP(id),
+            CEREAL_NVP(username),
+            CEREAL_NVP(join_epoch_time),
             CEREAL_NVP(faucet_epoch_time),
             CEREAL_NVP(total_faucet_itns_donated),
             CEREAL_NVP(total_faucet_itns_sent),
@@ -60,6 +78,12 @@ struct DiscordUser
             CEREAL_NVP(total_itns_recieved),
             CEREAL_NVP(total_itns_withdrawn)
         );
+
+        if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 3)
+        {
+            ar(CEREAL_NVP(language));
+        }
+        else language = 0;
     }
 }; 
 
@@ -96,6 +120,9 @@ public:
     void                                            AppSave();
 
     std::uint64_t                                   totalFaucetAmount();
+
+    uint8_t                                         getUserLang(const SleepyDiscord::Snowflake<SleepyDiscord::User> & usr);
+    uint8_t                                         getUserLang(const DiscordID & usr);
 
     void                                            onMessage(SleepyDiscord::Message message);
     void                                            onReady(SleepyDiscord::Ready readyData);
