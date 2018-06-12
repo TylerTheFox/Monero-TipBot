@@ -10,8 +10,9 @@ addons:
       - g++-5
       - libcurl4-openssl-dev
       - openssl
-
+      - cmake
 script:
   - ls extern/sleepy-discord/lib/linux
   - ls extern/poco-1.9.0/lib/linux
-  - g++-5 src/*.cpp -pthread -I extern/sleepy-discord/include -I extern/poco-1.9.0/Foundation/include -I extern/poco-1.9.0/JSON/include -I extern/poco-1.9.0/Net/include -I extern/poco-1.9.0/Util/include -L extern/sleepy-discord/lib/linux -L extern/poco-1.9.0/lib/linux -std=c++11 -o bin/tipbot -lPocoJSON -lPocoUtil -lPocoNet -lPocoFoundation -lsleepy_discord -lcurl -lssl -lcrypto
+  - cmake .
+  - make
