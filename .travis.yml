@@ -12,6 +12,8 @@ addons:
       - libcurl4-openssl-dev
       - openssl
       - cmake
+env:
+ - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 script:
   - ls extern/sleepy-discord/lib/linux
   - ls extern/poco-1.9.0/lib/linux
