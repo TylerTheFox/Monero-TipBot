@@ -43,7 +43,7 @@ LanguageSelect::LanguageSelect()
 
                     // LOTTERY
                     LANGPAIR("LOTTERY_WINNER","The winner is %?i"),
-                    LANGPAIR("LOTTERY_GAME_INFO","Game Info:\\n```Minimum Ticket Cost %f %s\\nFaucet Donation: %f% of the reward\\nNo Winner: %f%% of the drawing will be no winner.\\nDays: Lottery starts on Saturday 12 AM UTC and end on Friday 6 PM UTC. Winners announced on Friday 9 PM UTC\\nIn the event of no winner the jackpot is rolled over to next drawing\\nWinner will be direct messaged.\\n```"),
+                    LANGPAIR("LOTTERY_GAME_INFO","Game Info:\\n```Minimum Ticket Cost %f %s\\nFaucet Donation: %f%% of the reward\\nNo Winner: %f%% of the drawing will be no winner.\\nDays: Lottery starts on Saturday 12 AM UTC and end on Friday 6 PM UTC. Winners announced on Friday 9 PM UTC\\nIn the event of no winner the jackpot is rolled over to next drawing\\nWinner will be direct messaged.\\n```"),
                     LANGPAIR("LOTTERY_HELP","Lottery Commands:\\n"),
                     LANGPAIR("LOTTERY_JACKPOT","The current jackpot is: %0.8f"),
                     LANGPAIR("LOTTERY_BUY_TICKET_SUCCESS","%s#%s: Purchased %?i tickets for %0.8f %s with TX Hash: %s :smiley:"),
