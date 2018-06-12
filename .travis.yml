@@ -1,7 +1,19 @@
 dist: trusty
-sudo: required
+sudo: true
 language: cpp
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-5
+      - gcc-5
+      - libcurl4-openssl-dev
+      - openssl
+      - cmake
+env:
+ - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 script:
   - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
   - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
@@ -9,12 +21,3 @@ script:
   - g++ --version
   - cmake .
   - make
-  addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-5
-    - g++-5
-    - libcurl4-openssl-dev
-    - cmake
