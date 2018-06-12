@@ -22,6 +22,8 @@ GNU General Public License for more details.
 #include <memory>
 #include "Poco/Logger.h"
 #include "Poco/AutoPtr.h"
+#include "Config.h"
+
 extern const char *aboutStr;
 const std::string AllowChannelTypeNames[] =
 {

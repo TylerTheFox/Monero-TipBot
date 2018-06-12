@@ -29,7 +29,6 @@ GNU General Public License for more details.
 #include "Poco/StringTokenizer.h"
 #include "Lottery.h"
 #include "Poco/ThreadTarget.h"
-#include "Config.h"
 #include "Poco/Exception.h"
 
 const char *aboutStr =
