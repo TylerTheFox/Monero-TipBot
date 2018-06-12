@@ -8,6 +8,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-5
+      - gcc-5
       - libcurl4-openssl-dev
       - openssl
       - cmake
