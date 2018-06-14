@@ -178,7 +178,7 @@
                     },
                     {
                         "key": "FAUCET_TAKE_TOO_SOON",
-                        "value": "Too soon! You're allowed one ``!take`` every %f hours, remaining %f hours."
+                        "value": "Too soon! You're allowed one ``!take`` every %?i hours, remaining %f hours."
                     },
                     {
                         "key": "FAUCET_TAKE_ACCOUNT_NOT_MATURE",

@@ -60,7 +60,7 @@ LanguageSelect::LanguageSelect()
                     LANGPAIR("FAUCET_TAKE_SUCCESS","%s#%s: You have been granted %0.8f %s with TX Hash: %s :smiley:\\n"),
                     LANGPAIR("FAUCET_TAKE_PENDING_TRANSACTIONS","Bot has pending transactions, try again later. :disappointed_relieved: \\n"),
                     LANGPAIR("FAUCET_TAKE_IS_BROKE","Bot is broke, try again later. :disappointed_relieved:\\n"),
-                    LANGPAIR("FAUCET_TAKE_TOO_SOON","Too soon! You're allowed one ``!take`` every %f hours, remaining %f hours."),
+                    LANGPAIR("FAUCET_TAKE_TOO_SOON","Too soon! You're allowed one ``!take`` every %?i hours, remaining %f hours."),
                     LANGPAIR("FAUCET_TAKE_ACCOUNT_NOT_MATURE","Your Discord account must be older than 7 days.\\n"),
                     LANGPAIR("FAUCET_TAKE_DISABLED","Faucet Disabled!\\n"),
                 }
