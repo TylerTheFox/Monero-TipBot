@@ -88,7 +88,7 @@ const_iterator Faucet::cend() const
 void Faucet::help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const
 {
     const auto helpStr = TIPBOT::generateHelpText(GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_HELP"), Commands, message);
-    DiscordPtr->sendMessage(message.Channel.id_str, helpStr);
+    DiscordPtr->SendMsg(message, helpStr);
 }
 
 void Faucet::take(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
@@ -133,7 +133,7 @@ void Faucet::take(TIPBOT * DiscordPtr, const UserMessage& message, const struct 
         else ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_ACCOUNT_NOT_MATURE");
     }
     else ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_DISABLED");
-    DiscordPtr->sendMessage(message.Channel.id_str, ss.str());
+    DiscordPtr->SendMsg(message, ss.str());
 }
 
 void Faucet::status(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
@@ -193,12 +193,12 @@ void Faucet::status(TIPBOT* DiscordPtr, const UserMessage& message, const Comman
     ss << "Faucet Enabled: " << enabled << ".\\n";
     ss << "```";
 
-    DiscordPtr->sendMessage(message.Channel.id_str, ss.str());
+    DiscordPtr->SendMsg(message, ss.str());
 }
 
 void Faucet::ToggleFaucet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
 {
     enabled = !enabled;
     PLog->information("Faucet Status: %b", enabled);
-    DiscordPtr->sendMessage(message.Channel.id_str, Poco::format("Faucet Enabled: %b", enabled));
+    DiscordPtr->SendMsg(message, Poco::format("Faucet Enabled: %b", enabled));
 }

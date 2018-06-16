@@ -149,41 +149,6 @@ bool TIPBOT::isUserAdmin(const UserMessage& message)
     return false;
 }
 
-void TIPBOT::CommandParseError(const UserMessage& message, const Command& me)
-{
-    PLog->warning("User command error: User %s gave '%s' expected format '%s'", message.User.id_str, message.Message, me.params);
-    sendMessage(message.Channel.id_str, Poco::format("Command Error --- Correct Usage: %s %s :cold_sweat:", me.name, me.params));
-}
-
-bool TIPBOT::isCommandAllowedToBeExecuted(const UserMessage& message, const Command& command)
-{
-    return !command.adminTools || (command.adminTools && (message.ChannelPerm == AllowChannelTypes::Private || command.ChannelPermission == AllowChannelTypes::Any) && TIPBOT::isUserAdmin(message));
-}
-
-std::string TIPBOT::generateHelpText(const std::string & title, const std::vector<Command>& cmds, const UserMessage& message)
-{
-    std::stringstream ss;
-    ss << title;
-    ss << "```";
-    for (auto cmd : cmds)
-    {
-        if (TIPBOT::isCommandAllowedToBeExecuted(message, cmd))
-        {
-            ss << cmd.name << " " << cmd.params;
-            if (cmd.ChannelPermission != AllowChannelTypes::Any)
-            {
-                ss << " -- " << AllowChannelTypeNames[cmd.ChannelPermission];
-            }
-            if (cmd.adminTools)
-            {
-                ss << " -- ADMIN ONLY";
-            }
-            ss << "\\n";
-        }
-    }
-    ss << "```";
-    return ss.str();
-}
 
 void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Command &)> & func, TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
 {
@@ -215,57 +180,103 @@ void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Com
     GlobalConfig.General.Threads--;
 }
 
-void TIPBOT::onMessage(SleepyDiscord::Message old_message)
+void TIPBOT::ProcessCommand(const UserMessage & message)
 {
-    // Dispatcher
-    auto msg = this->ConvertSleepyDiscordMsg(old_message);
-
-    if (!msg.Message.empty() && msg.Message.at(0) == '!')
+    for (const auto & ptr : Apps)
     {
-        for (const auto & ptr : Apps)
+        for (const auto & command : *ptr.get())
         {
-            for (const auto & command : *ptr.get())
+            try
             {
-                try
-                {
-                    Poco::StringTokenizer cmd(msg.Message, " ");
+                Poco::StringTokenizer cmd(message.Message, " ");
 
-                    if (command.name == Poco::toLower(cmd[0]))
+                if (command.name == Poco::toLower(cmd[0]))
+                {
+                    if ((command.ChannelPermission == AllowChannelTypes::Any) || (message.ChannelPerm == command.ChannelPermission))
                     {
-                        if ((command.ChannelPermission == AllowChannelTypes::Any) || (msg.ChannelPerm == command.ChannelPermission))
-                        {
-                            if (command.opensWallet)
-                                ptr->setAccount(&RPCMan->getAccount(msg.User.id));
-                            else  ptr->setAccount(nullptr);
+                        // Check if CLI is making the commands for the CLI command.
+                        // If not continue.
+                        if (command.ChannelPermission == AllowChannelTypes::CLI && message.ChannelPerm != AllowChannelTypes::CLI)
+                            break;
 
-                            if (TIPBOT::isCommandAllowedToBeExecuted(msg, command))
-                            {
-                                PLog->information("User %s issued command: %s", msg.User.id_str, msg.Message);
-                                // Create command thread
-                                std::thread t1(dispatcher, command.func, this, msg, command);
-                                t1.detach();
-                            }
+                        if (command.opensWallet)
+                            ptr->setAccount(&RPCMan->getAccount(message.User.id));
+                        else  ptr->setAccount(nullptr);
+
+                        if (TIPBOT::isCommandAllowedToBeExecuted(message, command))
+                        {
+                            PLog->information("User %s issued command: %s", message.User.id_str, message.Message);
+                            // Create command thread
+                            std::thread t1(dispatcher, command.func, this, message, command);
+                            t1.detach();
                         }
-                        break;
                     }
+                    break;
                 }
-                catch (const Poco::Exception & exp)
-                {
-                    PLog->error("Poco Error: --- %s", std::string(exp.what()));
-                    sendMessage(msg.Channel.id_str, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
-                }
-                catch (const SleepyDiscord::ErrorCode & exp)
-                {
-                    PLog->error("Sleepy Discord Error: --- %?i", exp);
-                }
-                catch (AppGeneralException & exp)
-                {
-                    PLog->error("App Error: --- %s: %s", std::string(exp.what()), exp.getGeneralError());
-                    sendMessage(msg.Channel.id_str, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
-                }
+            }
+            catch (const Poco::Exception & exp)
+            {
+                PLog->error("Poco Error: --- %s", std::string(exp.what()));
+                sendMessage(message.Channel.id_str, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
+            }
+            catch (const SleepyDiscord::ErrorCode & exp)
+            {
+                PLog->error("Sleepy Discord Error: --- %?i", exp);
+            }
+            catch (AppGeneralException & exp)
+            {
+                PLog->error("App Error: --- %s: %s", std::string(exp.what()), exp.getGeneralError());
+                sendMessage(message.Channel.id_str, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
             }
         }
     }
+}
+
+void TIPBOT::CommandParseError(const UserMessage& message, const Command& me)
+{
+    PLog->warning("User command error: User %s gave '%s' expected format '%s'", message.User.id_str, message.Message, me.params);
+    sendMessage(message.Channel.id_str, Poco::format("Command Error --- Correct Usage: %s %s :cold_sweat:", me.name, me.params));
+}
+
+bool TIPBOT::isCommandAllowedToBeExecuted(const UserMessage& message, const Command& command)
+{
+    return !command.adminTools || (command.adminTools && (message.ChannelPerm == AllowChannelTypes::Private || command.ChannelPermission == AllowChannelTypes::Any) && TIPBOT::isUserAdmin(message));
+}
+
+std::string TIPBOT::generateHelpText(const std::string & title, const std::vector<Command>& cmds, const UserMessage& message)
+{
+    std::stringstream ss;
+    ss << title;
+    ss << "```";
+    for (auto cmd : cmds)
+    {
+        if (TIPBOT::isCommandAllowedToBeExecuted(message, cmd))
+        {
+            // Check if CLI is making the commands for the CLI command.
+            // If not continue.
+            if (cmd.ChannelPermission == AllowChannelTypes::CLI && message.ChannelPerm != AllowChannelTypes::CLI)
+                continue;
+
+            ss << cmd.name << " " << cmd.params;
+            if (cmd.ChannelPermission != AllowChannelTypes::Any && cmd.ChannelPermission != AllowChannelTypes::CLI)
+            {
+                ss << " -- " << AllowChannelTypeNames[cmd.ChannelPermission];
+            }
+            if (cmd.adminTools)
+            {
+                ss << " -- ADMIN ONLY";
+            }
+            ss << "\\n";
+        }
+    }
+    ss << "```";
+    return ss.str();
+}
+
+void TIPBOT::onMessage(SleepyDiscord::Message old_message)
+{
+    if (!old_message.content.empty() && old_message.content.at(0) == '!')
+        ProcessCommand(ConvertSleepyDiscordMsg(old_message));
 }
 
 #define DISCORD_MAX_GET_USERS 1000
@@ -365,6 +376,19 @@ void TIPBOT::AppSave()
         app->save();
 }
 
+void TIPBOT::SendMsg(const UserMessage & data, std::string message)
+{
+    if (data.ChannelPerm == AllowChannelTypes::CLI)
+    {
+        // Replace Discord's \\n with normal newline.
+        PLog->information(Poco::replace(message, "\\n", "\n"));
+    }
+    else
+    {
+        sendMessage(data.Channel.id_str, message);
+    }
+}
+
 std::uint64_t TIPBOT::totalFaucetAmount()
 {
     std::uint64_t amount = 0;
@@ -400,7 +424,9 @@ UserMessage TIPBOT::ConvertSleepyDiscordMsg(const SleepyDiscord::Message & messa
     UsrMsg.User.id = convertSnowflakeToInt64(UsrMsg.User.id_str);
     UsrMsg.User.username = message.author.username;
     UsrMsg.User.discriminator = message.author.discriminator;
-    UsrMsg.ChannelPerm = static_cast<AllowChannelTypes>(getDiscordChannelType(UsrMsg.User.id_str));
+    UsrMsg.Channel.id_str = message.channelID;
+    UsrMsg.Channel.id = convertSnowflakeToInt64(UsrMsg.Channel.id_str);
+    UsrMsg.ChannelPerm = static_cast<AllowChannelTypes>(getDiscordChannelType(UsrMsg.Channel.id_str));
     UsrMsg.Message = message.content;
 
     Snowflake m;

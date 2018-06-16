@@ -33,6 +33,7 @@ const std::string AllowChannelTypeNames[] =
 
 enum AllowChannelTypes
 {
+    CLI = -2,
     Any = -1,
     Public = 0,
     Private = 1
@@ -131,12 +132,15 @@ public:
     static DiscordID                                convertSnowflakeToInt64(t id);
     const struct DiscordUser &                      findUser(const DiscordID & id);
     static bool                                     isUserAdmin(const UserMessage& message);
+    void                                            ProcessCommand(const UserMessage& message);
     void                                            CommandParseError(const UserMessage& message, const struct Command & me);
     static bool                                     isCommandAllowedToBeExecuted(const UserMessage& message, const Command& command);
     static std::string                              generateHelpText(const std::string & title, const std::vector<Command>& cmds, const UserMessage& message);
     void                                            saveUserList();
     const struct TopTakerStruct                     findTopTaker();
     void                                            AppSave();
+
+    void                                            SendMsg(const UserMessage& data, std::string message);
 
     std::uint64_t                                   totalFaucetAmount();
 

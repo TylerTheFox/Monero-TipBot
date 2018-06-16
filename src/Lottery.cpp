@@ -175,6 +175,8 @@ void Lottery::run()
                                 lastWinningTopBlock = txs.tx_in.begin()->block_height;
                                 const std::uint64_t reward = bal - (bal * GlobalConfig.Lottery.donation_percent);
                                 auto WinnerAccount = RPCMan->getAccount(winner);
+                                
+                                // TODO FIX
                                 DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(winner), Poco::format("You've won %0.8f %s from the lottery! :money_with_wings:", reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
                                 LotteryAccount->MyAccount.transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
                                 prevWinner = winner;
@@ -241,14 +243,14 @@ void Lottery::run()
 
 void Lottery::gameInfo(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
 {
-    DiscordPtr->sendMessage(message.Channel.id_str, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_GAME_INFO"), GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, GlobalConfig.Lottery.donation_percent * 100, GlobalConfig.Lottery.no_winner_chance * 100));
+    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_GAME_INFO"), GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, GlobalConfig.Lottery.donation_percent * 100, GlobalConfig.Lottery.no_winner_chance * 100));
 }
 
 void Lottery::LotteryHelp(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
 {
     const auto channelType = DiscordPtr->getDiscordChannelType(message.Channel.id_str);
     const auto helpStr = TIPBOT::generateHelpText(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_HELP"), Commands, message);
-    DiscordPtr->sendMessage(message.Channel.id_str, helpStr);
+    DiscordPtr->SendMsg(message, helpStr);
 }
 
 void Lottery::Jackpot(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
@@ -263,7 +265,7 @@ void Lottery::Jackpot(TIPBOT* DiscordPtr, const UserMessage& message, const Comm
             bal += tx.amount;
         }
     }
-    DiscordPtr->sendMessage(message.Channel.id_str, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_JACKPOT"), bal / GlobalConfig.RPC.coin_offset));
+    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_JACKPOT"), bal / GlobalConfig.RPC.coin_offset));
 }
 
 void Lottery::BuyTicket(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
@@ -282,12 +284,12 @@ void Lottery::BuyTicket(TIPBOT* DiscordPtr, const UserMessage& message, const Co
                 LotteryAccount->MyAccount.resyncAccount();
                 const auto tickets = Poco::NumberParser::parseUnsigned(cmd[1]);
                 const auto tx = currentUsrAccount->transferMoneyToAddress((tickets * GlobalConfig.Lottery.ticket_cost) * GlobalConfig.RPC.coin_offset, LotteryAccount->MyAccount.getMyAddress());
-                DiscordPtr->sendMessage(message.Channel.id_str, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_BUY_TICKET_SUCCESS"), message.User.username, message.User.discriminator, tickets, tickets * GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
+                DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_BUY_TICKET_SUCCESS"), message.User.username, message.User.discriminator, tickets, tickets * GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
             }
         }
-        else DiscordPtr->sendMessage(message.Channel.id_str, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_SUSPENDED"));
+        else DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_SUSPENDED"));
     }
-    else DiscordPtr->sendMessage(message.Channel.id_str, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_CLOSED"));
+    else DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_CLOSED"));
 }
 
 void Lottery::MyTickets(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
@@ -304,20 +306,20 @@ void Lottery::MyTickets(TIPBOT* DiscordPtr, const UserMessage& message, const Co
             bal += tx.amount;
         }
     }
-    DiscordPtr->sendMessage(message.Channel.id_str, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_TICKETS"), static_cast<uint64_t>((bal / GlobalConfig.RPC.coin_offset) / GlobalConfig.Lottery.ticket_cost)));
+    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_TICKETS"), static_cast<uint64_t>((bal / GlobalConfig.RPC.coin_offset) / GlobalConfig.Lottery.ticket_cost)));
 }
 
 void Lottery::LotteryWon(TIPBOT * DiscordPtr, const UserMessage& message, const Command & me) const
 {
     if (prevWinner)
-        DiscordPtr->sendMessage(message.Channel.id_str, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_WON_WITH_WINNER"));
+        DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_WON_WITH_WINNER"));
     else 
-        DiscordPtr->sendMessage(message.Channel.id_str, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_WON_WITHOUT_WINNER"));
+        DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_WON_WITHOUT_WINNER"));
 }
 
 void Lottery::lastWinner(TIPBOT * DiscordPtr, const UserMessage& message, const Command & me) const
 {
-    DiscordPtr->sendMessage(message.Channel.id_str, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_LAST_WINNER"), prevWinner));
+    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_LAST_WINNER"), prevWinner));
 }
 
 void Lottery::ToggleLotterySuspend(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me)
@@ -325,5 +327,5 @@ void Lottery::ToggleLotterySuspend(TIPBOT* DiscordPtr, const UserMessage& messag
     lotterySuspended = !lotterySuspended;    
     PLog->information("Lottery Status: %b", lotterySuspended);
     DiscordPtr->AppSave();
-    DiscordPtr->sendMessage(message.Channel.id_str, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_SUSPEND_TOGGLE"), lotterySuspended));
+    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_SUSPEND_TOGGLE"), lotterySuspended));
 }
