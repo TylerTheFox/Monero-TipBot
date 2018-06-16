@@ -259,7 +259,6 @@ void Lottery::gameInfo(TIPBOT* DiscordPtr, const UserMessage& message, const Com
 
 void Lottery::LotteryHelp(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
 {
-    const auto channelType = DiscordPtr->getDiscordChannelType(message.Channel.id_str);
     const auto helpStr = TIPBOT::generateHelpText(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_HELP"), Commands, message);
     DiscordPtr->SendMsg(message, helpStr);
 }
