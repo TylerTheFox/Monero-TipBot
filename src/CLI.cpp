@@ -24,15 +24,42 @@ void CLI::cli_main()
 {
     GlobalConfig.General.Threads++;
 
-    std::string buffer;
+    static std::string buffer;
+    static bool input_thread_active = false;
+    static Poco::Mutex mu;
+
+    if (!input_thread_active)
+    {
+        // Create CLI thread
+        std::thread t1([&]()
+        {
+            while (true)
+            {
+                mu.lock();
+                std::getline(std::cin, buffer);
+                mu.unlock();
+                Poco::Thread::sleep(10);
+            }
+        });
+        t1.detach();
+        input_thread_active = true;
+    }
+
+    std::string loc_buff;
     while (!GlobalConfig.General.Shutdown)
     {
-        std::getline(std::cin, buffer);
-        if (!buffer.empty())
+        if (mu.tryLock())
         {
-            PLog->information(buffer);
-            DiscordPtr->ProcessCommand(generateUsrMsg(buffer));
+            loc_buff = buffer;
+            buffer.clear();
+            mu.unlock();
+            if (!loc_buff.empty())
+            {
+                PLog->information(loc_buff);
+                DiscordPtr->ProcessCommand(generateUsrMsg(loc_buff));
+            }
         }
+        Poco::Thread::sleep(1);
     }
 
     GlobalConfig.General.Threads--;
