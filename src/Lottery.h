@@ -35,15 +35,15 @@ public:
 
     void                                run();
 
-    void                                gameInfo(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                LotteryHelp(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                Jackpot(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                BuyTicket(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                MyTickets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                LotteryWon(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
+    void                                gameInfo(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                LotteryHelp(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                Jackpot(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                BuyTicket(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                MyTickets(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                LotteryWon(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
 
-    void                                lastWinner(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                ToggleLotterySuspend(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                                lastWinner(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                ToggleLotterySuspend(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 private:
     Poco::Logger*                   PLog;
     TIPBOT *                        DiscordPtr;

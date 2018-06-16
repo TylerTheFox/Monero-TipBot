@@ -37,10 +37,10 @@ public:
     const_iterator                      end() const;
     const_iterator                      cend() const;
 
-    void                                help(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                                status(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const;
-    void                                ToggleFaucet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                                help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                take(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                status(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                ToggleFaucet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 private:
     Poco::Logger*                   PLog;
     bool                            enabled;

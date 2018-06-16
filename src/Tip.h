@@ -42,31 +42,31 @@ public:
     const_iterator                  cend() const;
     void                            setAccount(Account *);
 
-    void                            Help(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            Balance(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            MyAddress(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            History(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            Withdraw(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            WithdrawAll(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            Give(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            GiveAll(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            About(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            BlockHeight(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            RestartWallet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            ListLanguages(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            SelectLanguage(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                            Help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            Balance(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            MyAddress(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            History(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            Withdraw(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            WithdrawAll(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            Give(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            GiveAll(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            About(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            BlockHeight(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            RestartWallet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            ListLanguages(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            SelectLanguage(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 
     // Admin
-    void                            ToggleWithdraw(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            ToggleGive(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            RescanAllWallets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            TotalBalance(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            SaveWallets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            RestartFaucetWallet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            SoftRestartBot(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            Shutdown(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            RPCStatus(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
-    void                            WhoIs(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me);
+    void                            ToggleWithdraw(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            ToggleGive(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            RescanAllWallets(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            TotalBalance(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            SaveWallets(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            RestartFaucetWallet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            SoftRestartBot(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            Shutdown(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            RPCStatus(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            WhoIs(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 
     private:
     Settings                        globalSettings{};

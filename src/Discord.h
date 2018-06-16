@@ -100,6 +100,23 @@ inline bool operator<(const DiscordUser &a, const DiscordUser &b)
     return a.id < b.id;
 }
 
+struct Snowflake
+{
+    DiscordID               id;
+    std::string             id_str;
+    std::string             username;
+    std::string             discriminator;
+};
+
+struct UserMessage
+{
+    enum AllowChannelTypes  ChannelPerm;
+    struct Snowflake        User;
+    Snowflake               Channel;
+    std::string             Message;
+    std::vector<Snowflake>  Mentions;
+};
+
 class AppBaseClass;
 #define DISCORD_USER_CACHE_FILENAME "DISCORDDATA.json"
 class TIPBOT : public SleepyDiscord::DiscordClient {
@@ -113,10 +130,10 @@ public:
     template<class t>
     static DiscordID                                convertSnowflakeToInt64(t id);
     const struct DiscordUser &                      findUser(const DiscordID & id);
-    static bool                                     isUserAdmin(const SleepyDiscord::Message & message);
-    void                                            CommandParseError(const SleepyDiscord::Message& message, const struct Command & me);
-    static bool                                     isCommandAllowedToBeExecuted(const SleepyDiscord::Message & message, const Command& command, int channelType);
-    static std::string                              generateHelpText(const std::string & title, const std::vector<Command>& cmds, int ChannelType, const SleepyDiscord::Message& message);
+    static bool                                     isUserAdmin(const UserMessage& message);
+    void                                            CommandParseError(const UserMessage& message, const struct Command & me);
+    static bool                                     isCommandAllowedToBeExecuted(const UserMessage& message, const Command& command);
+    static std::string                              generateHelpText(const std::string & title, const std::vector<Command>& cmds, const UserMessage& message);
     void                                            saveUserList();
     const struct TopTakerStruct                     findTopTaker();
     void                                            AppSave();
@@ -137,6 +154,8 @@ private:
     void                                            init();
     void                                            refreshUserList();
     void                                            loadUserList();
+
+    struct UserMessage                              ConvertSleepyDiscordMsg(const SleepyDiscord::Message & message);
 };
 
 template<class t>
@@ -148,7 +167,7 @@ DiscordID TIPBOT::convertSnowflakeToInt64(t id)
 struct Command
 {
     std::string                                                                         name;
-    std::function<void(TIPBOT *, const SleepyDiscord::Message &, const Command &)> func;
+    std::function<void(TIPBOT *, const UserMessage&, const Command &)>                  func;
     std::string                                                                         params;
     bool                                                                                opensWallet;
     bool                                                                                adminTools;

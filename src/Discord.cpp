@@ -138,9 +138,9 @@ const DiscordUser & TIPBOT::findUser(const DiscordID & id)
     return UknownUser;
 }
 
-bool TIPBOT::isUserAdmin(const SleepyDiscord::Message& message)
+bool TIPBOT::isUserAdmin(const UserMessage& message)
 {
-    auto myid = convertSnowflakeToInt64(message.author.ID);
+    auto myid = message.User.id;
     for (auto adminid : GlobalConfig.General.Admins)
     {
         if (myid == adminid)
@@ -149,25 +149,25 @@ bool TIPBOT::isUserAdmin(const SleepyDiscord::Message& message)
     return false;
 }
 
-void TIPBOT::CommandParseError(const SleepyDiscord::Message& message, const Command& me)
+void TIPBOT::CommandParseError(const UserMessage& message, const Command& me)
 {
-    PLog->warning("User command error: User %s gave '%s' expected format '%s'", static_cast<std::string>(message.author.ID), message.content, me.params);
-    sendMessage(message.channelID, Poco::format("Command Error --- Correct Usage: %s %s :cold_sweat:", me.name, me.params));
+    PLog->warning("User command error: User %s gave '%s' expected format '%s'", message.User.id_str, message.Message, me.params);
+    sendMessage(message.Channel.id_str, Poco::format("Command Error --- Correct Usage: %s %s :cold_sweat:", me.name, me.params));
 }
 
-bool TIPBOT::isCommandAllowedToBeExecuted(const SleepyDiscord::Message& message, const Command& command, int channelType)
+bool TIPBOT::isCommandAllowedToBeExecuted(const UserMessage& message, const Command& command)
 {
-    return !command.adminTools || (command.adminTools && (channelType == AllowChannelTypes::Private || command.ChannelPermission == AllowChannelTypes::Any) && TIPBOT::isUserAdmin(message));
+    return !command.adminTools || (command.adminTools && (message.ChannelPerm == AllowChannelTypes::Private || command.ChannelPermission == AllowChannelTypes::Any) && TIPBOT::isUserAdmin(message));
 }
 
-std::string TIPBOT::generateHelpText(const std::string & title, const std::vector<Command>& cmds, int ChannelType, const SleepyDiscord::Message& message)
+std::string TIPBOT::generateHelpText(const std::string & title, const std::vector<Command>& cmds, const UserMessage& message)
 {
     std::stringstream ss;
     ss << title;
     ss << "```";
     for (auto cmd : cmds)
     {
-        if (TIPBOT::isCommandAllowedToBeExecuted(message, cmd, ChannelType))
+        if (TIPBOT::isCommandAllowedToBeExecuted(message, cmd))
         {
             ss << cmd.name << " " << cmd.params;
             if (cmd.ChannelPermission != AllowChannelTypes::Any)
@@ -185,7 +185,7 @@ std::string TIPBOT::generateHelpText(const std::string & title, const std::vecto
     return ss.str();
 }
 
-void dispatcher(const std::function<void(TIPBOT *, const SleepyDiscord::Message &, const Command &)> & func, TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Command &)> & func, TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
 {
     static Poco::Logger & tlog = Poco::Logger::get("CommandDispatch");
     GlobalConfig.General.Threads++;
@@ -199,7 +199,7 @@ void dispatcher(const std::function<void(TIPBOT *, const SleepyDiscord::Message 
         catch (const Poco::Exception & exp)
         {
             tlog.error("Poco Error: --- %s", std::string(exp.what()));
-            DiscordPtr->sendMessage(message.channelID, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
+            DiscordPtr->sendMessage(message.Channel.id_str, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
         }
         catch (const SleepyDiscord::ErrorCode & exp)
         {
@@ -208,41 +208,41 @@ void dispatcher(const std::function<void(TIPBOT *, const SleepyDiscord::Message 
         catch (AppGeneralException & exp)
         {
             tlog.error("App Error: --- %s: %s", std::string(exp.what()), exp.getGeneralError());
-            DiscordPtr->sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
+            DiscordPtr->sendMessage(message.Channel.id_str, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
         }
     }
 
     GlobalConfig.General.Threads--;
 }
 
-void TIPBOT::onMessage(SleepyDiscord::Message message)
+void TIPBOT::onMessage(SleepyDiscord::Message old_message)
 {
     // Dispatcher
-    if (!message.content.empty() && message.content.at(0) == '!')
+    auto msg = this->ConvertSleepyDiscordMsg(old_message);
+
+    if (!msg.Message.empty() && msg.Message.at(0) == '!')
     {
-        int channelType;
         for (const auto & ptr : Apps)
         {
             for (const auto & command : *ptr.get())
             {
                 try
                 {
-                    Poco::StringTokenizer cmd(message.content, " ");
+                    Poco::StringTokenizer cmd(msg.Message, " ");
 
                     if (command.name == Poco::toLower(cmd[0]))
                     {
-                        channelType = getDiscordChannelType(message.channelID);
-                        if ((command.ChannelPermission == AllowChannelTypes::Any) || (channelType == command.ChannelPermission))
+                        if ((command.ChannelPermission == AllowChannelTypes::Any) || (msg.ChannelPerm == command.ChannelPermission))
                         {
                             if (command.opensWallet)
-                                ptr->setAccount(&RPCMan->getAccount(convertSnowflakeToInt64(message.author.ID)));
+                                ptr->setAccount(&RPCMan->getAccount(msg.User.id));
                             else  ptr->setAccount(nullptr);
 
-                            if (TIPBOT::isCommandAllowedToBeExecuted(message, command, channelType))
+                            if (TIPBOT::isCommandAllowedToBeExecuted(msg, command))
                             {
-                                PLog->information("User %s issued command: %s", static_cast<std::string>(message.author.ID), message.content);
+                                PLog->information("User %s issued command: %s", msg.User.id_str, msg.Message);
                                 // Create command thread
-                                std::thread t1(dispatcher, command.func, this, message, command);
+                                std::thread t1(dispatcher, command.func, this, msg, command);
                                 t1.detach();
                             }
                         }
@@ -252,7 +252,7 @@ void TIPBOT::onMessage(SleepyDiscord::Message message)
                 catch (const Poco::Exception & exp)
                 {
                     PLog->error("Poco Error: --- %s", std::string(exp.what()));
-                    sendMessage(message.channelID, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
+                    sendMessage(msg.Channel.id_str, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
                 }
                 catch (const SleepyDiscord::ErrorCode & exp)
                 {
@@ -261,7 +261,7 @@ void TIPBOT::onMessage(SleepyDiscord::Message message)
                 catch (AppGeneralException & exp)
                 {
                     PLog->error("App Error: --- %s: %s", std::string(exp.what()), exp.getGeneralError());
-                    sendMessage(message.channelID, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
+                    sendMessage(msg.Channel.id_str, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
                 }
             }
         }
@@ -390,6 +390,28 @@ void TIPBOT::loadUserList()
         }
         in.close();
     }
+}
+
+UserMessage TIPBOT::ConvertSleepyDiscordMsg(const SleepyDiscord::Message & message)
+{
+    UserMessage UsrMsg = {};
+
+    UsrMsg.User.id_str = message.author.ID;
+    UsrMsg.User.id = convertSnowflakeToInt64(UsrMsg.User.id_str);
+    UsrMsg.User.username = message.author.username;
+    UsrMsg.User.discriminator = message.author.discriminator;
+    UsrMsg.ChannelPerm = static_cast<AllowChannelTypes>(getDiscordChannelType(UsrMsg.User.id_str));
+    UsrMsg.Message = message.content;
+
+    Snowflake m;
+    for (auto men : message.mentions)
+    {
+        m.id_str = men.ID;
+        m.id = convertSnowflakeToInt64(men.ID);
+        UsrMsg.Mentions.emplace_back(m);
+    }
+
+    return UsrMsg;
 }
 
 uint8_t TIPBOT::getUserLang(const DiscordID & id)

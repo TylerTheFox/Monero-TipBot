@@ -85,14 +85,13 @@ const_iterator Faucet::cend() const
 
 }
 
-void Faucet::help(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me) const
+void Faucet::help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const
 {
-    const auto channelType = DiscordPtr->getDiscordChannelType(message.channelID);
-    const auto helpStr = TIPBOT::generateHelpText(GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_HELP"), Commands, channelType, message);
-    DiscordPtr->sendMessage(message.channelID, helpStr);
+    const auto helpStr = TIPBOT::generateHelpText(GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_HELP"), Commands, message);
+    DiscordPtr->sendMessage(message.Channel.id_str, helpStr);
 }
 
-void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+void Faucet::take(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
 {
     std::stringstream ss;
     if (enabled)
@@ -101,7 +100,7 @@ void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, c
 
         myAccountPtr.resyncAccount();
 
-        const auto & user = DiscordPtr->findUser(TIPBOT::convertSnowflakeToInt64(message.author.ID));
+        const auto & user = DiscordPtr->findUser(message.User.id);
         const Poco::Timestamp   current;
         const std::uint64_t     currentTime = current.epochMicroseconds();
         const auto&             joinTime = user.join_epoch_time;
@@ -118,29 +117,29 @@ void Faucet::take(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, c
                 if (myAccountPtr.getUnlockedBalance())
                 {
                     const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*GlobalConfig.Faucet.percentage_allowance);
-                    const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(TIPBOT::convertSnowflakeToInt64(message.author.ID)));
+                    const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(message.User.id));
                     user.faucet_epoch_time = current.epochMicroseconds() + GlobalConfig.Faucet.timeout;
                     user.total_faucet_itns_sent += amount;
-                    PLog->information("User %s was issued %0.8f %s with TX Hash %s", static_cast<std::string>(message.author.ID), amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
-                    ss << Poco::format(GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_SUCCESS"), message.author.username, message.author.discriminator, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
+                    PLog->information("User %s was issued %0.8f %s with TX Hash %s", message.User.id_str, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
+                    ss << Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_SUCCESS"), message.User.username, message.User.discriminator, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
                     DiscordPtr->saveUserList();
                 }
                 else if (myAccountPtr.getBalance())
-                    ss << GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_PENDING_TRANSACTIONS");
-                else ss << GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_IS_BROKE");
+                    ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_PENDING_TRANSACTIONS");
+                else ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_IS_BROKE");
             }
-            else ss << Poco::format(GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_TOO_SOON"), GlobalConfig.Faucet.timeout / MICROSECOND_HOUR, static_cast<double>(faucetTime - currentTime) / MICROSECOND_HOUR);
+            else ss << Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_TOO_SOON"), GlobalConfig.Faucet.timeout / MICROSECOND_HOUR, static_cast<double>(faucetTime - currentTime) / MICROSECOND_HOUR);
         }
-        else ss << GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_ACCOUNT_NOT_MATURE");
+        else ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_ACCOUNT_NOT_MATURE");
     }
-    else ss << GETSTR(DiscordPtr->getUserLang(message.author.ID), "FAUCET_TAKE_DISABLED");
-    DiscordPtr->sendMessage(message.channelID, ss.str());
+    else ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_DISABLED");
+    DiscordPtr->sendMessage(message.Channel.id_str, ss.str());
 }
 
-void Faucet::status(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me) const
+void Faucet::status(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
 {
     auto & myAccountPtr = RPCManager::getGlobalBotAccount();
-    const auto & user = DiscordPtr->findUser(TIPBOT::convertSnowflakeToInt64(message.author.ID));
+    const auto & user = DiscordPtr->findUser(message.User.id);
 
     std::stringstream ss;
     ss.precision(8);
@@ -194,12 +193,12 @@ void Faucet::status(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, c
     ss << "Faucet Enabled: " << enabled << ".\\n";
     ss << "```";
 
-    DiscordPtr->sendMessage(message.channelID, ss.str());
+    DiscordPtr->sendMessage(message.Channel.id_str, ss.str());
 }
 
-void Faucet::ToggleFaucet(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const struct Command & me)
+void Faucet::ToggleFaucet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
 {
     enabled = !enabled;
     PLog->information("Faucet Status: %b", enabled);
-    DiscordPtr->sendMessage(message.channelID, Poco::format("Faucet Enabled: %b", enabled));
+    DiscordPtr->sendMessage(message.Channel.id_str, Poco::format("Faucet Enabled: %b", enabled));
 }
