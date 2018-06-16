@@ -92,8 +92,7 @@ public:
     static const RPC&                       getGlobalBotRPC();
     static       Account &                  getGlobalBotAccount();
     const DiscordID &                       getBotDiscordID();
-    std::uint64_t                           getTotalBalance();
-    std::uint64_t                           getTotalUnlockedBalance();
+    BalanceRet                              getTotalBalance();
 
     virtual void                            run();
     static std::shared_ptr<RPCProc>         manuallyCreateRPC(const std::string & walletname, unsigned short port);

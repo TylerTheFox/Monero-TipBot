@@ -238,7 +238,8 @@ void Tip::RescanAllWallets(TIPBOT* DiscordPtr, const SleepyDiscord::Message& mes
 
 void Tip::TotalBalance(TIPBOT* DiscordPtr, const SleepyDiscord::Message& message, const Command& me)
 {
-    DiscordPtr->sendMessage(message.channelID, Poco::format(GETSTR(DiscordPtr->getUserLang(message.author.ID), "TIP_TOTAL_BALANCE"), RPCMan->getTotalBalance() / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, RPCMan->getTotalUnlockedBalance() / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
+    auto bal = RPCMan->getTotalBalance();
+    DiscordPtr->sendMessage(message.channelID, Poco::format(GETSTR(DiscordPtr->getUserLang(message.author.ID), "TIP_TOTAL_BALANCE"), bal.Balance / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, bal.UnlockedBalance / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
 }
 
 void Tip::SaveWallets(TIPBOT * DiscordPtr, const SleepyDiscord::Message & message, const Command & me)
