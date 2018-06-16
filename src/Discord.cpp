@@ -107,33 +107,40 @@ std::string TIPBOT::getDiscordDMChannel(DiscordID id)
 DiscordUser UknownUser = { 0, FIND_USER_UNKNOWN_USER, 0 };
 const DiscordUser & TIPBOT::findUser(const DiscordID & id)
 {
-    if (id > 0)
+    try
     {
-        // Find user
-        for (auto & server : UserList)
+        if (id > 0)
         {
-            for (auto & user : server.second)
+            // Find user
+            for (auto & server : UserList)
             {
-                if (id == user.id) return user;
+                for (auto & user : server.second)
+                {
+                    if (id == user.id) return user;
+                }
+            }
+
+            // User not found... Try and pull from Discord API
+            auto response = getUser(Poco::format("%?i", id));
+            if (response.statusCode == 200)
+            {
+                Poco::JSON::Parser      parser;
+                Poco::JSON::Object::Ptr object;
+                object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
+
+                struct DiscordUser newUser = {};
+                newUser.username = object->getValue<std::string>("username");
+                newUser.id = TIPBOT::convertSnowflakeToInt64(object->getValue<std::string>("id"));
+                newUser.join_epoch_time = ((newUser.id >> 22) + 1420070400000) * 1000;
+                auto ret = UserList.begin()->second.insert(newUser);
+                saveUserList();
+                return *ret.first;
             }
         }
-
-        // User not found... Try and pull from Discord API
-        auto response = getUser(Poco::format("%?i", id));
-        if (response.statusCode == 200)
-        {
-            Poco::JSON::Parser      parser;
-            Poco::JSON::Object::Ptr object;
-            object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
-
-            struct DiscordUser newUser = {};
-            newUser.username = object->getValue<std::string>("username");
-            newUser.id = TIPBOT::convertSnowflakeToInt64(object->getValue<std::string>("id"));
-            newUser.join_epoch_time = ((newUser.id >> 22) + 1420070400000) * 1000;
-            auto ret = UserList.begin()->second.insert(newUser);
-            saveUserList();
-            return *ret.first;
-        }
+    }
+    catch (...)
+    {
+        PLog->error("Error finding user!");
     }
 
     // No idea.
