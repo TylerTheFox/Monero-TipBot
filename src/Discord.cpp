@@ -30,6 +30,7 @@ GNU General Public License for more details.
 #include "Lottery.h"
 #include "Poco/ThreadTarget.h"
 #include "Poco/Exception.h"
+#include "CLI.h"
 
 const char *aboutStr =
 "```TipBot v%?i.%?i (Config: v%?i.%?i)\\n"
@@ -54,6 +55,7 @@ void TIPBOT::init()
         PLog = &Poco::Logger::get("Tipbot");
 
         Apps = {
+            {(std::shared_ptr<AppBaseClass>(std::make_unique<CLI>(this)))},
             {(std::shared_ptr<AppBaseClass>(std::make_unique<Tip>()))},
             {(std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>()))},
             {(std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this)))}
@@ -260,7 +262,7 @@ std::string TIPBOT::generateHelpText(const std::string & title, const std::vecto
             ss << cmd.name << " " << cmd.params;
             if (cmd.ChannelPermission != AllowChannelTypes::Any && cmd.ChannelPermission != AllowChannelTypes::CLI)
             {
-                ss << " -- " << AllowChannelTypeNames[cmd.ChannelPermission];
+                ss << " -- " << AllowChannelTypeNames[static_cast<int>(cmd.ChannelPermission)];
             }
             if (cmd.adminTools)
             {

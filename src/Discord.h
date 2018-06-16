@@ -31,7 +31,7 @@ const std::string AllowChannelTypeNames[] =
     "Direct Message Only"
 };
 
-enum AllowChannelTypes
+enum class AllowChannelTypes
 {
     CLI = -2,
     Any = -1,
