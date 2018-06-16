@@ -24,6 +24,8 @@ GNU General Public License for more details.
 #include "Poco/AutoPtr.h"
 #include "Config.h"
 
+#define FIND_USER_UNKNOWN_USER "Unknown User"
+
 extern const char *aboutStr;
 const std::string AllowChannelTypeNames[] =
 {

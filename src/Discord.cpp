@@ -104,7 +104,7 @@ std::string TIPBOT::getDiscordDMChannel(DiscordID id)
     return object->getValue<std::string>("id");
 }
 
-DiscordUser UknownUser = { 0, "Unknown User", 0 };
+DiscordUser UknownUser = { 0, FIND_USER_UNKNOWN_USER, 0 };
 const DiscordUser & TIPBOT::findUser(const DiscordID & id)
 {
     if (id > 0)
@@ -143,6 +143,10 @@ const DiscordUser & TIPBOT::findUser(const DiscordID & id)
 bool TIPBOT::isUserAdmin(const UserMessage& message)
 {
     auto myid = message.User.id;
+    
+    // Bot is an automatic admin.
+    if (myid == RPCMan->getBotDiscordID()) return true;
+
     for (auto adminid : GlobalConfig.General.Admins)
     {
         if (myid == adminid)
@@ -194,7 +198,7 @@ void TIPBOT::ProcessCommand(const UserMessage & message)
 
                 if (command.name == Poco::toLower(cmd[0]))
                 {
-                    if ((command.ChannelPermission == AllowChannelTypes::Any) || (message.ChannelPerm == command.ChannelPermission))
+                    if ((command.ChannelPermission == AllowChannelTypes::Any) || (message.ChannelPerm == command.ChannelPermission || message.ChannelPerm == AllowChannelTypes::CLI))
                     {
                         // Check if CLI is making the commands for the CLI command.
                         // If not continue.
@@ -242,7 +246,7 @@ void TIPBOT::CommandParseError(const UserMessage& message, const Command& me)
 
 bool TIPBOT::isCommandAllowedToBeExecuted(const UserMessage& message, const Command& command)
 {
-    return !command.adminTools || (command.adminTools && (message.ChannelPerm == AllowChannelTypes::Private || command.ChannelPermission == AllowChannelTypes::Any) && TIPBOT::isUserAdmin(message));
+    return !command.adminTools || (command.adminTools && (message.ChannelPerm == AllowChannelTypes::Private || message.ChannelPerm == AllowChannelTypes::CLI || command.ChannelPermission == AllowChannelTypes::Any) && TIPBOT::isUserAdmin(message));
 }
 
 std::string TIPBOT::generateHelpText(const std::string & title, const std::vector<Command>& cmds, const UserMessage& message)
