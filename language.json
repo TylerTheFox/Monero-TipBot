@@ -138,7 +138,7 @@
                     },
                     {
                         "key": "LOTTERY_GAME_INFO",
-                        "value": "Game Info:\\n```Minimum Ticket Cost %f %s\\nFaucet Donation: %f%% of the reward\\nNo Winner: %f%% of the drawing will be no winner.\\nDays: Lottery starts on Saturday 12 AM UTC and end on Friday 6 PM UTC. Winners announced on Friday 9 PM UTC\\nIn the event of no winner the jackpot is rolled over to next drawing\\nWinner will be direct messaged.\\n```"
+                        "value": "Game Info:\\n```Minimum Ticket Cost %f %s\\nFaucet Donation: %f%% of the reward\\nNo Winner: %f%% of the drawing will be no winner.\\nDays: Lottery starts on %s 00:00 UTC and end on %s %?i UTC. Winners announced on %s %?i UTC\\nIn the event of no winner the jackpot is rolled over to next drawing\\nWinner will be direct messaged.\\n```"
                     },
                     {
                         "key": "LOTTERY_HELP",
