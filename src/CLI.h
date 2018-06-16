@@ -3,6 +3,12 @@
 #include "AppBaseClass.h"
 #include "Poco/Logger.h"
 
+struct DiscordConversion
+{
+    std::string strold;
+    std::string strnew;
+};
+
 class CLI : public AppBaseClass
 {
 public:

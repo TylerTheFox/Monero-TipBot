@@ -382,12 +382,27 @@ void TIPBOT::AppSave()
         app->save();
 }
 
+const DiscordConversion Discord_CLI_Conversion[]
+{
+        { "\\n",    "\n" },
+        { "```",    "\n" },
+        { "``",     "\"" },
+};
+
+
 void TIPBOT::SendMsg(const UserMessage & data, std::string message)
 {
     if (data.ChannelPerm == AllowChannelTypes::CLI)
     {
-        // Replace Discord's \\n with normal newline.
-        PLog->information(Poco::replace(message, "\\n", "\n"));
+        // Replace Discord's custom formatting with CLI formatting.
+        std::string out = message;
+
+        for (auto elm : Discord_CLI_Conversion)
+        {
+            out = Poco::replace(out, elm.strold, elm.strnew);
+        }
+
+        PLog->information(out);
     }
     else
     {

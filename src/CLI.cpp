@@ -77,7 +77,6 @@ UserMessage CLI::generateUsrMsg(std::string msg)
     ret.User.username = "CLI";
     ret.User.discriminator = "CLI";
 
-
     // Generate Mentions (By ID)
     try
     {
