@@ -11,6 +11,17 @@
 #include "RPCException.h"
 #include "Language.h"
 
+std::string DayOfWeek[]
+{
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+};
+
 #define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false), prevWinner(0)
 {
@@ -243,7 +254,7 @@ void Lottery::run()
 
 void Lottery::gameInfo(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
 {
-    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_GAME_INFO"), GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, GlobalConfig.Lottery.donation_percent * 100, GlobalConfig.Lottery.no_winner_chance * 100));
+    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_GAME_INFO"), GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, GlobalConfig.Lottery.donation_percent * 100, GlobalConfig.Lottery.no_winner_chance * 100, DayOfWeek[(GlobalConfig.Lottery.day + 1) % (sizeof(DayOfWeek) / sizeof(DayOfWeek[0]))],  DayOfWeek[GlobalConfig.Lottery.day], GlobalConfig.Lottery.close, DayOfWeek[GlobalConfig.Lottery.day], GlobalConfig.Lottery.pick));
 }
 
 void Lottery::LotteryHelp(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
