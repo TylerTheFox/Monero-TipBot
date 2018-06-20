@@ -1,5 +1,5 @@
 #include "Lottery.h"
-#include "Discord.h"
+#include "Tipbot.h"
 #include "RPCManager.h"
 #include <functional>
 #include <fstream>
@@ -10,6 +10,8 @@
 #include "Config.h"
 #include "RPCException.h"
 #include "Language.h"
+#include <random>
+#include <thread>
 
 std::string DayOfWeek[]
 {
@@ -188,7 +190,7 @@ void Lottery::run()
                                 auto WinnerAccount = RPCMan->getAccount(winner);
                                 
                                 // TODO FIX
-                                DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(winner), Poco::format("You've won %0.8f %s from the lottery! :money_with_wings:", reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
+                                DiscordPtr->SendDirectMsg(winner, Poco::format("You've won %0.8f %s from the lottery! :money_with_wings:", reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
                                 LotteryAccount->MyAccount.transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
                                 prevWinner = winner;
                             }

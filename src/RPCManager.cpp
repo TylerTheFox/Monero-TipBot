@@ -17,7 +17,7 @@ GNU General Public License for more details.
 #include "Poco/Timespan.h"
 #include "Util.h"
 #include <cassert>
-#include "Discord.h"
+#include "Tipbot.h"
 #include "RPCException.h"
 #include "Poco/File.h"
 #include "cereal/types/map.hpp"
@@ -213,10 +213,6 @@ void RPCManager::run()
             {
                 PLog->error("App Error: %s --- %s", std::string(exp.what()), exp.getGeneralError());
             }
-            catch (const SleepyDiscord::ErrorCode & exp)
-            {
-                PLog->error(Poco::format("Discord Error Code: --- %d\n", exp));
-            }
         }
         Poco::Thread::sleep(1);
         currTime = Poco::Timestamp().epochTime();
@@ -247,17 +243,10 @@ void RPCManager::processNewTransactions()
             {
                 try
                 {
-                    try
+                    for (auto newTx : diff)
                     {
-                        for (auto newTx : diff)
-                        {
-                            DiscordPtr->sendMessage(DiscordPtr->getDiscordDMChannel(account.first), Poco::format("You've recieved money! %0.8f %s :money_with_wings:", newTx.amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
-                            PLog->information(Poco::format("User %Lu recived %0.8f %s\n", account.first, newTx.amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
-                        }
-                    }
-                    catch (const SleepyDiscord::ErrorCode & exp)
-                    {
-                        PLog->error("Error while posting transactions for user: %?i Error code: %?i", account.first, exp);
+                        DiscordPtr->SendDirectMsg(account.first, Poco::format("You've recieved money! %0.8f %s :money_with_wings:", newTx.amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
+                        PLog->information(Poco::format("User %Lu recived %0.8f %s\n", account.first, newTx.amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
                     }
 
                     diff.clear();

@@ -3,6 +3,7 @@
 #include "Poco/Thread.h"
 #include "RPCManager.h"
 #include <Poco/StringTokenizer.h>
+#include <thread>
 
 CLI::CLI(TIPBOT * dptr)
 {

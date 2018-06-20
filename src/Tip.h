@@ -12,8 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #pragma once
-#include "sleepy_discord/websocketpp_websocket.h"
-#include "Discord.h"
+#include "Tipbot.h"
 #include "AppBaseClass.h"
 #include <vector>
 #include "Account.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "Discord.h"
+#include "Tipbot.h"
 
 class Account;
 

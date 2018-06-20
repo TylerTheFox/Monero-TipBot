@@ -18,7 +18,7 @@ GNU General Public License for more details.
 #include "Poco/Timestamp.h"
 #include "Account.h"
 #include "Poco/Runnable.h"
-#include "Discord.h"
+#include "Tipbot.h"
 #include <memory>
 #include "Config.h"
 

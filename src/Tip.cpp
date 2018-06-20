@@ -13,7 +13,7 @@ GNU General Public License for more details.
 */
 #include "Tip.h"
 #include "RPCException.h"
-#include "Discord.h"
+#include "Tipbot.h"
 #include <Poco/StringTokenizer.h>
 #include "RPCManager.h"
 #include "Config.h"
@@ -293,7 +293,7 @@ void Tip::SoftRestartBot(TIPBOT * DiscordPtr, const UserMessage& message, const 
     // Send restart message.
     DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_RESTART_SUCCESSS"));
     GlobalConfig.General.Shutdown = true;
-    DiscordPtr->quit();
+    DiscordPtr->shutdown();
 }
 
 void Tip::Shutdown(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
@@ -301,7 +301,7 @@ void Tip::Shutdown(TIPBOT * DiscordPtr, const UserMessage& message, const struct
     DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_SHUTDOWN_SUCCESSS"));
     GlobalConfig.General.Shutdown = true;
     GlobalConfig.General.Quitting = true;
-    DiscordPtr->quit();
+    DiscordPtr->shutdown();
 }
 
 void Tip::RPCStatus(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)

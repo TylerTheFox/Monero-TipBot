@@ -11,6 +11,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
+#include "Tipbot.h"
 #include "Discord.h"
 #include <string>
 #include <iostream>
@@ -150,18 +151,13 @@ int main()
             RPCMan->load();
 
             // Run bot with token.
-            TIPBOT client(GlobalConfig.General.discordToken);
-            RPCMan->setDiscordPtr(&client);
+            std::unique_ptr<TIPBOT> Tbot(new Discord(GlobalConfig.General.discordToken));
+            RPCMan->setDiscordPtr(Tbot.get());
 
             // Create RPC threads
             Poco::Thread thread;
             thread.start(*RPCMan);
-            client.run();
-        }
-        catch (const websocketpp::exception & err)
-        {
-            GlobalConfig.General.Shutdown = true;
-            logger.error("websocketpp Code: %?i Message: %s", err.code(), err.m_msg);
+            Tbot->start();
         }
         catch (const Poco::Exception & exp)
         {
@@ -172,11 +168,6 @@ int main()
         {
             GlobalConfig.General.Shutdown = true;
             logger.error("App Error:  %s --- %s", std::string(exp.what()), exp.getGeneralError());
-        }
-        catch (const SleepyDiscord::ErrorCode & exp)
-        {
-            GlobalConfig.General.Shutdown = true;
-            logger.error("Discord Error: %?i", exp);
         }
 
         logger.information("Tipbot shutting down...");

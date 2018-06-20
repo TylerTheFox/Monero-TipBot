@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #pragma once
-#include "Discord.h"
+#include "Tipbot.h"
 #include "Account.h"
 #include "AppBaseClass.h"
 #include "Poco/Logger.h"

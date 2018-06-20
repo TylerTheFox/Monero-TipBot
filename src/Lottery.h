@@ -7,7 +7,7 @@
  *  
  */
 #pragma once
-#include "Discord.h"
+#include "Tipbot.h"
 #include "Account.h"
 #include "AppBaseClass.h"
 #include "RPCManager.h"

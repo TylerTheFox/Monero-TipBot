@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #include "Faucet.h"
-#include "Discord.h"
+#include "Tipbot.h"
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/Timestamp.h"
 #include "Poco/Timespan.h"
