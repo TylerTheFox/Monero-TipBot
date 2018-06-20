@@ -154,6 +154,8 @@ UserMessage Discord::ConvertSleepyDiscordMsg(const SleepyDiscord::Message & mess
         UsrMsg.ChannelPerm = static_cast<AllowChannelTypes>(getDiscordChannelType(UsrMsg.Channel.id_str));
         UsrMsg.Message = message.content;
 
+        UsrMsg.Mentions.reserve(message.mentions.size());
+
         Snowflake m;
         for (auto men : message.mentions)
         {
