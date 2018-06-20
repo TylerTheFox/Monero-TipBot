@@ -17,17 +17,17 @@ GNU General Public License for more details.
 
 class Discord : public TIPBOT, public SleepyDiscord::DiscordClient {
 public:
-    using           SleepyDiscord::DiscordClient::DiscordClient;
-    void            start();
-    void            onMessage(SleepyDiscord::Message message);
-    void            onReady(SleepyDiscord::Ready readyData);
-    void            broadcastMsg(DiscordID channel, std::string message);
-    void            broadcastDirectMsg(DiscordID user, std::string message);
-    DiscordUser     getUserFromServer(DiscordID user);
-    void            shutdown();
-    Poco::Logger*   PLog;
+    using                   SleepyDiscord::DiscordClient::DiscordClient;
+    void                    start();
+    void                    onMessage(SleepyDiscord::Message message);
+    void                    onReady(SleepyDiscord::Ready readyData);
+    void                    broadcastMsg(DiscordID channel, std::string message);
+    void                    broadcastDirectMsg(DiscordID user, std::string message);
+    const DiscordUser &     getUserFromServer(DiscordID user);
+    void                    shutdown();
+    Poco::Logger*           PLog;
 private:
-    void            refreshUserList();
-    UserMessage     ConvertSleepyDiscordMsg(const SleepyDiscord::Message & message);
-    int             getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id);
+    void                    refreshUserList();
+    UserMessage             ConvertSleepyDiscordMsg(const SleepyDiscord::Message & message);
+    int                     getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id);
 };

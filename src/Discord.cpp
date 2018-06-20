@@ -178,7 +178,8 @@ UserMessage Discord::ConvertSleepyDiscordMsg(const SleepyDiscord::Message & mess
     return UsrMsg;
 }
 
-DiscordUser Discord::getUserFromServer(DiscordID user)
+DiscordUser _UknownUser = { 0, FIND_USER_UNKNOWN_USER, 0 };
+const DiscordUser & Discord::getUserFromServer(DiscordID user)
 {
     struct DiscordUser newUser = {};
 
@@ -208,9 +209,7 @@ DiscordUser Discord::getUserFromServer(DiscordID user)
         PLog->error("getUserFromServer --- Discord Error: %?i", exp);
     }
 
-    newUser.username = FIND_USER_UNKNOWN_USER;
-
-    return newUser;
+    return _UknownUser;
 }
 
 #define DISCORD_MAX_GET_USERS 1000

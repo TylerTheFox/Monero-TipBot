@@ -53,19 +53,19 @@ void TIPBOT::tipbot_init()
     }
     catch (AppGeneralException & exp)
     {
-        PLog->error("FATAL ERROR (APPERR): COULD NOT BOOT! RESON: %s --- %s", std::string(exp.what()), exp.getGeneralError());
+        PLog->error("FATAL ERROR (APPERR): COULD NOT BOOT! REASON: %s --- %s", std::string(exp.what()), exp.getGeneralError());
         GlobalConfig.General.Shutdown = true;
         this->shutdown();
     }
     catch (Poco::Exception & exp)
     {
-        PLog->error("FATAL ERROR (POCO): COULD NOT BOOT! RESON: %s", std::string(exp.what()));
+        PLog->error("FATAL ERROR (POCO): COULD NOT BOOT! REASON: %s", std::string(exp.what()));
         GlobalConfig.General.Shutdown = true;
         this->shutdown();
     }
     catch (cereal::Exception exp)
     {
-        PLog->error("FATAL ERROR (CEREAL): COULD NOT BOOT! RESON: %s", std::string(exp.what()));
+        PLog->error("FATAL ERROR (CEREAL): COULD NOT BOOT! REASON: %s", std::string(exp.what()));
         GlobalConfig.General.Shutdown = true;
         this->shutdown();
     }

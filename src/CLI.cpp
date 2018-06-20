@@ -66,7 +66,6 @@ void CLI::cli_main()
     GlobalConfig.General.Threads--;
 }
 
-
 UserMessage CLI::generateUsrMsg(std::string msg)
 {
     UserMessage ret = {};

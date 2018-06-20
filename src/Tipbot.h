@@ -130,7 +130,7 @@ public:
     std::uint64_t                                   totalFaucetAmount();
     uint8_t                                         getUserLang(const DiscordID & usr);
     void                                            tipbot_init();
-    virtual DiscordUser                             getUserFromServer(DiscordID user) = 0;
+    virtual const DiscordUser &                     getUserFromServer(DiscordID user) = 0;
 protected:
     std::map<std::uint64_t, std::set<DiscordUser> > UserList;
     void                                            loadUserList();
