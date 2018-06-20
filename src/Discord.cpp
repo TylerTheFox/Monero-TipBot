@@ -198,8 +198,6 @@ DiscordUser Discord::getUserFromServer(DiscordID user)
             saveUserList();
             return *ret.first;
         }
-
-        newUser.username = FIND_USER_UNKNOWN_USER;
     }
     catch (const websocketpp::exception & err)
     {
@@ -209,6 +207,8 @@ DiscordUser Discord::getUserFromServer(DiscordID user)
     {
         PLog->error("getUserFromServer --- Discord Error: %?i", exp);
     }
+
+    newUser.username = FIND_USER_UNKNOWN_USER;
 
     return newUser;
 }
