@@ -159,6 +159,8 @@ UserMessage Discord::ConvertSleepyDiscordMsg(const SleepyDiscord::Message & mess
         {
             m.id_str = men.ID;
             m.id = convertSnowflakeToInt64(men.ID);
+            m.username = men.username;
+            m.discriminator = men.discriminator;
             UsrMsg.Mentions.emplace_back(m);
         }
     }
