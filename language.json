@@ -185,6 +185,191 @@
                         "value": "Your Discord account must be older than 7 days.\\n"
                     }
                 ]
+            },
+            {
+                "LangName": "Portuguese",
+                "LangMap": [
+                    {
+                        "key": "TIP_HISTORY_INC_HEADER",
+                        "value": "Transferencias Recebidas (ultimas 5): \\n"
+                    },
+                    {
+                        "key": "TIP_HELP_COMMAND",
+                        "value": "TipBot Comandos:\\n"
+                    },
+                    {
+                        "key": "TIP_ADDRESS",
+                        "value": "%s#%s: O teu %s Enderesso é: %s"
+                    },
+                    {
+                        "key": "TIP_BALANCE",
+                        "value": "%s#%s: O teu Saldo é %0.8f %s e o teu Saldo Pendente é %0.8f %s"
+                    },
+                    {
+                        "key": "TIP_WITHDRAW_SUSPENDED",
+                        "value": "%s#%s: Levantamentos não são possiveis de momento."
+                    },
+                    {
+                        "key": "TIP_HISTORY_HEADER",
+                        "value": "```Quantidade | Utilizador | Bloco | TX Hash\\n"
+                    },
+                    {
+                        "key": "TIP_HISTORY_OUT_HEADER",
+                        "value": "\\nTransferencias enviadas (ultimas 5): \\n"
+                    },
+                    {
+                        "key": "TIP_GIVE_SUCESS",
+                        "value": "%s#%s: Deste %0.8f %s a %s com TX Hash: %s :smiley:"
+                    },
+                    {
+                        "key": "TIP_WITHDRAW_SUCCESS",
+                        "value": "%s#%s: Levantamento completado %0.8f %s com TX Hash: %s :smiley:"
+                    },
+                    {
+                        "key": "FAUCET_HELP",
+                        "value": "Faucet Comandos (usa ``!give [amount] @Tip Bot`` para fazeres Donativo ao faucet):\\n"
+                    },
+                    {
+                        "key": "TIP_GIVE_SUSPENDED",
+                        "value": "%s#%s: Dar não é possivel de momento. :cold_sweat:"
+                    },
+                    {
+                        "key": "LOTTERY_TICKETS",
+                        "value": "Actualmente tens %Lu tickets activos."
+                    },
+                    {
+                        "key": "TIP_BLOCK_HEIGHT",
+                        "value": "O Bloco atual da tua carteira é: %?i"
+                    },
+                    {
+                        "key": "TIP_WALLET_RESTART_SUCCESS",
+                        "value": "A tua carteira do Discord for reiniciada com sucesso. Pode demorar alguns minutos a sincronizar."
+                    },
+                    {
+                        "key": "TIP_WITHDRAW_TOGGLE",
+                        "value": "Levantamentos Ativos: %b"
+                    },
+                    {
+                        "key": "TIP_GIVE_TOGGLE",
+                        "value": "Dar Ativo: %b"
+                    },
+                    {
+                        "key": "TIP_RESCAN_SUCCESS",
+                        "value": "Scan dos gastos completo!"
+                    },
+                    {
+                        "key": "TIP_FAUCET_RESTART_SUCCESS",
+                        "value": "Faucet Reiniciado!"
+                    },
+                    {
+                        "key": "TIP_TOTAL_BALANCE",
+                        "value": "Eu Atualmente Tenho %0.8f locked %s e %0.8f unlocked %s! (Excluindo a lotaria)"
+                    },
+                    {
+                        "key": "LOTTERY_WON_WITHOUT_WINNER",
+                        "value": "Nao existe vencedor na ultima lotaria!"
+                    },
+                    {
+                        "key": "FAUCET_TAKE_IS_BROKE",
+                        "value": "O Bot esta avariado, tenta novamente mais tarde. :disappointed_relieved:\\n"
+                    },
+                    {
+                        "key": "TIP_WALLET_SAVE_SUCCESS",
+                        "value": "Carteira Gravada!"
+                    },
+                    {
+                        "key": "TIP_RESTART_SUCCESSS",
+                        "value": "Comando para reiniciar executado!"
+                    },
+                    {
+                        "key": "TIP_SHUTDOWN_SUCCESSS",
+                        "value": "Comando para parae executado! -- Good bye."
+                    },
+                    {
+                        "key": "FAUCET_TAKE_DISABLED",
+                        "value": "Faucet Desligado!\\n"
+                    },
+                    {
+                        "key": "TIP_WHOIS_USER",
+                        "value": "Utilizador %?i é %s"
+                    },
+                    {
+                        "key": "TIP_WHOIS_USER_NOT_FOUND",
+                        "value": "Desconhecido!"
+                    },
+                    {
+                        "key": "TIP_LIST_LANGUAGE",
+                        "value": "Lista de Linguagens:\\n"
+                    },
+                    {
+                        "key": "LOTTERY_SUSPEND_TOGGLE",
+                        "value": "Lottaria Suspensa: %b"
+                    },
+                    {
+                        "key": "TIP_LIST_LANGUAGE_FORMAT",
+                        "value": "%?i. %s\\n"
+                    },
+                    {
+                        "key": "TIP_LANGUAGE_SELECT_SUCCESS",
+                        "value": "Linguagem alterado com Sucesso!\\n"
+                    },
+                    {
+                        "key": "TIP_LANGUAGE_SELECT_FAIL",
+                        "value": "Linguagem Invalida!\\n"
+                    },
+                    {
+                        "key": "LOTTERY_WINNER",
+                        "value": "O Vencedor é %?i"
+                    },
+                    {
+                        "key": "LOTTERY_GAME_INFO",
+                        "value": "Informações sobre a Lotaria:\\n```Cada Bilhete custa %f %s\\nDonativo ao Faucet: %f%% do premio\\nSem Vencedor: %f%% não havera vencedor.\\nDias: Lotaria começa ás %s 00:00 UTC a termina %s %?i UTC. Os Vencedores serão anunciados ás %s %?i UTC\\nSe não existir vencedor o valor do premio passa para a proxima Lotaria\\nO Vencedor receberá um mensagem privada.\\n```"
+                    },
+                    {
+                        "key": "LOTTERY_HELP",
+                        "value": "Comandos Lotaria:\\n"
+                    },
+                    {
+                        "key": "LOTTERY_JACKPOT",
+                        "value": "O Valor do Premio é: %0.8f"
+                    },
+                    {
+                        "key": "LOTTERY_BUY_TICKET_SUCCESS",
+                        "value": "%s#%s: Compraste %?i bilhetes por %0.8f %s com TX Hash: %s :smiley:"
+                    },
+                    {
+                        "key": "LOTTERY_SUSPENDED",
+                        "value": "Lottery is currently suspended."
+                    },
+                    {
+                        "key": "LOTTERY_WON_WITH_WINNER",
+                        "value": "Alguem Venceu a ultima Lotaria!"
+                    },
+                    {
+                        "key": "LOTTERY_CLOSED",
+                        "value": "A Lotaria esta fechada até 12 AM UTC."
+                    },
+                    {
+                        "key": "LOTTERY_LAST_WINNER",
+                        "value": "O Ultimo Vencedor foi: %?i"
+                    },
+                    {
+                        "key": "FAUCET_TAKE_SUCCESS",
+                        "value": "%s#%s: Tu Recebeste %0.8f %s com TX Hash: %s :smiley:\\n"
+                    },
+                    {
+                        "key": "FAUCET_TAKE_PENDING_TRANSACTIONS",
+                        "value": "O Bot tem trasações pendentes, tenta mais tarde. :disappointed_relieved: \\n"
+                    },
+                    {
+                        "key": "FAUCET_TAKE_TOO_SOON",
+                        "value": "Demasiado Proximo! Podes apenas fazer ``!take`` cada %?i horas, faltam %f horas."
+                    },
+                    {
+                        "key": "FAUCET_TAKE_ACCOUNT_NOT_MATURE",
+                        "value": "A tua conta do Discord tem de ter mais de 7 dias.\\n"
+                    }
+                ]
             }
         ]
     }
