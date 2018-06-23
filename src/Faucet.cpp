@@ -220,6 +220,7 @@ void Faucet::status(TIPBOT* DiscordPtr, const UserMessage& message, const Comman
 void Faucet::ToggleFaucet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
 {
     enabled = !enabled;
+    DiscordPtr->AppSave();
     PLog->information("Faucet Status: %b", enabled);
     DiscordPtr->SendMsg(message, Poco::format("Faucet Enabled: %b", enabled));
 }
