@@ -20,6 +20,7 @@ GNU General Public License for more details.
 #define MICROSECOND_HOUR            3600000000
 #define MICROSECOND_DAY             (MICROSECOND_HOUR*24.0)
 
+#define    FAUCET_SAVE_FILE       "FAUCET.JSON"
 class Faucet : public AppBaseClass
 {
 public:

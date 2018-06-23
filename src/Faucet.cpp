@@ -22,6 +22,9 @@ GNU General Public License for more details.
 #include "Config.h"
 #include "RPCException.h"
 #include "Language.h"
+#include <fstream>
+#include "cereal/cereal.hpp"
+#include "cereal/archives/json.hpp"
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Faucet::Faucet() : enabled(true)
@@ -40,12 +43,30 @@ Faucet::Faucet() : enabled(true)
 
 void Faucet::save()
 {
-
+    std::ofstream out(FAUCET_SAVE_FILE, std::ios::trunc);
+    if (out.is_open())
+    {
+        PLog->information("Saving faucet data to disk...");
+        {
+            cereal::JSONOutputArchive ar(out);
+            ar(CEREAL_NVP(enabled));
+        }
+        out.close();
+    }
 }
 
 void Faucet::load()
 {
-
+    std::ifstream in(FAUCET_SAVE_FILE, std::ios::trunc);
+    if (in.is_open())
+    {
+        PLog->information("Loading faucet data from disk...");
+        {
+            cereal::JSONInputArchive ar(in);
+            ar(CEREAL_NVP(enabled));
+        }
+        in.close();
+    }
 }
 
 void Faucet::setAccount(Account*)
