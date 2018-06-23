@@ -79,7 +79,7 @@ void Lottery::save()
         PLog->information("Saving lottery data to disk...");
         {
             cereal::JSONOutputArchive ar(out);
-            ar(CEREAL_NVP(lastWinningTopBlock), CEREAL_NVP(prevWinner));
+            ar(CEREAL_NVP(lastWinningTopBlock), CEREAL_NVP(prevWinner), CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner));
         }
         out.close();
     }
@@ -98,6 +98,11 @@ void Lottery::load()
             if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 1)
             {
                 ar(CEREAL_NVP(prevWinner));
+            }
+
+            if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 4)
+            {
+                ar(CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner));
             }
         }
         in.close();
@@ -145,10 +150,6 @@ const_iterator Lottery::cend() const
 
 void Lottery::run()
 {
-    bool rewardGivenout = false;
-    bool sweepComplete = false;
-    bool noWinner = false;
-
     GlobalConfig.General.Threads++;
 
     while (!GlobalConfig.General.Shutdown)
@@ -258,6 +259,7 @@ void Lottery::run()
                     PLog->information("Lottery complete! Resetting local data.");
                     sweepComplete = false;
                     rewardGivenout = false;
+                    DiscordPtr->AppSave();
                 }
             }
         }

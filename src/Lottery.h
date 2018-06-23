@@ -67,4 +67,7 @@ private:
     std::shared_ptr<RPCProc>        LotteryAccount;
     std::vector<struct Command>     Commands;
     DiscordID                       prevWinner;
+    bool rewardGivenout = false;
+    bool sweepComplete = false;
+    bool noWinner = false;
 };
