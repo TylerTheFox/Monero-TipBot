@@ -79,7 +79,7 @@ void Lottery::save()
         PLog->information("Saving lottery data to disk...");
         {
             cereal::JSONOutputArchive ar(out);
-            ar(CEREAL_NVP(lastWinningTopBlock), CEREAL_NVP(prevWinner), CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner));
+            ar(CEREAL_NVP(lastWinningTopBlock), CEREAL_NVP(prevWinner), CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner), CEREAL_NVP(lotterySuspended));
         }
         out.close();
     }
@@ -102,7 +102,7 @@ void Lottery::load()
 
             if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 4)
             {
-                ar(CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner));
+                ar(CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner), CEREAL_NVP(lotterySuspended));
             }
         }
         in.close();
