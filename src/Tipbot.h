@@ -124,6 +124,7 @@ class AppBaseClass;
 
 class TIPBOT {
 public:
+    TIPBOT();
     ~TIPBOT();
     virtual void                                    start() = 0;
     virtual void                                    shutdown() = 0;

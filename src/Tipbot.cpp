@@ -40,6 +40,11 @@ const char *aboutStr =
 "ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf\\n"
 "XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS\\n```";
 
+TIPBOT::TIPBOT() : PLog(nullptr)
+{
+
+}
+
 TIPBOT::~TIPBOT()
 {
     this->AppSave();
@@ -114,7 +119,7 @@ const DiscordUser & TIPBOT::findUser(const DiscordID & id)
 
 bool TIPBOT::isUserAdmin(const UserMessage& message)
 {
-    auto myid = message.User.id;
+    const auto myid = message.User.id;
 
     // Bot is an automatic admin.
     if (myid == RPCMan->getBotDiscordID()) return true;

@@ -110,7 +110,7 @@ Account& RPCManager::getAccount(DiscordID id)
             else
             {
                 RPCProc oldAcc = FindOldestRPC(); // Deep copy
-                auto oldAccID = oldAcc.MyAccount.getDiscordID();
+                const auto oldAccID = oldAcc.MyAccount.getDiscordID();
                 RPCMap.erase(oldAccID); // Ensure we destroy the old account --- SECURITY BUG FIX ---
                 RPCMap[id] = oldAcc;
             }
@@ -368,7 +368,7 @@ void RPCManager::load()
             {
                 cereal::JSONInputArchive ar(in);
 
-                unsigned int ignore;
+                unsigned int ignore = 0;
                 if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 0)
                 {
                     ar(

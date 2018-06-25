@@ -53,6 +53,7 @@ struct RPCProc
         MyRPC = obj.MyRPC;
         MyAccount = obj.MyAccount;
         Transactions = obj.Transactions;
+        RPCFail = obj.RPCFail;
         return *this;
     }
 
