@@ -203,9 +203,19 @@ void Lottery::run()
                                 const std::uint64_t reward = bal - (bal * GlobalConfig.Lottery.donation_percent);
                                 auto WinnerAccount = RPCMan->getAccount(winner);
                                 
-                                // TODO FIX
+                                // TODO: Add this to language file!
                                 DiscordPtr->SendDirectMsg(winner, Poco::format("You've won %0.8f %s from the lottery! :money_with_wings:", reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
-                                LotteryAccount->MyAccount.transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
+                                
+                                if (GlobalConfig.Lottery.donation_percent)
+                                {
+                                    // Likely has funds left to pay the fee.
+                                    LotteryAccount->MyAccount.transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
+                                }
+                                else
+                                {
+                                    // Won't have any funds left to pay the fee.
+                                    LotteryAccount->MyAccount.transferAllMoneyToAddress(WinnerAccount.getMyAddress());
+                                }
                                 prevWinner = winner;
                             }
                             else
@@ -235,15 +245,18 @@ void Lottery::run()
             {
                 try
                 {
-                    LotteryAccount->MyAccount.resyncAccount();
-
-                    // Donate Remaining to faucet.
-                    if (!noWinner)
+                    if (GlobalConfig.Lottery.donation_percent)
                     {
-                        PLog->information("Donating remaining balance to the faucet!");
-                        LotteryAccount->MyAccount.transferAllMoneyToAddress(RPCManager::getGlobalBotAccount().getMyAddress());
+                        LotteryAccount->MyAccount.resyncAccount();
+
+                        // Donate Remaining to faucet.
+                        if (!noWinner)
+                        {
+                            PLog->information("Donating remaining balance to the faucet!");
+                            LotteryAccount->MyAccount.transferAllMoneyToAddress(RPCManager::getGlobalBotAccount().getMyAddress());
+                        }
+                        PLog->information("Sweep Complete!");
                     }
-                    PLog->information("Sweep Complete!");
                     noWinner = false;
                     sweepComplete = true;
                 } catch (...)
