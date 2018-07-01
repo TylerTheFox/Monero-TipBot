@@ -235,6 +235,11 @@ void Lottery::run()
                     PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
                     lotterySuspended = true;
                 }
+                catch (RPCGeneralError & exp)
+                {
+                    PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
+                    lotterySuspended = true;
+                }
                 catch (...)
                 {
                     PLog->error("There was an unknown error while in the lottery drawing. Lottery is suspended!");
