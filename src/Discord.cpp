@@ -276,7 +276,7 @@ void Discord::refreshUserList()
     }
 }
 
-void Discord::shutdown()
+void Discord::_shutdown()
 {
     try
     {

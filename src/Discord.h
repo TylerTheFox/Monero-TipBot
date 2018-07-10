@@ -24,7 +24,7 @@ public:
     void                    broadcastMsg(DiscordID channel, std::string message);
     void                    broadcastDirectMsg(DiscordID user, std::string message);
     const DiscordUser &     getUserFromServer(DiscordID user);
-    void                    shutdown();
+    void                    _shutdown();
     Poco::Logger*           PLog;
 private:
     void                    refreshUserList();

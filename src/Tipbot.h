@@ -144,7 +144,7 @@ public:
     TIPBOT();
     ~TIPBOT();
     virtual void                                    start() = 0;
-    virtual void                                    shutdown() = 0;
+    void                                            shutdown();
     const struct DiscordUser &                      findUser(const DiscordID & id);
     static bool                                     isUserAdmin(const UserMessage& message);
     void                                            ProcessCommand(const UserMessage& message);
@@ -171,7 +171,7 @@ private:
     std::vector<std::shared_ptr<AppBaseClass>>      Apps;
     virtual void                                    broadcastMsg(DiscordID channel, std::string message) = 0;
     virtual void                                    broadcastDirectMsg(DiscordID user, std::string message) = 0;
-
+    virtual void                                    _shutdown() = 0;
 };
 
 struct Command

@@ -49,10 +49,25 @@ TIPBOT::TIPBOT() : PLog(nullptr)
 
 TIPBOT::~TIPBOT()
 {
-    this->AppSave();
-
     GlobalConfig.General.Shutdown = true;
     while (GlobalConfig.General.Threads);
+}
+
+void TIPBOT::shutdown()
+{
+    // Because this is called from a user command which creates its own thread
+    // And inrcs GlobalConfig.General.Threads we must create a new thread and wait
+    // for the command to fully finish.
+    std::thread t1([&]()
+    {
+        this->AppSave();
+
+        GlobalConfig.General.Shutdown = true;
+        while (GlobalConfig.General.Threads);
+
+        this->_shutdown();
+    });
+    t1.detach();
 }
 
 void TIPBOT::tipbot_init()
