@@ -27,6 +27,7 @@ ChatRewards::ChatRewards(TIPBOT * DP) : DiscordPtr(DP), lastTimePaymentWasSent(0
         { "!chatrewards",       CLASS_RESOLUTION(help),                        "",                                 false,  true,   AllowChannelTypes::Private },
         { "!disallowid",        CLASS_RESOLUTION(DisallowID),                  "[id]",                             false,  true,   AllowChannelTypes::Private },
         { "!allowid",           CLASS_RESOLUTION(AllowID),                     "[id]",                             false,  true,   AllowChannelTypes::Private },
+        { "!setchannel",        CLASS_RESOLUTION(SetChannel),                  "[id]",                             false,  true,   AllowChannelTypes::Private },
         { "!paymentqueuesize",  CLASS_RESOLUTION(PaymentQueueSize),            "",                                 false,  true,   AllowChannelTypes::Private },
         { "!roundusersize",     CLASS_RESOLUTION(RoundUserSize),               "",                                 false,  true,   AllowChannelTypes::Private },
         { "!togglechatrewards", CLASS_RESOLUTION(ToggleChatRewards),           "",                                 false,  true,   AllowChannelTypes::Private },
@@ -231,6 +232,21 @@ void ChatRewards::AllowID(TIPBOT * DiscordPtr, const UserMessage& message, const
         NotAllowedIDs.erase(discordId);
         save();
         DiscordPtr->SendMsg(message, "User removed to the disallowed list!");
+    }
+}
+
+void ChatRewards::SetChannel(TIPBOT * DiscordPtr, const UserMessage & message, const Command & me)
+{
+    Poco::StringTokenizer cmd(message.Message, " ");
+
+    if (cmd.count() != 2)
+        DiscordPtr->CommandParseError(message, me);
+    else
+    {
+        const auto discordChannel = Poco::NumberParser::parseUnsigned64(cmd[1]);
+        channel = discordChannel;
+        save();
+        DiscordPtr->SendMsg(message, "Channel Set!");
     }
 }
 

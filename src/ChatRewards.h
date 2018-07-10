@@ -45,6 +45,7 @@ private:
     void                                help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                DisallowID(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                AllowID(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                SetChannel(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                PaymentQueueSize(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                RoundUserSize(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                ToggleChatRewards(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
