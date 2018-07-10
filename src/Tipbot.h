@@ -108,7 +108,18 @@ struct Snowflake
     std::string             id_str;
     std::string             username;
     std::string             discriminator;
+
+    template <class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(id), CEREAL_NVP(id_str), CEREAL_NVP(username), CEREAL_NVP(discriminator));
+    }
 };
+
+inline bool operator<(const Snowflake &a, const Snowflake &b)
+{
+    return a.id < b.id;
+}
 
 struct UserMessage
 {
@@ -117,6 +128,12 @@ struct UserMessage
     Snowflake               Channel;
     std::string             Message;
     std::vector<Snowflake>  Mentions;
+
+    template <class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(ChannelPerm), CEREAL_NVP(User), CEREAL_NVP(Channel), CEREAL_NVP(Message), CEREAL_NVP(Mentions));
+    }
 };
 
 class AppBaseClass;

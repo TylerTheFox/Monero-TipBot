@@ -68,8 +68,7 @@ void  Discord::onMessage(SleepyDiscord::Message message)
 {
     try
     {
-        if (!message.content.empty() && message.content.at(0) == '!')
-            ProcessCommand(ConvertSleepyDiscordMsg(message));
+        ProcessCommand(ConvertSleepyDiscordMsg(message));
     }
     catch (const websocketpp::exception & err)
     {

@@ -183,6 +183,14 @@
                     {
                         "key": "FAUCET_TAKE_ACCOUNT_NOT_MATURE",
                         "value": "Your Discord account must be older than 7 days.\\n"
+                    },
+                    {
+                        "key": "CHAT_REWARDS_PAYMENT",
+                        "value": "User %?i has been chosen and added to the payment queue."
+                    },
+                    {
+                        "key": "LOTTERY_USER_WON",
+                        "value": "You've won %0.8f %s from the lottery! :money_with_wings:"
                     }
                 ]
             },
@@ -368,6 +376,14 @@
                     {
                         "key": "FAUCET_TAKE_ACCOUNT_NOT_MATURE",
                         "value": "A tua conta do Discord tem de ter mais de 7 dias.\\n"
+                    },
+                    {
+                        "key": "CHAT_REWARDS_PAYMENT",
+                        "value": "O usuário %?i foi escolhido e adicionado à fila de pagamento."
+                    },
+                    {
+                        "key": "LOTTERY_USER_WON",
+                        "value": "Você ganhou %0.8f %s da loteria! :money_with_wings:"
                     }
                 ]
             }

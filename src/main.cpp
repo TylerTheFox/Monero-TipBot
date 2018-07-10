@@ -177,15 +177,6 @@ int main()
 
         RPCMan.reset(nullptr);
 
-        // Upgrade save file
-        if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
-        {
-            logger.information("Upgrading Save file...");
-            GlobalConfig.About.major = VERSION_MAJOR;
-            GlobalConfig.About.minor = VERSION_MINOR;
-            GlobalConfig.save_config();
-        }
-
         logger.information("Tipbot shutdown complete...");
 
         // Shutdown Complete!

@@ -14,11 +14,11 @@ GNU General Public License for more details.
 #pragma once
 #include "Tipbot.h"
 #include "Account.h"
+#include "Util.h"
 #include "AppBaseClass.h"
 #include "Poco/Logger.h"
 #include "Poco/AutoPtr.h"
-#define MICROSECOND_HOUR            3600000000
-#define MICROSECOND_DAY             (MICROSECOND_HOUR*24.0)
+
 
 #define    FAUCET_SAVE_FILE       "FAUCET.JSON"
 class Faucet : public AppBaseClass

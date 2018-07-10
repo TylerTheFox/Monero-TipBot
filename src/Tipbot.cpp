@@ -31,6 +31,7 @@ GNU General Public License for more details.
 #include "Poco/Exception.h"
 #include "CLI.h"
 #include <thread>
+#include "ChatRewards.h"
 
 const char *aboutStr =
 "```TipBot v%?i.%?i (Config: v%?i.%?i)\\n"
@@ -64,11 +65,23 @@ void TIPBOT::tipbot_init()
             { (std::shared_ptr<AppBaseClass>(std::make_unique<CLI>(this))) },
         { (std::shared_ptr<AppBaseClass>(std::make_unique<Tip>())) },
         { (std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>())) },
+        { (std::shared_ptr<AppBaseClass>(std::make_unique<ChatRewards>(this))) },
         { (std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this))) }
         };
 
         for (auto & app : Apps)
             app->load();
+
+        // Upgrade save file
+        if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
+        {
+            PLog->information("Upgrading Save file...");
+            GlobalConfig.About.major = VERSION_MAJOR;
+            GlobalConfig.About.minor = VERSION_MINOR;
+            GlobalConfig.save_config();
+            AppSave();
+        }
+
     }
     catch (AppGeneralException & exp)
     {
@@ -163,45 +176,51 @@ void TIPBOT::ProcessCommand(const UserMessage & message)
 {
     for (const auto & ptr : Apps)
     {
-        for (const auto & command : *ptr.get())
+        // Application non-command function.
+        ptr->run(message);
+
+        if (!message.Message.empty() && message.Message.at(0) == '!')
         {
-            try
+            for (const auto & command : *ptr.get())
             {
-                Poco::StringTokenizer cmd(message.Message, " ");
-
-                if (command.name == Poco::toLower(cmd[0]))
+                try
                 {
-                    if ((command.ChannelPermission == AllowChannelTypes::Any) || (message.ChannelPerm == command.ChannelPermission || message.ChannelPerm == AllowChannelTypes::CLI))
+                    Poco::StringTokenizer cmd(message.Message, " ");
+
+                    if (command.name == Poco::toLower(cmd[0]))
                     {
-                        // Check if CLI is making the commands for the CLI command.
-                        // If not continue.
-                        if (command.ChannelPermission == AllowChannelTypes::CLI && message.ChannelPerm != AllowChannelTypes::CLI)
-                            break;
-
-                        if (command.opensWallet)
-                            ptr->setAccount(&RPCMan->getAccount(message.User.id));
-                        else  ptr->setAccount(nullptr);
-
-                        if (TIPBOT::isCommandAllowedToBeExecuted(message, command))
+                        if ((command.ChannelPermission == AllowChannelTypes::Any) || (message.ChannelPerm == command.ChannelPermission || message.ChannelPerm == AllowChannelTypes::CLI))
                         {
-                            PLog->information("User %s issued command: %s", message.User.id_str, message.Message);
-                            // Create command thread
-                            std::thread t1(dispatcher, command.func, this, message, command);
-                            t1.detach();
+                            // Check if CLI is making the commands for the CLI command.
+                            // If not continue.
+                            if (command.ChannelPermission == AllowChannelTypes::CLI && message.ChannelPerm != AllowChannelTypes::CLI)
+                                break;
+
+                            if (command.opensWallet)
+                                ptr->setAccount(&RPCMan->getAccount(message.User.id));
+                            else  ptr->setAccount(nullptr);
+
+                            if (TIPBOT::isCommandAllowedToBeExecuted(message, command))
+                            {
+                                PLog->information("User %s issued command: %s", message.User.id_str, message.Message);
+                                // Create command thread
+                                std::thread t1(dispatcher, command.func, this, message, command);
+                                t1.detach();
+                            }
                         }
+                        break;
                     }
-                    break;
                 }
-            }
-            catch (const Poco::Exception & exp)
-            {
-                PLog->error("Poco Error: --- %s", std::string(exp.what()));
-                SendMsg(message, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
-            }
-            catch (AppGeneralException & exp)
-            {
-                PLog->error("App Error: --- %s: %s", std::string(exp.what()), exp.getGeneralError());
-                SendMsg(message, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
+                catch (const Poco::Exception & exp)
+                {
+                    PLog->error("Poco Error: --- %s", std::string(exp.what()));
+                    SendMsg(message, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
+                }
+                catch (AppGeneralException & exp)
+                {
+                    PLog->error("App Error: --- %s: %s", std::string(exp.what()), exp.getGeneralError());
+                    SendMsg(message, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
+                }
             }
         }
     }
