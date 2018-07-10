@@ -2,16 +2,24 @@
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <functional>
 
 namespace SleepyDiscord {
 	class GenericUDPClient {
 	public:
-	protected:
-		virtual bool                 send   (const std::string& to  , const uint16_t port, const uint8_t* buffer, size_t bufferLength) = 0;
-		virtual std::vector<uint8_t> receive(const std::string& from, const uint16_t port                                            ) = 0;
+		typedef std::function<void()> SendHandler;
+		typedef std::function<void(const std::vector<uint8_t>&)> ReceiveHandler;
 
-		inline bool send(const std::string& to, const uint16_t port, const std::vector<uint8_t> buffer) {
-			return send(to, port, &buffer[0], buffer.size());
+		virtual bool connect(const std::string& to, const uint16_t port) = 0;
+		virtual void send(
+			const uint8_t* buffer,
+			size_t bufferLength,
+			SendHandler handler = [](){}
+		) = 0;
+		virtual void receive(ReceiveHandler handler) = 0;
+
+		inline void send(const std::vector<uint8_t> buffer, SendHandler handler = [](){}) {
+			send(&buffer[0], buffer.size(), handler);
 		}
 	};
 }

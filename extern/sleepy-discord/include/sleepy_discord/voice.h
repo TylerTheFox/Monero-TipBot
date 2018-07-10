@@ -10,7 +10,7 @@ namespace SleepyDiscord {
 	struct User;
 
 	struct VoiceState : public DiscordObject {
-		VoiceState() {}
+		VoiceState();
 		VoiceState(const std::string * rawJson);
 		VoiceState(const std::vector<std::string> values);
 		Snowflake<Server> serverID;
@@ -39,7 +39,7 @@ namespace SleepyDiscord {
 	custom          bool    whether this is a custom voice region (used for events/etc)
 	*/
 	struct VoiceRegion : DiscordObject {
-		VoiceRegion() {}
+		VoiceRegion();
 		VoiceRegion(const std::string * rawJson);
 		VoiceRegion(const std::vector<std::string> values);
 		Snowflake<VoiceRegion> ID;
@@ -50,6 +50,24 @@ namespace SleepyDiscord {
 		bool optimal;
 		bool deprecated;
 		bool custom;
+	private:
+		const static std::initializer_list<const char*const> fields;
+	};
+
+	/*
+	Voice Server Update Event Fields
+	Field     Type       Description
+	token     string     voice connection token
+	guild_id  snowflake  the guild this voice server update is for
+	endpoint  string     the voice server host
+	*/
+	struct VoiceServerUpdate : DiscordObject {
+		VoiceServerUpdate();
+		VoiceServerUpdate(const std::string * rawJson);
+		VoiceServerUpdate(const std::vector<std::string> values);
+		std::string token;
+		Snowflake<Server> serverID;
+		std::string endpoint;
 	private:
 		const static std::initializer_list<const char*const> fields;
 	};
