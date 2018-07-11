@@ -175,6 +175,8 @@ void RPCManager::run()
 
     GlobalConfig.General.Threads++;
 
+    PLog->information("Thread Started");
+
     while (!GlobalConfig.General.Shutdown)
     {
         if (DiscordPtr)
@@ -217,6 +219,8 @@ void RPCManager::run()
         Poco::Thread::sleep(1);
         currTime = Poco::Timestamp().epochTime();
     }
+
+    PLog->information("Thread Stopped");
 
     GlobalConfig.General.Threads--;
 }

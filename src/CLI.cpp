@@ -38,6 +38,8 @@ void CLI::cli_main()
 {
     GlobalConfig.General.Threads++;
 
+    PLog->information("Thread Started");
+
     static std::string buffer;
     static bool input_thread_active = false;
     static Poco::Mutex mu;
@@ -75,6 +77,8 @@ void CLI::cli_main()
         }
         Poco::Thread::sleep(1);
     }
+
+    PLog->information("Thread Stopped");
 
     GlobalConfig.General.Threads--;
 }

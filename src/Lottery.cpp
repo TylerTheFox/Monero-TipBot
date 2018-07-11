@@ -152,6 +152,8 @@ void Lottery::run()
 {
     GlobalConfig.General.Threads++;
 
+    PLog->information("Thread Started");
+
     while (!GlobalConfig.General.Shutdown)
     {
         if (!lotterySuspended)
@@ -283,6 +285,8 @@ void Lottery::run()
         }
         Poco::Thread::sleep(1000);
     }
+
+    PLog->information("Thread Stopped");
 
     GlobalConfig.General.Threads--;
 }

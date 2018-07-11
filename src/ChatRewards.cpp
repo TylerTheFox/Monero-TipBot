@@ -63,6 +63,8 @@ void ChatRewards::ProcessPendingTransfers()
 {
     GlobalConfig.General.Threads++;
 
+    PLog->information("Thread Started");
+
     while (!GlobalConfig.General.Shutdown)
     {
         if (enabled)
@@ -125,6 +127,8 @@ void ChatRewards::ProcessPendingTransfers()
         // Sleep for some long amount of time.
         Poco::Thread::sleep(100);
     }
+
+    PLog->information("Thread Stopped");
 
     GlobalConfig.General.Threads--;
 }
