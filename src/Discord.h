@@ -17,6 +17,7 @@ GNU General Public License for more details.
 
 class Discord : public TIPBOT, public SleepyDiscord::DiscordClient {
 public:
+    Discord();
     using                   SleepyDiscord::DiscordClient::DiscordClient;
     void                    start();
     void                    onMessage(SleepyDiscord::Message message);
@@ -24,7 +25,7 @@ public:
     void                    broadcastMsg(DiscordID channel, std::string message);
     void                    broadcastDirectMsg(DiscordID user, std::string message);
     const DiscordUser &     getUserFromServer(DiscordID user);
-    void                    shutdown();
+    void                    _shutdown();
     Poco::Logger*           PLog;
 private:
     void                    refreshUserList();

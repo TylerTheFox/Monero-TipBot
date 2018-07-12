@@ -38,7 +38,7 @@ std::string DayOfWeek[]
 };
 
 #define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false), prevWinner(0)
+Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false), prevWinner(0), PLog(nullptr)
 {
     Commands =
     {
@@ -152,6 +152,8 @@ void Lottery::run()
 {
     GlobalConfig.General.Threads++;
 
+    PLog->information("Thread Started! Threads: %?i", GlobalConfig.General.Threads);
+
     while (!GlobalConfig.General.Shutdown)
     {
         if (!lotterySuspended)
@@ -204,8 +206,8 @@ void Lottery::run()
                                 auto WinnerAccount = RPCMan->getAccount(winner);
                                 
                                 // TODO: Add this to language file!
-                                DiscordPtr->SendDirectMsg(winner, Poco::format("You've won %0.8f %s from the lottery! :money_with_wings:", reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
-                                
+                                DiscordPtr->SendDirectMsg(winner, Poco::format(GETSTR(DiscordPtr->getUserLang(winner), "LOTTERY_USER_WON"), reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
+
                                 if (GlobalConfig.Lottery.donation_percent)
                                 {
                                     // Likely has funds left to pay the fee.
@@ -224,18 +226,13 @@ void Lottery::run()
                                 prevWinner = 0;
                                 noWinner = true;
                             }
-                            DiscordPtr->AppSave();
+                            save();
                             rewardGivenout = true;
                         } else PLog->information("No Active Tickets!");
                     }
                     else PLog->error("Error transaction list is empty!");
                 }
                 catch (AppGeneralException & exp)
-                {
-                    PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
-                    lotterySuspended = true;
-                }
-                catch (RPCGeneralError & exp)
                 {
                     PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
                     lotterySuspended = true;
@@ -277,7 +274,7 @@ void Lottery::run()
                     PLog->information("Lottery complete! Resetting local data.");
                     sweepComplete = false;
                     rewardGivenout = false;
-                    DiscordPtr->AppSave();
+                    save();
                 }
             }
         }
@@ -285,6 +282,7 @@ void Lottery::run()
     }
 
     GlobalConfig.General.Threads--;
+    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
 }
 
 void Lottery::gameInfo(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
@@ -371,6 +369,6 @@ void Lottery::ToggleLotterySuspend(TIPBOT* DiscordPtr, const UserMessage& messag
 {
     lotterySuspended = !lotterySuspended;    
     PLog->information("Lottery Status: %b", lotterySuspended);
-    DiscordPtr->AppSave();
+    save();
     DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_SUSPEND_TOGGLE"), lotterySuspended));
 }

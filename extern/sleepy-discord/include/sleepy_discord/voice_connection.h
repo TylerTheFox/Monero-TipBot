@@ -16,8 +16,11 @@ namespace SleepyDiscord {
 
 	class BaseVoiceEventHandler {
 	public:
-		//to do add more events
+
 		virtual void onReady(VoiceConnection&) {}
+		virtual void onEndSpeaking(VoiceConnection&) {}
+		virtual void onHeartbeat(VoiceConnection&) {}
+		virtual void onHeartbeatAck(VoiceConnection&) {}
 	};
 
 	struct VoiceContext {
@@ -39,25 +42,27 @@ namespace SleepyDiscord {
 			eventHandler = &handler;
 		}
 
+		inline void setVoiceHandler(BaseVoiceEventHandler* handler) {
+			eventHandler = handler;
+		}
+
 	private:
-		VoiceContext(Snowflake<Channel> _channelID, Snowflake<Server> _serverID) :
-			channelID(_channelID), serverID(_serverID), eventHandler(nullptr)
+		VoiceContext(Snowflake<Channel> _channelID, Snowflake<Server> _serverID, BaseVoiceEventHandler* _eventHandler) :
+			channelID(_channelID), serverID(_serverID), eventHandler(_eventHandler)
 		{}
 
 		Snowflake<Channel> channelID;
 		Snowflake<Server> serverID;
 		std::string sessionID = "";
 		std::string endpoint = "";
-		std::string token; //the same token used to log in?
+		std::string token;
 		BaseVoiceEventHandler* eventHandler;
 	};
 
 	enum AudioSourceType {
 		AUDIO_BASE_TYPE,
 		AUDIO_VECTOR,
-		AUDIO_VECTOR_S16,
 		AUDIO_POINTER,
-		AUDIO_POINTER_S16
 	};
 
 	struct BaseAudioSource {
@@ -68,17 +73,12 @@ namespace SleepyDiscord {
 		virtual ~BaseAudioSource() {}
 	};
 
-	//I'm not sure if it's really a good idea for this to be a nested class
-	class VoiceConnection : public UDPClient, public GenericMessageReceiver {
+	class VoiceConnection : public GenericMessageReceiver {
 	public:
-		VoiceConnection(BaseDiscordClient* client, VoiceContext& _context) :
-			origin(client), context(_context) {
-		}
-
+		VoiceConnection(BaseDiscordClient* client, VoiceContext& _context);
 		VoiceConnection(VoiceConnection&&) = default;
 
-		~VoiceConnection() {
-		}
+		~VoiceConnection();
 
 		inline const bool isReady() {
 			return state & State::ABLE;
@@ -86,8 +86,20 @@ namespace SleepyDiscord {
 
 		void disconnect();
 
-		void startSpeaking(BaseAudioSource* source) {
+		inline void setAudioSource(BaseAudioSource*& source) {
 			audioSource = std::unique_ptr<BaseAudioSource>(source);
+		}
+
+		inline BaseAudioSource*const& getAudioSource() {
+			return audioSource.get();
+		}
+
+		//=== startSpeaking functions ===
+
+		void startSpeaking();
+
+		inline void startSpeaking(BaseAudioSource* source) {
+			setAudioSource(source);
 			startSpeaking();
 		}
 
@@ -96,10 +108,14 @@ namespace SleepyDiscord {
 			startSpeaking(new AudioSource(std::forward<Types>(arguments)...));
 		}
 
+		inline BaseDiscordClient& getDiscordClient() {
+			return *origin;
+		}
+
 	private:
 		friend BaseDiscordClient;
 
-		void processMessage(std::string message);
+		void processMessage(const std::string &message) override;
 
 		enum VoiceOPCode {
 			IDENTIFY            = 0,  //client begin a voice websocket connection
@@ -120,6 +136,7 @@ namespace SleepyDiscord {
 			CONNECTED     = 1 << 0,
 			OPEN          = 1 << 1,
 			AUDIO_ENABLED = 1 << 2,
+			SENDING_AUDIO = 1 << 3,
 
 			CAN_ENCODE    = 1 << 6,
 			CAN_DECODE    = 1 << 7,
@@ -127,6 +144,7 @@ namespace SleepyDiscord {
 			ABLE          = CONNECTED | OPEN | AUDIO_ENABLED,
 		};
 
+		UDPClient UDP;
 		int heartbeatInterval = 0;
 		uint32_t sSRC;
 		uint16_t port;
@@ -136,6 +154,8 @@ namespace SleepyDiscord {
 		int16_t numOfPacketsSent = 0;
 		std::unique_ptr<BaseAudioSource> audioSource;
 		std::size_t samplesSentLastTime = 0;
+		time_t previousTime;
+		time_t nextTime;
 		VoiceContext& context;
 #if !defined(NONEXISTENT_OPUS)
 		OpusEncoder *encoder;
@@ -147,7 +167,9 @@ namespace SleepyDiscord {
 		unsigned char secretKey[SECRET_KEY_SIZE];
 
 		void heartbeat();
-		void startSpeaking();
+		inline void stopSpeaking() {
+			state = static_cast<State>(state & ~SENDING_AUDIO);
+		}
 		void sendSpeaking(bool isNowSpeaking);
 		void speak();
 		void speak(int16_t*& audioData, const std::size_t& length);
@@ -164,31 +186,43 @@ namespace SleepyDiscord {
 			return _context;
 		}
 
-		inline std::size_t proposedLength() {
-			return _proposedLength;
-		}
-
 		inline std::size_t amountSentSinceLastTime() {
 			return _amountSentSinceLastTime;
 		}
+
+		static inline constexpr int bitrate() {
+			return 48000;
+		}
+
+		static inline constexpr int channels() {
+			return 2;
+		}
+
+		static inline constexpr std::size_t proposedLength() {
+			return static_cast<std::size_t>(bitrate() * channels() * .020);
+		}
 	private:
 		friend VoiceConnection;
-		AudioTransmissionDetails(VoiceContext& con, const std::size_t pro, const std::size_t amo) :
-			_context(con), _proposedLength(pro), _amountSentSinceLastTime(amo) { }
+		AudioTransmissionDetails(
+			VoiceContext& con,
+			const std::size_t amo
+		) :
+			_context(con),
+			_amountSentSinceLastTime(amo)
+		{ }
 
 		VoiceContext& _context;
-		const std::size_t _proposedLength;
 		const std::size_t _amountSentSinceLastTime;
 	};
 
 	template<AudioSourceType Type>
 	struct AudioSource : public BaseAudioSource {
-		const AudioSourceType type = Type;
+		AudioSource() : BaseAudioSource(Type) {}
 	};
 
 	template<>
 	struct AudioSource<AUDIO_VECTOR> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_VECTOR_S16) {}
+		AudioSource() : BaseAudioSource(AUDIO_VECTOR) {}
 		virtual std::vector<int16_t> read(AudioTransmissionDetails& details) {
 			return std::vector<int16_t>();
 		};
@@ -196,7 +230,7 @@ namespace SleepyDiscord {
 
 	template<>
 	struct AudioSource<AUDIO_POINTER> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_POINTER_S16) {}
+		AudioSource() : BaseAudioSource(AUDIO_POINTER) {}
 		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
 	};
 }

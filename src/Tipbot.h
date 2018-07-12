@@ -108,7 +108,18 @@ struct Snowflake
     std::string             id_str;
     std::string             username;
     std::string             discriminator;
+
+    template <class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(id), CEREAL_NVP(id_str), CEREAL_NVP(username), CEREAL_NVP(discriminator));
+    }
 };
+
+inline bool operator<(const Snowflake &a, const Snowflake &b)
+{
+    return a.id < b.id;
+}
 
 struct UserMessage
 {
@@ -117,6 +128,12 @@ struct UserMessage
     Snowflake               Channel;
     std::string             Message;
     std::vector<Snowflake>  Mentions;
+
+    template <class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(ChannelPerm), CEREAL_NVP(User), CEREAL_NVP(Channel), CEREAL_NVP(Message), CEREAL_NVP(Mentions));
+    }
 };
 
 class AppBaseClass;
@@ -127,7 +144,7 @@ public:
     TIPBOT();
     ~TIPBOT();
     virtual void                                    start() = 0;
-    virtual void                                    shutdown() = 0;
+    void                                            shutdown();
     const struct DiscordUser &                      findUser(const DiscordID & id);
     static bool                                     isUserAdmin(const UserMessage& message);
     void                                            ProcessCommand(const UserMessage& message);
@@ -154,7 +171,7 @@ private:
     std::vector<std::shared_ptr<AppBaseClass>>      Apps;
     virtual void                                    broadcastMsg(DiscordID channel, std::string message) = 0;
     virtual void                                    broadcastDirectMsg(DiscordID user, std::string message) = 0;
-
+    virtual void                                    _shutdown() = 0;
 };
 
 struct Command

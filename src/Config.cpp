@@ -48,6 +48,8 @@ AppConfig GlobalConfig;
 #define LOTTERY_PICK                            21
 #define LOTTERY_FAUCET                          23
 #define USE_TEST_NET                            false
+#define MINUTES_UNTIL_NEXT_DRAWING (MICROSECOND_HOUR/2) // Every 30 minutes
+#define MINUTES_UNTIL_NEXT_PAYMENT (MICROSECOND_HOUR/4) // Every 15 minutes
 
 const DiscordID DiscordAdmins[] =
 {
@@ -105,6 +107,10 @@ AppConfig::AppConfig()
     Lottery.pick = LOTTERY_PICK;
     Lottery.ticket_cost = TICKET_COST;
     Lottery.faucet = LOTTERY_FAUCET;
+    
+    // ChatRewards
+    ChatRewards.next_drawing_time = MINUTES_UNTIL_NEXT_DRAWING;
+    ChatRewards.next_payment_time = MINUTES_UNTIL_NEXT_PAYMENT;
 }
 
 void AppConfig::load_config(const std::string & file)

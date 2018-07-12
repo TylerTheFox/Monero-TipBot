@@ -67,6 +67,7 @@ LanguageSelect::LanguageSelect()
                     LANGPAIR("LOTTERY_WON_WITHOUT_WINNER","There was no winner last lottery!"),
                     LANGPAIR("LOTTERY_LAST_WINNER","The last winner was: %?i"),
                     LANGPAIR("LOTTERY_SUSPEND_TOGGLE","Lottery Suspended: %b"),
+                    LANGPAIR("LOTTERY_USER_WON", "You've won %0.8f %s from the lottery! :money_with_wings:"),
 
                     // Faucet
                     LANGPAIR("FAUCET_HELP","Faucet Commands (use ``!give [amount] @Tip Bot`` to donate to faucet):\\n"),
@@ -76,6 +77,9 @@ LanguageSelect::LanguageSelect()
                     LANGPAIR("FAUCET_TAKE_TOO_SOON","Too soon! You're allowed one ``!take`` every %?i hours, remaining %f hours."),
                     LANGPAIR("FAUCET_TAKE_ACCOUNT_NOT_MATURE","Your Discord account must be older than 7 days.\\n"),
                     LANGPAIR("FAUCET_TAKE_DISABLED","Faucet Disabled!\\n"),
+
+                    // Chat Rewards
+                    LANGPAIR("CHAT_REWARDS_PAYMENT", "User %?i has been chosen and added to the payment queue."),
                 }
             }
         }

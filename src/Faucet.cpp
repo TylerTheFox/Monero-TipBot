@@ -27,7 +27,7 @@ GNU General Public License for more details.
 #include "cereal/archives/json.hpp"
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Faucet::Faucet() : enabled(true)
+Faucet::Faucet() : enabled(true), PLog(nullptr)
 {
     Commands =
     {
@@ -57,7 +57,7 @@ void Faucet::save()
 
 void Faucet::load()
 {
-    std::ifstream in(FAUCET_SAVE_FILE, std::ios::trunc);
+    std::ifstream in(FAUCET_SAVE_FILE);
     if (in.is_open())
     {
         PLog->information("Loading faucet data from disk...");
@@ -103,7 +103,6 @@ const_iterator Faucet::end() const
 const_iterator Faucet::cend() const
 {
     return Commands.cend();
-
 }
 
 void Faucet::help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const
@@ -187,7 +186,6 @@ void Faucet::status(TIPBOT* DiscordPtr, const UserMessage& message, const Comman
         [](const std::pair<DiscordID, std::uint64_t>& p1, const std::pair<DiscordID, std::uint64_t>& p2) {
         return p1.second < p2.second; });
 
-
     auto TopTaker = DiscordPtr->findTopTaker();
 
     ss << "```";
@@ -220,7 +218,7 @@ void Faucet::status(TIPBOT* DiscordPtr, const UserMessage& message, const Comman
 void Faucet::ToggleFaucet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
 {
     enabled = !enabled;
-    DiscordPtr->AppSave();
+    save();
     PLog->information("Faucet Status: %b", enabled);
     DiscordPtr->SendMsg(message, Poco::format("Faucet Enabled: %b", enabled));
 }

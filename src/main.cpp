@@ -33,6 +33,7 @@ GNU General Public License for more details.
 #include "Poco/FormattingChannel.h"
 #include "Poco/PatternFormatter.h"
 #include "Language.h"
+#include "Dummy.h"
 
 #define COIN_CONFIG "Coins/"
 #define LANG_CONFIG "language.json"
@@ -151,13 +152,15 @@ int main()
             RPCMan->load();
 
             // Run bot with token.
-            std::unique_ptr<TIPBOT> Tbot(new Discord(GlobalConfig.General.discordToken));
-            RPCMan->setDiscordPtr(Tbot.get());
+            Discord Dbot(GlobalConfig.General.discordToken);
+            TIPBOT & Tbot = Dbot;
+            RPCMan->setDiscordPtr(&Tbot);
 
             // Create RPC threads
             Poco::Thread thread;
-            thread.start(*RPCMan);
-            Tbot->start();
+            thread.start(*RPCMan.get());
+            Tbot.start();   
+            thread.join();
         }
         catch (const Poco::Exception & exp)
         {
@@ -173,18 +176,9 @@ int main()
         logger.information("Tipbot shutting down...");
 
         // Ensure all threads are exited.
-        while (GlobalConfig.General.Threads);
+        while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); }
 
         RPCMan.reset(nullptr);
-
-        // Upgrade save file
-        if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
-        {
-            logger.information("Upgrading Save file...");
-            GlobalConfig.About.major = VERSION_MAJOR;
-            GlobalConfig.About.minor = VERSION_MINOR;
-            GlobalConfig.save_config();
-        }
 
         logger.information("Tipbot shutdown complete...");
 

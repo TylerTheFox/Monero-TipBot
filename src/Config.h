@@ -20,7 +20,7 @@ GNU General Public License for more details.
 #include "types.h"
 
 #define VERSION_MAJOR                           2
-#define VERSION_MINOR                           5
+#define VERSION_MINOR                           6
 
 struct AboutConfig
 {
@@ -156,6 +156,21 @@ struct LotteryConfig
     }
 };
 
+struct ChatRewardsConfig
+{
+    std::uint64_t next_drawing_time;
+    std::uint64_t next_payment_time;
+
+    template <class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(
+            CEREAL_NVP(next_drawing_time),
+            CEREAL_NVP(next_payment_time)
+        );
+    }
+};
+
 class AppConfig
 {
 public:
@@ -163,15 +178,16 @@ public:
     void load_config(const std::string & file);
     void save_config();
 
-    struct AboutConfig      About;
-    struct GeneralConfig    General;
-    struct RPCConfig        RPC;
-    struct RPCManagerConfig RPCManager;
-    struct FacuetConfig     Faucet;
-    struct LotteryConfig    Lottery;
+    struct AboutConfig          About;
+    struct GeneralConfig        General;
+    struct RPCConfig            RPC;
+    struct RPCManagerConfig     RPCManager;
+    struct FacuetConfig         Faucet;
+    struct LotteryConfig        Lottery;
+    struct ChatRewardsConfig    ChatRewards;
 
     template <class Archive>
-    void serialize(Archive & ar)
+    void save(Archive & ar) const
     {
         ar(
             CEREAL_NVP(About),
@@ -179,15 +195,40 @@ public:
             CEREAL_NVP(RPC),
             CEREAL_NVP(RPCManager),
             CEREAL_NVP(Faucet),
-            CEREAL_NVP(Lottery)
+            CEREAL_NVP(Lottery),
+            CEREAL_NVP(ChatRewards)
         );
     }
+
+    template <class Archive>
+    void load(Archive & ar);
 
 private:
     std::string currentConfig;
 };
 
 extern AppConfig GlobalConfig;
+
+
+template <class Archive>
+void AppConfig::load(Archive & ar)
+{
+    ar(
+        CEREAL_NVP(About),
+        CEREAL_NVP(General),
+        CEREAL_NVP(RPC),
+        CEREAL_NVP(RPCManager),
+        CEREAL_NVP(Faucet),
+        CEREAL_NVP(Lottery)
+    );
+
+    if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 5)
+    {
+        ar(
+            CEREAL_NVP(ChatRewards)
+        );
+    }
+}
 
 template <class Archive>
 void RPCConfig::load(Archive & ar)

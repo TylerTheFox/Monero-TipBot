@@ -30,7 +30,7 @@ GNU General Public License for more details.
 
 std::unique_ptr<RPCManager>      RPCMan;
 
-RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr), BotID(0)
+RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_number), DiscordPtr(nullptr), BotID(0), PLog(nullptr)
 {
     PLog = &Poco::Logger::get("RPCManager");
 
@@ -175,6 +175,8 @@ void RPCManager::run()
 
     GlobalConfig.General.Threads++;
 
+    PLog->information("Thread Started! Threads: %?i", GlobalConfig.General.Threads);
+
     while (!GlobalConfig.General.Shutdown)
     {
         if (DiscordPtr)
@@ -219,6 +221,7 @@ void RPCManager::run()
     }
 
     GlobalConfig.General.Threads--;
+    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
 }
 
 void RPCManager::processNewTransactions()

@@ -23,6 +23,8 @@ DiscordID convertSnowflakeToInt64(t id)
     return Poco::NumberParser::parseUnsigned64(static_cast<std::string>(id));
 }
 
+Discord::Discord() : PLog(nullptr) {}
+
 int Discord::getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id)
 {
     try
@@ -51,6 +53,7 @@ void Discord::start()
     try
     {
         this->run();
+        while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); };
     }
     catch (const websocketpp::exception & err)
     {
@@ -68,8 +71,7 @@ void  Discord::onMessage(SleepyDiscord::Message message)
 {
     try
     {
-        if (!message.content.empty() && message.content.at(0) == '!')
-            ProcessCommand(ConvertSleepyDiscordMsg(message));
+        ProcessCommand(ConvertSleepyDiscordMsg(message));
     }
     catch (const websocketpp::exception & err)
     {
@@ -277,7 +279,7 @@ void Discord::refreshUserList()
     }
 }
 
-void Discord::shutdown()
+void Discord::_shutdown()
 {
     try
     {
