@@ -152,7 +152,8 @@ int main()
             RPCMan->load();
 
             // Run bot with token.
-            TIPBOT & Tbot = Discord(GlobalConfig.General.discordToken);
+            Discord Dbot(GlobalConfig.General.discordToken);
+            TIPBOT & Tbot = Dbot;
             RPCMan->setDiscordPtr(&Tbot);
 
             // Create RPC threads
