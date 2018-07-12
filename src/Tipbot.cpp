@@ -65,6 +65,8 @@ void TIPBOT::shutdown()
         GlobalConfig.General.Shutdown = true;
         while (GlobalConfig.General.Threads);
 
+        PLog->information("All Threads Shutdown!");
+
         this->_shutdown();
     });
     t1.detach();
