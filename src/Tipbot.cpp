@@ -166,7 +166,7 @@ void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Com
     static Poco::Logger & tlog = Poco::Logger::get("CommandDispatch");
     GlobalConfig.General.Threads++;
 
-    tlog.information("Thread Started! Threads: %?i", GlobalConfig.General.Threads++);
+    tlog.information("Thread Started! Threads: %?i", GlobalConfig.General.Threads);
 
     if (!GlobalConfig.General.Shutdown)
     {
@@ -186,7 +186,7 @@ void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Com
         }
     }
 
-    tlog.information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads++);
+    tlog.information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
 
     GlobalConfig.General.Threads--;
 }
