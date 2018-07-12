@@ -166,6 +166,8 @@ void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Com
     static Poco::Logger & tlog = Poco::Logger::get("CommandDispatch");
     GlobalConfig.General.Threads++;
 
+    tlog.information("Thread Started! Threads: %?i", GlobalConfig.General.Threads++);
+
     if (!GlobalConfig.General.Shutdown)
     {
         try
@@ -183,6 +185,8 @@ void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Com
             DiscordPtr->SendMsg(message, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
         }
     }
+
+    tlog.information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads++);
 
     GlobalConfig.General.Threads--;
 }

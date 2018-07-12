@@ -38,7 +38,7 @@ void CLI::cli_main()
 {
     GlobalConfig.General.Threads++;
 
-    PLog->information("Thread Started");
+    PLog->information("Thread Started! Threads: %?i", GlobalConfig.General.Threads++);
 
     static std::string buffer;
     static bool input_thread_active = false;
@@ -78,7 +78,7 @@ void CLI::cli_main()
         Poco::Thread::sleep(1);
     }
 
-    PLog->information("Thread Stopped");
+    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads++);
 
     GlobalConfig.General.Threads--;
 }

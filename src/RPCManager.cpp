@@ -175,7 +175,7 @@ void RPCManager::run()
 
     GlobalConfig.General.Threads++;
 
-    PLog->information("Thread Started");
+    PLog->information("Thread Started! Threads: %?i", GlobalConfig.General.Threads++);
 
     while (!GlobalConfig.General.Shutdown)
     {
@@ -220,7 +220,7 @@ void RPCManager::run()
         currTime = Poco::Timestamp().epochTime();
     }
 
-    PLog->information("Thread Stopped");
+    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads++);
 
     GlobalConfig.General.Threads--;
 }
