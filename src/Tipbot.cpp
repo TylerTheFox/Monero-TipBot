@@ -55,23 +55,16 @@ TIPBOT::~TIPBOT()
 
 void TIPBOT::shutdown()
 {
-    // Because this is called from a user command which creates its own thread
-    // And inrcs GlobalConfig.General.Threads we must create a new thread and wait
-    // for the command to fully finish.
+    this->AppSave();
+
     PLog->information("Shutting Threads Down...");
 
-    //std::thread t1([&]()
-    //{
-        this->AppSave();
+    GlobalConfig.General.Shutdown = true;
+    while (GlobalConfig.General.Threads > 1) { Poco::Thread::sleep(1); }
 
-        GlobalConfig.General.Shutdown = true;
-        while (GlobalConfig.General.Threads > 1) { Poco::Thread::sleep(1); }
+    PLog->information("All Threads Shutdown!");
 
-        PLog->information("All Threads Shutdown!");
-
-        this->_shutdown();
-    //});
-    //t1.detach();
+    this->_shutdown();
 }
 
 void TIPBOT::tipbot_init()
@@ -82,10 +75,10 @@ void TIPBOT::tipbot_init()
 
         Apps = {
             { (std::shared_ptr<AppBaseClass>(std::make_unique<CLI>(this))) },
-        { (std::shared_ptr<AppBaseClass>(std::make_unique<Tip>())) },
-        { (std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>())) },
-        { (std::shared_ptr<AppBaseClass>(std::make_unique<ChatRewards>(this))) },
-        { (std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this))) }
+            { (std::shared_ptr<AppBaseClass>(std::make_unique<Tip>())) },
+            { (std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>())) },
+            { (std::shared_ptr<AppBaseClass>(std::make_unique<ChatRewards>(this))) },
+            { (std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this))) },
         };
 
         for (auto & app : Apps)
@@ -100,7 +93,6 @@ void TIPBOT::tipbot_init()
             GlobalConfig.save_config();
             AppSave();
         }
-
     }
     catch (AppGeneralException & exp)
     {
