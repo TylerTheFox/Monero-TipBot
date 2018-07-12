@@ -58,6 +58,8 @@ void TIPBOT::shutdown()
     // Because this is called from a user command which creates its own thread
     // And inrcs GlobalConfig.General.Threads we must create a new thread and wait
     // for the command to fully finish.
+    PLog->information("Shutting Threads Down...");
+
     std::thread t1([&]()
     {
         this->AppSave();
