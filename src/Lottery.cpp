@@ -38,7 +38,7 @@ std::string DayOfWeek[]
 };
 
 #define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false), prevWinner(0)
+Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false), prevWinner(0), PLog(nullptr)
 {
     Commands =
     {
@@ -233,11 +233,6 @@ void Lottery::run()
                     else PLog->error("Error transaction list is empty!");
                 }
                 catch (AppGeneralException & exp)
-                {
-                    PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
-                    lotterySuspended = true;
-                }
-                catch (RPCGeneralError & exp)
                 {
                     PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
                     lotterySuspended = true;

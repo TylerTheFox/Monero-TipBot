@@ -33,6 +33,7 @@ GNU General Public License for more details.
 #include "Poco/FormattingChannel.h"
 #include "Poco/PatternFormatter.h"
 #include "Language.h"
+#include "Dummy.h"
 
 #define COIN_CONFIG "Coins/"
 #define LANG_CONFIG "language.json"
@@ -151,13 +152,14 @@ int main()
             RPCMan->load();
 
             // Run bot with token.
-            std::unique_ptr<TIPBOT> Tbot(new Discord(GlobalConfig.General.discordToken));
-            RPCMan->setDiscordPtr(Tbot.get());
+            TIPBOT & Tbot = Discord(GlobalConfig.General.discordToken);
+            RPCMan->setDiscordPtr(&Tbot);
 
             // Create RPC threads
             Poco::Thread thread;
-            thread.start(*RPCMan);
-            Tbot->start();
+            thread.start(*RPCMan.get());
+            Tbot.start();   
+            thread.join();
         }
         catch (const Poco::Exception & exp)
         {

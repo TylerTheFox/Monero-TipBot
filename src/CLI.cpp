@@ -18,7 +18,7 @@ GNU General Public License for more details.
 #include <Poco/StringTokenizer.h>
 #include <thread>
 
-CLI::CLI(TIPBOT * dptr)
+CLI::CLI(TIPBOT * dptr) : PLog(nullptr)
 {
     PLog = &Poco::Logger::get("CLI");
 
@@ -42,7 +42,7 @@ void CLI::cli_main()
 
     static std::string buffer;
     static bool input_thread_active = false;
-    static Poco::Mutex mu;
+    //static Poco::Mutex mu; // I can't find away to unlock mu when the program exits. I don't think a race condition here is a big issue.
 
     if (!input_thread_active)
     {
@@ -51,9 +51,9 @@ void CLI::cli_main()
         {
             while (true)
             {
-                mu.lock();
+                //mu.lock();
                 std::getline(std::cin, buffer);
-                mu.unlock();
+                //mu.unlock();
                 Poco::Thread::sleep(10);
             }
         });
@@ -64,11 +64,11 @@ void CLI::cli_main()
     std::string loc_buff;
     while (!GlobalConfig.General.Shutdown)
     {
-        if (mu.tryLock())
+        //if (mu.tryLock())
         {
             loc_buff = buffer;
             buffer.clear();
-            mu.unlock();
+            //mu.unlock();
             if (!loc_buff.empty())
             {
                 PLog->information(loc_buff);
