@@ -60,18 +60,18 @@ void TIPBOT::shutdown()
     // for the command to fully finish.
     PLog->information("Shutting Threads Down...");
 
-    std::thread t1([&]()
-    {
+    //std::thread t1([&]()
+    //{
         this->AppSave();
 
         GlobalConfig.General.Shutdown = true;
-        while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); }
+        while (GlobalConfig.General.Threads > 1) { Poco::Thread::sleep(1); }
 
         PLog->information("All Threads Shutdown!");
 
         this->_shutdown();
-    });
-    t1.detach();
+    //});
+    //t1.detach();
 }
 
 void TIPBOT::tipbot_init()
@@ -167,7 +167,7 @@ bool TIPBOT::isUserAdmin(const UserMessage& message)
 
 void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Command &)> & func, TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
 {
-    static Poco::Logger & tlog = Poco::Logger::get("CommandDispatch");
+    Poco::Logger & tlog = Poco::Logger::get("CommandDispatch");
     GlobalConfig.General.Threads++;
 
     tlog.information("Thread Started! Threads: %?i", GlobalConfig.General.Threads);
