@@ -128,9 +128,8 @@ void ChatRewards::ProcessPendingTransfers()
         Poco::Thread::sleep(100);
     }
 
-    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
-
     GlobalConfig.General.Threads--;
+    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
 }
 
 bool ChatRewards::isUserDisallowed(const DiscordID & id)

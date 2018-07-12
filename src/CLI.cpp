@@ -78,9 +78,8 @@ void CLI::cli_main()
         Poco::Thread::sleep(1);
     }
 
-    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
-
     GlobalConfig.General.Threads--;
+    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
 }
 
 UserMessage CLI::generateUsrMsg(std::string msg)

@@ -186,9 +186,9 @@ void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Com
         }
     }
 
-    tlog.information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
-
     GlobalConfig.General.Threads--;
+
+    tlog.information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
 }
 
 void TIPBOT::ProcessCommand(const UserMessage & message)

@@ -286,9 +286,8 @@ void Lottery::run()
         Poco::Thread::sleep(1000);
     }
 
-    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
-
     GlobalConfig.General.Threads--;
+    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
 }
 
 void Lottery::gameInfo(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const

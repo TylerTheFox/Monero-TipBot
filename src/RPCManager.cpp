@@ -220,9 +220,8 @@ void RPCManager::run()
         currTime = Poco::Timestamp().epochTime();
     }
 
-    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
-
     GlobalConfig.General.Threads--;
+    PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
 }
 
 void RPCManager::processNewTransactions()
