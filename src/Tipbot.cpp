@@ -50,7 +50,7 @@ TIPBOT::TIPBOT() : PLog(nullptr)
 TIPBOT::~TIPBOT()
 {
     GlobalConfig.General.Shutdown = true;
-    while (GlobalConfig.General.Threads);
+    while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); }
 }
 
 void TIPBOT::shutdown()
@@ -65,7 +65,7 @@ void TIPBOT::shutdown()
         this->AppSave();
 
         GlobalConfig.General.Shutdown = true;
-        while (GlobalConfig.General.Threads);
+        while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); }
 
         PLog->information("All Threads Shutdown!");
 

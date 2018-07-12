@@ -176,7 +176,7 @@ int main()
         logger.information("Tipbot shutting down...");
 
         // Ensure all threads are exited.
-        while (GlobalConfig.General.Threads);
+        while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); }
 
         RPCMan.reset(nullptr);
 
