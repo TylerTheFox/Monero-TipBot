@@ -90,7 +90,6 @@ void  Discord::onReady(SleepyDiscord::Ready readyData)
         // Start application
         tipbot_init();
 
-        loadUserList();
         RPCMan->setBotUser(convertSnowflakeToInt64(readyData.user.ID));
         refreshUserList();
     }

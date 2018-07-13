@@ -84,6 +84,8 @@ void TIPBOT::tipbot_init()
         for (auto & app : Apps)
             app->load();
 
+        loadUserList();
+
         // Upgrade save file
         if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
         {
