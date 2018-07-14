@@ -42,6 +42,7 @@ public:
     void                                take(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                status(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
     void                                ToggleFaucet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                award(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 private:
     Poco::Logger*                   PLog;
     bool                            enabled;

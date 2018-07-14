@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include <fstream>
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
+#include <Poco/StringTokenizer.h>
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Faucet::Faucet() : enabled(true), PLog(nullptr)
@@ -37,6 +38,8 @@ Faucet::Faucet() : enabled(true), PLog(nullptr)
         { "!take",            CLASS_RESOLUTION(take),                       "",                                 false,  false,  AllowChannelTypes::Public },
         { "!status",          CLASS_RESOLUTION(status),                     "",                                 false,  true,   AllowChannelTypes::Private },
         { "!togglefaucet",    CLASS_RESOLUTION(ToggleFaucet),               "",                                 false,  true,   AllowChannelTypes::Private },
+        { "!award",           CLASS_RESOLUTION(award),                      "[@User]",                          false,  true,   AllowChannelTypes::Any },
+
     };
     PLog = &Poco::Logger::get("Faucet");
 }
@@ -221,4 +224,33 @@ void Faucet::ToggleFaucet(TIPBOT * DiscordPtr, const UserMessage& message, const
     save();
     PLog->information("Faucet Status: %b", enabled);
     DiscordPtr->SendMsg(message, Poco::format("Faucet Enabled: %b", enabled));
+}
+
+void Faucet::award(TIPBOT * DiscordPtr, const UserMessage & message, const Command & me)
+{
+    Poco::StringTokenizer cmd(message.Message, " ");
+
+    if (cmd.count() < 2 || message.Mentions.empty())
+        DiscordPtr->CommandParseError(message, me);
+    else
+    {
+        for (const auto& user : message.Mentions)
+        {
+            std::stringstream ss;
+            auto & myAccountPtr = RPCManager::getGlobalBotAccount();
+            if (myAccountPtr.getUnlockedBalance())
+            {
+                const auto amount = static_cast<std::uint64_t>(myAccountPtr.getUnlockedBalance()*GlobalConfig.Faucet.percentage_allowance);
+                const auto tx = myAccountPtr.transferMoneyToAddress(amount, Account::getWalletAddress(user.id));
+                PLog->information("User %s was issued %0.8f %s with TX Hash %s", message.User.id_str, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
+                ss << Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_SUCCESS"), user.username, user.discriminator, amount / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash);
+                DiscordPtr->saveUserList();
+            }
+            else if (myAccountPtr.getBalance())
+                ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_PENDING_TRANSACTIONS");
+            else ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "FAUCET_TAKE_IS_BROKE");
+
+            DiscordPtr->SendMsg(message, ss.str());
+        }
+    }
 }
