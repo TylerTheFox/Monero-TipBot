@@ -19,6 +19,7 @@ GNU General Public License for more details.
 #include "Config.h"
 #include "Language.h"
 #include "Poco/DateTimeFormatter.h"
+#include "Poco/Timespan.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Tip::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Tip::Tip() : MyAccount(nullptr)
@@ -46,6 +47,7 @@ Tip::Tip() : MyAccount(nullptr)
         { "!tip",             CLASS_RESOLUTION(Give),                        "[amount] [@User1 @User2...]",      true,   false,  AllowChannelTypes::Public },
         { "!tipall",          CLASS_RESOLUTION(GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public },
         { "!restartwallet",   CLASS_RESOLUTION(RestartWallet),               "",                                 true,   false,  AllowChannelTypes::Any },
+        { "!uptime",          CLASS_RESOLUTION(UpTime),                      "",                                 true,   false,  AllowChannelTypes::Any },
 
         // Admin
         // Command            Function                                       Params                              Wallet  Admin   Allowed Channel
@@ -364,6 +366,11 @@ void Tip::Executing(TIPBOT * DiscordPtr, const UserMessage & message, const Comm
     }
     ss << "```";
     DiscordPtr->SendMsg(message, ss.str());
+}
+
+void Tip::UpTime(TIPBOT * DiscordPtr, const UserMessage & message, const Command & me)
+{
+    DiscordPtr->SendMsg(message, Poco::format("Total uptime: %?i hours", Poco::Timespan(Poco::Timestamp() - start).totalHours()));
 }
 
 void Tip::ListLanguages(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)

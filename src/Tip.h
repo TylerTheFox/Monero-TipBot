@@ -16,6 +16,7 @@ GNU General Public License for more details.
 #include "AppBaseClass.h"
 #include <vector>
 #include "Account.h"
+#include "Poco/Timestamp.h"
 class TIPBOT;
 
 struct Settings
@@ -68,8 +69,10 @@ public:
     void                            WhoIs(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            PerformanceData(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            Executing(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            UpTime(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 
     private:
+    Poco::Timestamp                 start;
     Settings                        globalSettings{};
     std::vector<struct Command>     Commands;
     Account*                        MyAccount;
