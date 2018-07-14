@@ -22,7 +22,8 @@ GNU General Public License for more details.
 #include "Poco/Logger.h"
 #include "Poco/AutoPtr.h"
 #include "Config.h"
-
+#include <unordered_set>
+#include "Poco/Checksum.h"
 #define FIND_USER_UNKNOWN_USER "Unknown User"
 
 extern const char *aboutStr;
@@ -34,6 +35,7 @@ const std::string AllowChannelTypeNames[] =
 
 enum class AllowChannelTypes
 {
+    Error = -3,
     CLI = -2,
     Any = -1,
     Public = 0,
@@ -136,44 +138,7 @@ struct UserMessage
     }
 };
 
-class AppBaseClass;
-#define DISCORD_USER_CACHE_FILENAME "DISCORDDATA.json"
-
-class TIPBOT {
-public:
-    TIPBOT();
-    ~TIPBOT();
-    virtual void                                    start() = 0;
-    void                                            shutdown();
-    const struct DiscordUser &                      findUser(const DiscordID & id);
-    static bool                                     isUserAdmin(const UserMessage& message);
-    void                                            ProcessCommand(const UserMessage& message);
-    void                                            CommandParseError(const UserMessage& message, const struct Command & me);
-    static bool                                     isCommandAllowedToBeExecuted(const UserMessage& message, const Command& command);
-    static std::string                              generateHelpText(const std::string & title, const std::vector<Command>& cmds, const UserMessage& message);
-    void                                            saveUserList();
-    const struct TopTakerStruct                     findTopTaker();
-    void                                            AppSave();
-
-    void                                            SendMsg(const UserMessage& data, std::string message);
-    void                                            SendDirectMsg(const DiscordID& usr, std::string message);
-
-    std::uint64_t                                   totalFaucetAmount();
-    uint8_t                                         getUserLang(const DiscordID & usr);
-    void                                            tipbot_init();
-    virtual const DiscordUser &                     getUserFromServer(DiscordID user) = 0;
-protected:
-    std::map<std::uint64_t, std::set<DiscordUser> > UserList;
-    void                                            loadUserList();
-
-private:
-    Poco::Logger*                                   PLog;
-    std::vector<std::shared_ptr<AppBaseClass>>      Apps;
-    virtual void                                    broadcastMsg(DiscordID channel, std::string message) = 0;
-    virtual void                                    broadcastDirectMsg(DiscordID user, std::string message) = 0;
-    virtual void                                    _shutdown() = 0;
-};
-
+class TIPBOT;
 struct Command
 {
     std::string                                                                         name;
@@ -186,3 +151,91 @@ struct Command
 
 typedef std::vector<struct Command>::iterator       iterator;
 typedef std::vector<struct Command>::const_iterator const_iterator;
+struct ExecuteCommand
+{
+    Poco::Timestamp      time_started;
+    const UserMessage&   message;
+    const Command&       me;
+
+    bool operator==(const ExecuteCommand &lhs) const
+    {
+        return (time_started == lhs.time_started
+            && &message == &lhs.message
+            && &me == &lhs.me);
+    }
+};
+
+struct ExecuteCommandHash
+{
+    std::size_t operator () (const ExecuteCommand& p) const
+    {
+        Poco::Checksum csum;
+        csum.update(reinterpret_cast<const char*>(&p), sizeof(ExecuteCommand));
+        return csum.checksum();
+    }
+};
+typedef std::unordered_set<ExecuteCommand, ExecuteCommandHash> ExecuteCommandType;
+
+struct CommandPerformance
+{
+    CommandPerformance() : totalTime(0), calls(0)
+    {} 
+
+    std::uint64_t totalTime;
+    std::uint64_t calls;
+
+    template <class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(totalTime), CEREAL_NVP(calls));
+    }
+};
+typedef std::unordered_map<std::string, CommandPerformance> PerformanceMap;
+
+class AppBaseClass;
+#define DISCORD_USER_CACHE_FILENAME "DISCORDDATA.json"
+#define PERFORMANCE_STATS_FILENAME  "PERFORMANCE.json"
+
+class TIPBOT {
+public:
+    TIPBOT();
+    ~TIPBOT();
+    virtual void                                        start() = 0;
+    void                                                shutdown();
+    const struct DiscordUser &                          findUser(const DiscordID & id);
+    static bool                                         isUserAdmin(const UserMessage& message);
+    void                                                ProcessCommand(const UserMessage& message);
+    void                                                CommandParseError(const UserMessage& message, const struct Command & me);
+    static bool                                         isCommandAllowedToBeExecuted(const UserMessage& message, const Command& command);
+    static std::string                                  generateHelpText(const std::string & title, const std::vector<Command>& cmds, const UserMessage& message);
+    void                                                saveUserList();
+    const struct TopTakerStruct                         findTopTaker();
+    void                                                AppSave();
+
+    void                                                SendMsg(const UserMessage& data, std::string message);
+    void                                                SendDirectMsg(const DiscordID& usr, std::string message);
+
+    std::uint64_t                                       totalFaucetAmount();
+    uint8_t                                             getUserLang(const DiscordID & usr);
+    void                                                tipbot_init();
+    virtual const DiscordUser &                         getUserFromServer(DiscordID user) = 0;
+    const PerformanceMap&                               getPerformanceStats();
+    const ExecuteCommandType&                           getRunningCommands();
+protected:
+    std::map<std::uint64_t, std::set<DiscordUser> >     UserList;
+    void                                                loadUserList();
+
+private:
+    Poco::Logger*                                       PLog;
+    std::vector<std::shared_ptr<AppBaseClass>>          Apps;    
+    ExecuteCommandType                                  runningCommands;
+    PerformanceMap                                      AppPerformanceStats;
+    Poco::Mutex                                         DispatchMu;
+
+    void                                                SaveStats();
+    void                                                LoadStats();
+    void                                                dispatcher(const UserMessage& message, const struct Command & me, const std::shared_ptr<AppBaseClass> & ptr);
+    virtual void                                        broadcastMsg(DiscordID channel, std::string message) = 0;
+    virtual void                                        broadcastDirectMsg(DiscordID user, std::string message) = 0;
+    virtual void                                        _shutdown() = 0;
+};

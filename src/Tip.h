@@ -66,6 +66,8 @@ public:
     void                            Shutdown(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            RPCStatus(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            WhoIs(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            PerformanceData(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            Executing(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 
     private:
     Settings                        globalSettings{};

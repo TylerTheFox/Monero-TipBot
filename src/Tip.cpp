@@ -18,6 +18,7 @@ GNU General Public License for more details.
 #include "RPCManager.h"
 #include "Config.h"
 #include "Language.h"
+#include "Poco/DateTimeFormatter.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Tip::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Tip::Tip() : MyAccount(nullptr)
@@ -58,6 +59,9 @@ Tip::Tip() : MyAccount(nullptr)
         { "!shutdown",        CLASS_RESOLUTION(Shutdown),                    "",                                 false,  true,   AllowChannelTypes::Private },
         { "!rpcstatus",       CLASS_RESOLUTION(RPCStatus),                   "",                                 false,  true,   AllowChannelTypes::Private },
         { "!whois",           CLASS_RESOLUTION(WhoIs),                      "[DiscordID]",                       false,  true,   AllowChannelTypes::Private },
+        { "!performance",     CLASS_RESOLUTION(PerformanceData),            "",                                  false,  true,   AllowChannelTypes::Private },
+        { "!executing",       CLASS_RESOLUTION(Executing),                  "",                                  false,  true,   AllowChannelTypes::Private },
+
     };
 }
 
@@ -324,6 +328,42 @@ void Tip::WhoIs(TIPBOT * DiscordPtr, const UserMessage& message, const Command &
         else
             DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_WHOIS_USER_NOT_FOUND"));
     }
+}
+
+void Tip::PerformanceData(TIPBOT * DiscordPtr, const UserMessage & message, const Command & me)
+{
+    std::stringstream ss;
+    const auto & stats = DiscordPtr->getPerformanceStats();
+    ss << "Command, Avg Time, Total Time, Total Calls\\n";
+    ss << "```";
+    for (const auto & stat : stats)
+    {
+        ss << stat.first << ", "    << stat.second.totalTime / stat.second.calls << " ms, " 
+                                    << stat.second.totalTime << " ms, " 
+                                    << stat.second.calls << "\\n";
+    }
+    ss << "```";
+    DiscordPtr->SendMsg(message, ss.str());
+}
+
+void Tip::Executing(TIPBOT * DiscordPtr, const UserMessage & message, const Command & me)
+{
+    auto ExeList = DiscordPtr->getRunningCommands();
+    std::stringstream ss;
+    ss << "Command, Started, Elapsed, User, User Channel, User Input\\n";
+    ss << "```";
+    for (const auto & Exe : ExeList)
+    {
+        Poco::Timespan timeElapsed(Poco::Timestamp() - Exe.time_started);
+        ss << Exe.me.name << ", "
+            << Poco::DateTimeFormatter::format(Exe.time_started, Poco::DateTimeFormat::SORTABLE_FORMAT) << ", "
+            << timeElapsed.totalMilliseconds() << " ms, "
+            << Exe.message.User.username << " (" << Exe.message.User.id_str << "), "
+            << static_cast<int>(Exe.message.ChannelPerm) << ", "
+            << Exe.message.Message << "\\n";
+    }
+    ss << "```";
+    DiscordPtr->SendMsg(message, ss.str());
 }
 
 void Tip::ListLanguages(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)

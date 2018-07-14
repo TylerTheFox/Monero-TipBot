@@ -33,6 +33,11 @@ int Discord::getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Chann
         Poco::JSON::Object::Ptr     object;
         std::string                 clientID;
         auto response = getChannel(id);
+        if (response.statusCode != 200)
+        {
+            PLog->error("getDiscordChannelType -- Could not determine %s channel's type! Aborting.", static_cast<std::string>(id));
+            return static_cast<int>(AllowChannelTypes::Error);
+        }
         object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
         return object->getValue<int>("type");
     }
@@ -127,6 +132,11 @@ void Discord::broadcastDirectMsg(DiscordID user, std::string message)
         Poco::JSON::Object::Ptr object;
         std::string             clientID;
         auto response = createDirectMessageChannel(Poco::format("%Lu", user));
+        if (response.statusCode != 200)
+        {
+            PLog->error("broadcastDirectMsg --- Could not send direct message to user %?i with message %s", user, message);
+            return;
+        }
         object = parser.parse(response.text).extract<Poco::JSON::Object::Ptr>();
         sendMessage(object->getValue<std::string>("id"), message);
     }

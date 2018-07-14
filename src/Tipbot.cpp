@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include "cereal/archives/json.hpp"
 #include "cereal/types/map.hpp"
 #include "cereal/types/set.hpp"
+#include "cereal/types/unordered_map.hpp"
 #include "Tip.h"
 #include "Faucet.h"
 #include "RPCException.h"
@@ -85,6 +86,7 @@ void TIPBOT::tipbot_init()
             app->load();
 
         loadUserList();
+        LoadStats();
 
         // Upgrade save file
         if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
@@ -94,6 +96,7 @@ void TIPBOT::tipbot_init()
             GlobalConfig.About.minor = VERSION_MINOR;
             GlobalConfig.save_config();
             AppSave();
+            SaveStats();
         }
     }
     catch (AppGeneralException & exp)
@@ -114,6 +117,16 @@ void TIPBOT::tipbot_init()
         GlobalConfig.General.Shutdown = true;
         this->shutdown();
     }
+}
+
+const PerformanceMap & TIPBOT::getPerformanceStats()
+{
+    return AppPerformanceStats;
+}
+
+const ExecuteCommandType & TIPBOT::getRunningCommands()
+{
+    return runningCommands;
 }
 
 DiscordUser UknownUser = { 0, FIND_USER_UNKNOWN_USER, 0 };
@@ -159,12 +172,46 @@ bool TIPBOT::isUserAdmin(const UserMessage& message)
     return false;
 }
 
-void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Command &)> & func, TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me, const std::shared_ptr<AppBaseClass> & ptr)
+void TIPBOT::SaveStats()
+{
+    std::ofstream out(PERFORMANCE_STATS_FILENAME, std::ios::trunc);
+    if (out.is_open())
+    {
+        PLog->information("Saving performance stats to disk...");
+        {
+            cereal::JSONOutputArchive ar(out);
+            ar(CEREAL_NVP(AppPerformanceStats));
+        }
+        out.close();
+    }
+}
+
+void TIPBOT::LoadStats()
+{
+    std::ifstream in(PERFORMANCE_STATS_FILENAME);
+    if (in.is_open())
+    {
+        PLog->information("Loading performance stats from disk...");
+        {
+            cereal::JSONInputArchive ar(in);
+            ar(CEREAL_NVP(AppPerformanceStats));
+        }
+        in.close();
+    }
+}
+
+void TIPBOT::dispatcher(const UserMessage& message, const struct Command & me, const std::shared_ptr<AppBaseClass> & ptr)
 {
     Poco::Logger & tlog = Poco::Logger::get("CommandDispatch");
     GlobalConfig.General.Threads++;
 
     tlog.information("Thread Started! Threads: %?i", GlobalConfig.General.Threads);
+
+    const ExecuteCommand cmdexe = { Poco::Timestamp(), message, me };
+
+    DispatchMu.lock();
+    runningCommands.insert(cmdexe);
+    DispatchMu.unlock();
 
     if (!GlobalConfig.General.Shutdown)
     {
@@ -174,21 +221,30 @@ void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Com
                 ptr->setAccount(&RPCMan->getAccount(message.User.id));
             else  ptr->setAccount(nullptr);
 
-            tlog.information("User %s issued command: %s", message.User.id_str, message.Message);
+            tlog.information("User %s (%s) issued command: %s", message.User.id_str, message.User.username, message.Message);
 
-            func(DiscordPtr, message, me);
+            me.func(this, message, me);
         }
         catch (const Poco::Exception & exp)
         {
             tlog.error("Poco Error: --- %s", std::string(exp.what()));
-            DiscordPtr->SendMsg(message, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
+            SendMsg(message, "Poco Error: ---" + std::string(exp.what()) + " :cold_sweat:");
         }
         catch (AppGeneralException & exp)
         {
             tlog.error("App Error: --- %s: %s", std::string(exp.what()), exp.getGeneralError());
-            DiscordPtr->SendMsg(message, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
+            SendMsg(message, std::string(exp.what()) + " --- " + exp.getGeneralError() + " :cold_sweat:");
         }
     }
+    Poco::Timespan timeElapsed(Poco::Timestamp() - cmdexe.time_started);
+    tlog.information("User %s (%s)'s command (%s) ended. Time elapsed: %?i ms", message.User.id_str, message.User.username, message.Message, timeElapsed.totalMilliseconds());
+
+    DispatchMu.lock();
+    auto & stat = AppPerformanceStats[me.name];
+    stat.totalTime += timeElapsed.totalMilliseconds();
+    stat.calls++;
+    runningCommands.erase(cmdexe);
+    DispatchMu.unlock();
 
     GlobalConfig.General.Threads--;
 
@@ -220,7 +276,7 @@ void TIPBOT::ProcessCommand(const UserMessage & message)
                                 break;
 
                             if (TIPBOT::isCommandAllowedToBeExecuted(message, command))
-                                std::thread(dispatcher, command.func, this, message, command, ptr).detach(); // Create command thread
+                                std::thread(&TIPBOT::dispatcher, this, message, command, ptr).detach(); // Create command thread
                         }
                         break;
                     }
@@ -248,7 +304,7 @@ void TIPBOT::CommandParseError(const UserMessage& message, const Command& me)
 
 bool TIPBOT::isCommandAllowedToBeExecuted(const UserMessage& message, const Command& command)
 {
-    return !command.adminTools || (command.adminTools && (message.ChannelPerm == AllowChannelTypes::Private || message.ChannelPerm == AllowChannelTypes::CLI || command.ChannelPermission == AllowChannelTypes::Any) && TIPBOT::isUserAdmin(message));
+    return message.ChannelPerm != AllowChannelTypes::Error && (!command.adminTools || (command.adminTools && (message.ChannelPerm == AllowChannelTypes::Private || message.ChannelPerm == AllowChannelTypes::CLI || command.ChannelPermission == AllowChannelTypes::Any) && TIPBOT::isUserAdmin(message)));
 }
 
 std::string TIPBOT::generateHelpText(const std::string & title, const std::vector<Command>& cmds, const UserMessage& message)
@@ -319,6 +375,7 @@ const struct TopTakerStruct TIPBOT::findTopTaker()
 
 void TIPBOT::AppSave()
 {
+    SaveStats();
     for (auto & app : Apps)
         app->save();
 }
