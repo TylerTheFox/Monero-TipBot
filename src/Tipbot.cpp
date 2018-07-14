@@ -159,7 +159,7 @@ bool TIPBOT::isUserAdmin(const UserMessage& message)
     return false;
 }
 
-void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Command &)> & func, TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
+void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Command &)> & func, TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me, const std::shared_ptr<AppBaseClass> & ptr)
 {
     Poco::Logger & tlog = Poco::Logger::get("CommandDispatch");
     GlobalConfig.General.Threads++;
@@ -170,6 +170,12 @@ void dispatcher(const std::function<void(TIPBOT *, const UserMessage&, const Com
     {
         try
         {
+            if (me.opensWallet)
+                ptr->setAccount(&RPCMan->getAccount(message.User.id));
+            else  ptr->setAccount(nullptr);
+
+            tlog.information("User %s issued command: %s", message.User.id_str, message.Message);
+
             func(DiscordPtr, message, me);
         }
         catch (const Poco::Exception & exp)
@@ -213,17 +219,8 @@ void TIPBOT::ProcessCommand(const UserMessage & message)
                             if (command.ChannelPermission == AllowChannelTypes::CLI && message.ChannelPerm != AllowChannelTypes::CLI)
                                 break;
 
-                            if (command.opensWallet)
-                                ptr->setAccount(&RPCMan->getAccount(message.User.id));
-                            else  ptr->setAccount(nullptr);
-
                             if (TIPBOT::isCommandAllowedToBeExecuted(message, command))
-                            {
-                                PLog->information("User %s issued command: %s", message.User.id_str, message.Message);
-                                // Create command thread
-                                std::thread t1(dispatcher, command.func, this, message, command);
-                                t1.detach();
-                            }
+                                std::thread(dispatcher, command.func, this, message, command, ptr).detach(); // Create command thread
                         }
                         break;
                     }
