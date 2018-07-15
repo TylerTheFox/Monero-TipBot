@@ -174,6 +174,7 @@ bool TIPBOT::isUserAdmin(const UserMessage& message)
 
 void TIPBOT::SaveStats()
 {
+    DispatchMu.lock();
     std::ofstream out(PERFORMANCE_STATS_FILENAME, std::ios::trunc);
     if (out.is_open())
     {
@@ -184,10 +185,12 @@ void TIPBOT::SaveStats()
         }
         out.close();
     }
+    DispatchMu.unlock();
 }
 
 void TIPBOT::LoadStats()
 {
+    DispatchMu.lock();
     std::ifstream in(PERFORMANCE_STATS_FILENAME);
     if (in.is_open())
     {
@@ -198,6 +201,7 @@ void TIPBOT::LoadStats()
         }
         in.close();
     }
+    DispatchMu.unlock();
 }
 
 void TIPBOT::dispatcher(const UserMessage& message, const struct Command & me, const std::shared_ptr<AppBaseClass> & ptr)
