@@ -298,14 +298,12 @@ void Tip::SoftRestartBot(TIPBOT * DiscordPtr, const UserMessage& message, const 
 {
     // Send restart message.
     DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_RESTART_SUCCESSS"));
-    GlobalConfig.General.Shutdown = true;
     DiscordPtr->shutdown();
 }
 
 void Tip::Shutdown(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
 {
     DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_SHUTDOWN_SUCCESSS"));
-    GlobalConfig.General.Shutdown = true;
     GlobalConfig.General.Quitting = true;
     DiscordPtr->shutdown();
 }
