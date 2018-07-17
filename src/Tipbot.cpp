@@ -33,6 +33,7 @@ GNU General Public License for more details.
 #include "CLI.h"
 #include <thread>
 #include "ChatRewards.h"
+#include "Projects.h"
 
 const char *aboutStr =
 "```TipBot v%?i.%?i (Config: v%?i.%?i)\\n"
@@ -79,9 +80,9 @@ void TIPBOT::tipbot_init()
             { (std::shared_ptr<AppBaseClass>(std::make_unique<Tip>())) },
             { (std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>())) },
             { (std::shared_ptr<AppBaseClass>(std::make_unique<ChatRewards>(this))) },
+            { (std::shared_ptr<AppBaseClass>(std::make_unique<Projects>(this))) },
             { (std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this))) },
         };
-
         for (auto & app : Apps)
             app->load();
 
