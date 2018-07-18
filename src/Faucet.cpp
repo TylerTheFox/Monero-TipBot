@@ -39,7 +39,6 @@ Faucet::Faucet() : enabled(true), PLog(nullptr)
         { "!status",          CLASS_RESOLUTION(status),                     "",                                 false,  true,   AllowChannelTypes::Private },
         { "!togglefaucet",    CLASS_RESOLUTION(ToggleFaucet),               "",                                 false,  true,   AllowChannelTypes::Private },
         { "!award",           CLASS_RESOLUTION(award),                      "[@User]",                          false,  true,   AllowChannelTypes::Any },
-
     };
     PLog = &Poco::Logger::get("Faucet");
 }

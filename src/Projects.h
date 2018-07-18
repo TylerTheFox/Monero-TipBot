@@ -18,7 +18,7 @@ GNU General Public License for more details.
 #include "AppBaseClass.h"
 #include "Poco/Logger.h"
 #include "Poco/AutoPtr.h"
-
+#include "RPCManager.h"
 /*
 ******************************************************** ISSUE #1 ********************************************************
 
@@ -58,10 +58,10 @@ Notes:
 * Will be called Projects
 
 Possible Commands:
-!create [project] [description] 	********** ADMIN
-!delete [project] 	 		********** ADMIN
-!grantuser [project] [user]  		********** ADMIN
-!suspendproject [project] 		********** ADMIN
+!create [project] [description] [goal]  	    ********** ADMIN
+!delete [project] 	 		                    ********** ADMIN
+!grantuser [project] [user]  		            ********** ADMIN
+!suspendproject [project] 		                ********** ADMIN
 !fundproject [amount] [project]
 (maybe) !projectdonors [project]
 !listprojects
@@ -69,6 +69,20 @@ Possible Commands:
 
 *****************************************************************************************************************
 */
+
+struct Project
+{
+    std::uint64_t               Goal;
+    std::shared_ptr<RPCProc>    RPC;
+
+    template <class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(
+            CEREAL_NVP(Goal)
+        );
+    }
+};
 
 #define    PROJECTS_SAVE_FILE       "PROJECTS.JSON"
 class Projects : public AppBaseClass
@@ -88,9 +102,23 @@ public:
     const_iterator                      end() const;
     const_iterator                      cend() const;
 
+    void                                Help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                Create(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                Delete(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                GrantUser(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                SuspendProject(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                FundProject(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                ProjectDonors(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                ListProjects(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                ViewStatus(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+
 private:
-    TIPBOT *                        DiscordPtr;
-    Poco::Logger*                   PLog;
-    bool                            enabled;
-    std::vector<struct Command>     Commands;
+    std::map<std::string, Project>      ProjectMap;
+    TIPBOT *                            DiscordPtr;
+    Poco::Logger*                       PLog;
+    bool                                enabled;
+    std::vector<struct Command>         Commands;
+
+    const std::string                   getFilename(const std::string & projectname);
+
 };
