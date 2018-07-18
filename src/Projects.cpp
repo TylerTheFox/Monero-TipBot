@@ -29,7 +29,7 @@ Projects::Projects(TIPBOT * DPTR) : enabled(true), PLog(nullptr), DiscordPtr(DPT
         { "!projects",        CLASS_RESOLUTION(Help),                         "",                               false,  false,  AllowChannelTypes::Any },
         { "!fundproject",     CLASS_RESOLUTION(FundProject),                  "[amount] [project]",             false,  false,  AllowChannelTypes::Any },
         { "!listprojects",    CLASS_RESOLUTION(ListProjects),                 "",                               false,  false,  AllowChannelTypes::Any },
-        { "!viewstatus",      CLASS_RESOLUTION(ViewStatus),                   "",                               false,  false,  AllowChannelTypes::Any },
+        { "!viewstatus",      CLASS_RESOLUTION(ViewStatus),                   "[project]",                      false,  false,  AllowChannelTypes::Any },
         { "!projectaddress",  CLASS_RESOLUTION(ProjectAddress),               "[project]",                      false,  false,  AllowChannelTypes::Any },
 
         // Admin
@@ -232,8 +232,8 @@ void Projects::ToggleProject(TIPBOT * DiscordPtr, const UserMessage & message, c
             return;
         }
 
-        const auto & proj = ProjectMap[name];
-        proj.Suspended != proj.Suspended;
+        auto & proj = ProjectMap[name];
+        proj.Suspended = !proj.Suspended;
 
         DiscordPtr->SendMsg(message, Poco::format("Project Status: %b", proj.Suspended));
     }
@@ -247,7 +247,7 @@ void Projects::FundProject(TIPBOT * DiscordPtr, const UserMessage & message, con
         DiscordPtr->CommandParseError(message, me);
     else
     {
-        const std::uint64_t & amount = Poco::NumberParser::parseFloat(cmd[1]);
+        const auto & amount = Poco::NumberParser::parseFloat(cmd[1]);
         const std::string & name = cmd[2];
 
         if (!ProjectMap.count(name))
@@ -263,7 +263,7 @@ void Projects::FundProject(TIPBOT * DiscordPtr, const UserMessage & message, con
             auto & usr = RPCMan->getAccount(message.User.id);
             const auto tx = usr.transferMoneyToAddress(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), proj.RPC->MyRPC.getAddress());
 
-            DiscordPtr->SendMsg(message, Poco::format("Sending %0.8f %s to project %s with tx hash %s", amount, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
+            DiscordPtr->SendMsg(message, Poco::format("Sending %0.8f %s to project %s with tx hash %s", amount, GlobalConfig.RPC.coin_abbv, name, tx.tx_hash));
         }
         else DiscordPtr->SendMsg(message, "Project Suspended!");
     }
@@ -280,7 +280,7 @@ void Projects::ListProjects(TIPBOT * DiscordPtr, const UserMessage & message, co
         for (const auto & proj : ProjectMap)
         {
             proj.second.RPC->MyAccount.resyncAccount();
-            ss << proj.first << ", " << proj.second.Description << ", " << proj.second.Goal / GlobalConfig.RPC.coin_offset << " " << GlobalConfig.RPC.coin_abbv << ", " << (proj.second.RPC->MyAccount.getBalance() / proj.second.Goal) * 100 << "%, " << (proj.second.Suspended ? "Yes" : "No") << "\\n";
+            ss << proj.first << ", " << proj.second.Description << ", " << proj.second.Goal / GlobalConfig.RPC.coin_offset << " " << GlobalConfig.RPC.coin_abbv << ", " << (proj.second.RPC->MyAccount.getBalance() / static_cast<double>(proj.second.Goal)) * 100.0 << "%, " << (proj.second.Suspended ? "Yes" : "No") << "\\n";
         }
     }
     else ss << "No Projects!";
@@ -317,7 +317,7 @@ void Projects::ViewStatus(TIPBOT * DiscordPtr, const UserMessage & message, cons
             GlobalConfig.RPC.coin_abbv,
             proj.Goal / GlobalConfig.RPC.coin_offset,
             GlobalConfig.RPC.coin_abbv,
-            (proj.RPC->MyAccount.getBalance() / proj.Goal) * 100.0)
+            (proj.RPC->MyAccount.getBalance() / static_cast<double>(proj.Goal)) * 100.0)
         );
     }
 }
