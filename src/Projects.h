@@ -72,14 +72,18 @@ Possible Commands:
 
 struct Project
 {
-    std::uint64_t               Goal;
-    std::shared_ptr<RPCProc>    RPC;
+    std::string                     Description;
+    std::uint64_t                   Goal;
+    bool                            Suspended;
+    std::shared_ptr<RPCProc>        RPC;
 
     template <class Archive>
     void serialize(Archive & ar)
     {
         ar(
-            CEREAL_NVP(Goal)
+            CEREAL_NVP(Description),
+            CEREAL_NVP(Goal),
+            CEREAL_NVP(Suspended)
         );
     }
 };
@@ -89,7 +93,7 @@ class Projects : public AppBaseClass
 {
 public:
     Projects(TIPBOT * DPTR);
-    virtual ~Projects() = default;
+    virtual ~Projects();
 
     void                                save();
     void                                load();
@@ -106,11 +110,11 @@ public:
     void                                Create(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                Delete(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                GrantUser(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
-    void                                SuspendProject(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                ToggleProject(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                FundProject(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
-    void                                ProjectDonors(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                ListProjects(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                ViewStatus(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                ProjectAddress(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 
 private:
     std::map<std::string, Project>      ProjectMap;
@@ -120,5 +124,4 @@ private:
     std::vector<struct Command>         Commands;
 
     const std::string                   getFilename(const std::string & projectname);
-
 };

@@ -99,7 +99,6 @@ iterator Faucet::end()
 const_iterator Faucet::end() const
 {
     return Commands.end();
-
 }
 
 const_iterator Faucet::cend() const
