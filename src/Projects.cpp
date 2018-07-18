@@ -247,8 +247,8 @@ void Projects::FundProject(TIPBOT * DiscordPtr, const UserMessage & message, con
         DiscordPtr->CommandParseError(message, me);
     else
     {
-        const std::string & name = cmd[1];
-        const std::uint64_t & amount = Poco::NumberParser::parseFloat(cmd[2]);
+        const std::uint64_t & amount = Poco::NumberParser::parseFloat(cmd[1]);
+        const std::string & name = cmd[2];
 
         if (!ProjectMap.count(name))
         {
@@ -261,9 +261,9 @@ void Projects::FundProject(TIPBOT * DiscordPtr, const UserMessage & message, con
         if (!proj.Suspended)
         {
             auto & usr = RPCMan->getAccount(message.User.id);
-            const auto tx = usr.transferMoneyToAddress(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), proj.RPC->MyAccount.getMyAddress());
+            const auto tx = usr.transferMoneyToAddress(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), proj.RPC->MyRPC.getAddress());
 
-            DiscordPtr->SendMsg(message, Poco::format("Project Status: %b", proj.Suspended));
+            DiscordPtr->SendMsg(message, Poco::format("Sending %0.8f %s to project %s with tx hash %s", amount, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
         }
         else DiscordPtr->SendMsg(message, "Project Suspended!");
     }
