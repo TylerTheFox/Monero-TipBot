@@ -308,7 +308,7 @@ void Projects::ViewStatus(TIPBOT * DiscordPtr, const UserMessage & message, cons
 
         proj.RPC->MyAccount.resyncAccount();
 
-        DiscordPtr->SendMsg(message, Poco::format("%s:```Description: %s\\nBalance: %0.8f %s\\nUnlocked Balance: %0.8f %s\\nGoal: %0.8f %s\\nPercentage Complete: %0.2f%%```",
+        DiscordPtr->SendMsg(message, Poco::format("%s:\\n```Description: %s\\nBalance: %0.8f %s\\nUnlocked Balance: %0.8f %s\\nGoal: %0.8f %s\\nPercentage Complete: %0.2f%%```",
             name,
             proj.Description,
             proj.RPC->MyAccount.getBalance() / GlobalConfig.RPC.coin_offset,
