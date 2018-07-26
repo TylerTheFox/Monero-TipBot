@@ -21,7 +21,7 @@ GNU General Public License for more details.
 #include "Util.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Projects::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Projects::Projects(TIPBOT * DPTR) : enabled(true), PLog(nullptr), DiscordPtr(DPTR)
+Projects::Projects(TIPBOT * DPTR) : enabled(true), PLog(nullptr), DiscordPtr(DPTR), PortCount(GlobalConfig.RPCManager.starting_port_number - 2)
 {
     Commands =
     {
@@ -84,9 +84,9 @@ void Projects::load()
         }
         in.close();
 
-        auto i = GlobalConfig.RPCManager.starting_port_number - 2;
+        PortCount = GlobalConfig.RPCManager.starting_port_number - 2;
         for (auto & proj : ProjectMap)
-            proj.second.RPC = RPCManager::manuallyCreateRPC(getFilename(proj.first), i--);
+            proj.second.RPC = RPCManager::manuallyCreateRPC(getFilename(proj.first), PortCount--);
     }
 }
 
@@ -166,8 +166,8 @@ void Projects::Create(TIPBOT * DiscordPtr, const UserMessage & message, const Co
                     return;
                 }
 
-                PLog->information("Creating project %s with goal %?i %s on RPC port %?i", name, goal, GlobalConfig.RPC.coin_abbv, GlobalConfig.RPCManager.starting_port_number - 2 - ProjectMap.size());
-                ProjectMap[name] = { description, goal, false, RPCManager::manuallyCreateRPC(getFilename(name), GlobalConfig.RPCManager.starting_port_number - 2 - ProjectMap.size()) };
+                PLog->information("Creating project %s with goal %?i %s on RPC port %?i", name, goal, GlobalConfig.RPC.coin_abbv, GlobalConfig.RPCManager.starting_port_number - 2 - PortCount);
+                ProjectMap[name] = { description, goal, false, RPCManager::manuallyCreateRPC(getFilename(name), GlobalConfig.RPCManager.starting_port_number - 2 - PortCount--) };
                 save();
                 DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_CREATED_SUCCESS"));
             }
