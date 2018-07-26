@@ -15,7 +15,7 @@ GNU General Public License for more details.
 #include <string>
 #include "Poco/Process.h"
 #include "types.h"
-
+#include "Poco/StringTokenizer.h"
 #define MICROSECOND_HOUR            3600000000
 #define MICROSECOND_DAY             (MICROSECOND_HOUR*24.0)
 #define DISCORD_WALLET_MASK         "Discord-User-%Lu"
@@ -30,4 +30,5 @@ public:
     static bool doesWalletExist(DiscordID DIS_ID);
 
     static std::string getWalletStrFromIID(DiscordID DIS_ID);
+    static bool parseQuotedString(const Poco::StringTokenizer & cmd, unsigned int start_idx, std::string & str, unsigned int & ret_idx);
 };
