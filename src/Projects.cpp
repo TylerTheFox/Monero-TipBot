@@ -126,7 +126,7 @@ const_iterator Projects::cend() const
 
 void Projects::Help(TIPBOT * DiscordPtr, const UserMessage & message, const Command & me)
 {
-    const auto helpStr = TIPBOT::generateHelpText("Projects Help Menu", Commands, message);
+    const auto helpStr = TIPBOT::generateHelpText(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_HELP"), Commands, message);
     DiscordPtr->SendMsg(message, helpStr);
 }
 
@@ -145,21 +145,21 @@ void Projects::Create(TIPBOT * DiscordPtr, const UserMessage & message, const Co
         if (ProjectMap.count(name))
         {
             PLog->warning("Project %s already exists!", name);
-            DiscordPtr->SendMsg(message, "Error project already exists!");
+            DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_ERROR_EXISTS"));
             return;
         }
 
         if (!goal)
         {
             PLog->warning("Project goal cannot be zero!");
-            DiscordPtr->SendMsg(message, "Project goal cannot be zero!");
+            DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_ERROR_GOAL_ZERO"));
             return;
         }
 
         PLog->information("Creating project %s with goal %?i %s on RPC port %?i", name, goal, GlobalConfig.RPC.coin_abbv, GlobalConfig.RPCManager.starting_port_number - 2 - ProjectMap.size());
         ProjectMap[name] = { description, goal, false, RPCManager::manuallyCreateRPC(getFilename(name), GlobalConfig.RPCManager.starting_port_number - 2 - ProjectMap.size()) };
         save();
-        DiscordPtr->SendMsg(message, "Project created successfully!");
+        DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_CREATED_SUCCESS"));
     }
 }
 
@@ -176,7 +176,7 @@ void Projects::Delete(TIPBOT * DiscordPtr, const UserMessage & message, const Co
         if (!ProjectMap.count(name))
         {
             PLog->warning("Project %s does not exists!", name);
-            DiscordPtr->SendMsg(message, "Error project doesn't exist!");
+            DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_NOT_EXIST"));
             return;
         }
 
@@ -187,7 +187,7 @@ void Projects::Delete(TIPBOT * DiscordPtr, const UserMessage & message, const Co
 
         ProjectMap.erase(name);
         save();
-        DiscordPtr->SendMsg(message, "Project deleted successfully!");
+        DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_DELETE_SUCCESS"));
     }
 }
 
@@ -204,14 +204,14 @@ void Projects::GrantUser(TIPBOT * DiscordPtr, const UserMessage & message, const
         if (!ProjectMap.count(name))
         {
             PLog->warning("Project %s does not exists!", name);
-            DiscordPtr->SendMsg(message, "Error project doesn't exist!");
+            DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_NOT_EXIST"));
             return;
         }
 
         const auto & proj = ProjectMap[name];
         const auto tx = proj.RPC->MyAccount.transferAllMoneytoAnotherDiscordUser(message.Mentions[0].id);
 
-        DiscordPtr->SendMsg(message, Poco::format("Transfering all funds from project %s to user %s with tx hash %s", name, message.Mentions[0].username, tx.tx_hash));
+        DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_GRANT_SUCCESS"), name, message.Mentions[0].username, tx.tx_hash));
     }
 }
 
@@ -228,7 +228,7 @@ void Projects::ToggleProject(TIPBOT * DiscordPtr, const UserMessage & message, c
         if (!ProjectMap.count(name))
         {
             PLog->warning("Project %s does not exists!", name);
-            DiscordPtr->SendMsg(message, "Error project doesn't exist!");
+            DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_NOT_EXIST"));
             return;
         }
 
@@ -253,7 +253,7 @@ void Projects::FundProject(TIPBOT * DiscordPtr, const UserMessage & message, con
         if (!ProjectMap.count(name))
         {
             PLog->warning("Project %s does not exists!", name);
-            DiscordPtr->SendMsg(message, "Error project doesn't exist!");
+            DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_NOT_EXIST"));
             return;
         }
 
@@ -263,9 +263,9 @@ void Projects::FundProject(TIPBOT * DiscordPtr, const UserMessage & message, con
             auto & usr = RPCMan->getAccount(message.User.id);
             const auto tx = usr.transferMoneyToAddress(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), proj.RPC->MyRPC.getAddress());
 
-            DiscordPtr->SendMsg(message, Poco::format("Sending %0.8f %s to project %s with tx hash %s", amount, GlobalConfig.RPC.coin_abbv, name, tx.tx_hash));
+            DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_FUND_SUCCESS"), amount, GlobalConfig.RPC.coin_abbv, name, tx.tx_hash));
         }
-        else DiscordPtr->SendMsg(message, "Project Suspended!");
+        else DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_SUSPENDED"));
     }
 }
 
@@ -273,7 +273,7 @@ void Projects::ListProjects(TIPBOT * DiscordPtr, const UserMessage & message, co
 {
     std::stringstream ss;
 
-    ss << "Project, Descrption, Goal, Percentage Funded, Suspended\\n";
+    ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_LIST_HEADER");
     ss << "```";
     if (ProjectMap.size())
     {
@@ -283,7 +283,7 @@ void Projects::ListProjects(TIPBOT * DiscordPtr, const UserMessage & message, co
             ss << proj.first << ", " << proj.second.Description << ", " << proj.second.Goal / GlobalConfig.RPC.coin_offset << " " << GlobalConfig.RPC.coin_abbv << ", " << (proj.second.RPC->MyAccount.getBalance() / static_cast<double>(proj.second.Goal)) * 100.0 << "%, " << (proj.second.Suspended ? "Yes" : "No") << "\\n";
         }
     }
-    else ss << "No Projects!";
+    else ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_NO_PROJECTS");
     ss << "```";
     DiscordPtr->SendMsg(message, ss.str());
 }
@@ -301,14 +301,14 @@ void Projects::ViewStatus(TIPBOT * DiscordPtr, const UserMessage & message, cons
         if (!ProjectMap.count(name))
         {
             PLog->warning("Project %s does not exists!", name);
-            DiscordPtr->SendMsg(message, "Error project doesn't exist!");
+            DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_NOT_EXIST"));
             return;
         }
         const auto & proj = ProjectMap[name];
 
         proj.RPC->MyAccount.resyncAccount();
 
-        DiscordPtr->SendMsg(message, Poco::format("%s:\\n```Description: %s\\nBalance: %0.8f %s\\nUnlocked Balance: %0.8f %s\\nGoal: %0.8f %s\\nPercentage Complete: %0.2f%%```",
+        DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_VIEW_STATUS_LIST"),
             name,
             proj.Description,
             proj.RPC->MyAccount.getBalance() / GlobalConfig.RPC.coin_offset,
@@ -335,14 +335,14 @@ void Projects::ProjectAddress(TIPBOT * DiscordPtr, const UserMessage & message, 
         if (!ProjectMap.count(name))
         {
             PLog->warning("Project %s does not exists!", name);
-            DiscordPtr->SendMsg(message, "Error project doesn't exist!");
+            DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_NOT_EXIST"));
             return;
         }
         const auto & proj = ProjectMap[name];
 
         proj.RPC->MyAccount.resyncAccount();
 
-        DiscordPtr->SendMsg(message, Poco::format("Project Direct Address: %s", proj.RPC->MyAccount.getMyAddress()));
+        DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_DIRECT_ADDRESS"), proj.RPC->MyAccount.getMyAddress()));
     }
 }
 
