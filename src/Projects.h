@@ -19,6 +19,9 @@ GNU General Public License for more details.
 #include "Poco/Logger.h"
 #include "Poco/AutoPtr.h"
 #include "RPCManager.h"
+
+///////////////////// ***************** COMMISSIONED BY: TheOtherGuys (TOGM) ***************** ////////////////////////////
+
 /*
 ******************************************************** ISSUE #1 ********************************************************
 
@@ -68,6 +71,11 @@ Possible Commands:
 !viewstatus
 
 *****************************************************************************************************************
+
+TODO:
+
+-----------> NOT CLI COMPATIBLE!!!!!!!!!!!!!!!!!!
+
 */
 
 struct Project
