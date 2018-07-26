@@ -94,7 +94,7 @@ bool RPCManager::isRPCRunning(DiscordID id)
 
 time_t RPCManager::getTimeStarted(DiscordID id)
 {
-    return RPCMap[id].timestamp.epochTime();
+    return RPCMap.count(id) ? RPCMap[id].timestamp.epochTime() : 0;
 }
 
 Account& RPCManager::getAccount(DiscordID id)
