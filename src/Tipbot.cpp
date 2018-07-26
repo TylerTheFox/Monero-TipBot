@@ -33,6 +33,7 @@ GNU General Public License for more details.
 #include "CLI.h"
 #include <thread>
 #include "ChatRewards.h"
+#include "Projects.h"
 
 const char *aboutStr =
 "```TipBot v%?i.%?i (Config: v%?i.%?i)\\n"
@@ -42,6 +43,8 @@ const char *aboutStr =
 "ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf\\n"
 "XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS\\n"
 "MSR: 5h9GZz5bbvUK5TPb1KB8J7FnbQHyEd1z93scwhu3WZ9m3YJwCAUVyz3FoKh4JiTTWPKcGmJkxBWS2YkmzJoXTimqTbCKFKm\\n```";;
+
+bool TIPBOT::init = false;
 
 TIPBOT::TIPBOT() : PLog(nullptr)
 {
@@ -66,37 +69,42 @@ void TIPBOT::shutdown()
     PLog->information("All Threads Shutdown!");
 
     this->_shutdown();
+
+    init = false;
 }
 
 void TIPBOT::tipbot_init()
 {
     try
     {
-        PLog = &Poco::Logger::get("Tipbot");
-
-        Apps = {
-            { (std::shared_ptr<AppBaseClass>(std::make_unique<CLI>(this))) },
-            { (std::shared_ptr<AppBaseClass>(std::make_unique<Tip>())) },
-            { (std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>())) },
-            { (std::shared_ptr<AppBaseClass>(std::make_unique<ChatRewards>(this))) },
-            { (std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this))) },
-        };
-
-        for (auto & app : Apps)
-            app->load();
-
-        loadUserList();
-        LoadStats();
-
-        // Upgrade save file
-        if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
+        if (!init)
         {
-            PLog->information("Upgrading Save file...");
-            GlobalConfig.About.major = VERSION_MAJOR;
-            GlobalConfig.About.minor = VERSION_MINOR;
-            GlobalConfig.save_config();
-            AppSave();
-            SaveStats();
+            PLog = &Poco::Logger::get("Tipbot");
+
+            Apps = {
+                { (std::shared_ptr<AppBaseClass>(std::make_unique<CLI>(this))) },
+                { (std::shared_ptr<AppBaseClass>(std::make_unique<Tip>())) },
+                { (std::shared_ptr<AppBaseClass>(std::make_unique<Faucet>())) },
+                { (std::shared_ptr<AppBaseClass>(std::make_unique<ChatRewards>(this))) },
+                { (std::shared_ptr<AppBaseClass>(std::make_unique<Projects>(this))) },
+                { (std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this))) },
+            };
+            for (auto & app : Apps)
+                app->load();
+
+            loadUserList();
+            LoadStats();
+
+            // Upgrade save file
+            if (VERSION_MAJOR != GlobalConfig.About.major || VERSION_MINOR != GlobalConfig.About.minor)
+            {
+                PLog->information("Upgrading Save file...");
+                GlobalConfig.About.major = VERSION_MAJOR;
+                GlobalConfig.About.minor = VERSION_MINOR;
+                GlobalConfig.save_config();
+                AppSave();
+                SaveStats();
+            }
         }
     }
     catch (AppGeneralException & exp)

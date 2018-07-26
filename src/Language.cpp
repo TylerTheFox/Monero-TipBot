@@ -80,6 +80,22 @@ LanguageSelect::LanguageSelect()
 
                     // Chat Rewards
                     LANGPAIR("CHAT_REWARDS_PAYMENT", "User %?i has been chosen and added to the payment queue."),
+
+                    // Projects 
+                    LANGPAIR("PROJECTS_HELP","Projects Help Menu"),
+                    LANGPAIR("PROJECTS_ERROR_EXISTS","Error project already exists!"),
+                    LANGPAIR("PROJECTS_ERROR_GOAL_ZERO","Project goal cannot be zero!"),
+                    LANGPAIR("PROJECTS_CREATED_SUCCESS","Project created successfully!"),
+                    LANGPAIR("PROJECTS_NOT_EXIST","Error project doesn't exist!"),
+                    LANGPAIR("PROJECTS_DELETE_SUCCESS","Project deleted successfully!"),
+                    LANGPAIR("PROJECTS_GRANT_SUCCESS","Transfering all funds from project %s to user %s with tx hash %s"),
+                    LANGPAIR("PROJECTS_TOGGLE_STATUS","Project Status : %b"),
+                    LANGPAIR("PROJECTS_FUND_SUCCESS","Sending %0.8f %s to project %s with tx hash %s"),
+                    LANGPAIR("PROJECTS_SUSPENDED","Project Suspended!"),
+                    LANGPAIR("PROJECTS_LIST_HEADER","Project, Descrption, Goal, Percentage Funded, Suspended\\n"),
+                    LANGPAIR("PROJECTS_VIEW_STATUS_LIST","%s:\\n```Description: %s\\nBalance: %0.8f %s\\nUnlocked Balance: %0.8f %s\\nGoal: %0.8f %s\\nPercentage Complete: %0.2f%%```"),
+                    LANGPAIR("PROJECTS_DIRECT_ADDRESS","Project Direct Address: %s"),
+                    LANGPAIR("PROJECTS_NO_PROJECTS","No Projects!"),
                 }
             }
         }

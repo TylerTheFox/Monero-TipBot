@@ -30,3 +30,31 @@ std::string Util::getWalletStrFromIID(DiscordID DIS_ID)
 {
     return Poco::format(DISCORD_WALLET_MASK, DIS_ID);
 }
+
+bool Util::parseQuotedString(const Poco::StringTokenizer & cmd, unsigned int start_idx, std::string & str, unsigned int & ret_idx)
+{
+    if (cmd[start_idx].size() > 2 && cmd[start_idx].at(0) == '\\' && cmd[start_idx].at(1) == '\"')
+    {
+        bool valid = false;
+        for (ret_idx = start_idx; ret_idx < cmd.count(); ret_idx++)
+        {
+            str += Poco::replace(cmd[ret_idx], "\\\"", "") + " ";
+
+            if (cmd[ret_idx].size() > 2 && cmd[ret_idx].at(cmd[ret_idx].size() - 2) == '\\' && cmd[ret_idx].at(cmd[ret_idx].size() - 1) == '\"')
+            {
+                ret_idx++;
+                valid = true;
+                break;
+            }
+        }
+
+        if (!valid)
+        {
+            return false;
+        }
+
+        str.pop_back();
+    }
+    else return false;
+    return true;
+}

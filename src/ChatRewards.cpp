@@ -207,7 +207,6 @@ iterator ChatRewards::end()
 const_iterator ChatRewards::end() const
 {
     return Commands.end();
-
 }
 
 const_iterator ChatRewards::cend() const

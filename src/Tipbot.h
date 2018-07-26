@@ -226,6 +226,7 @@ protected:
     void                                                loadUserList();
 
 private:
+    static bool                                         init;
     Poco::Logger*                                       PLog;
     std::vector<std::shared_ptr<AppBaseClass>>          Apps;    
     ExecuteCommandType                                  runningCommands;

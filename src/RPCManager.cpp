@@ -94,7 +94,7 @@ bool RPCManager::isRPCRunning(DiscordID id)
 
 time_t RPCManager::getTimeStarted(DiscordID id)
 {
-    return RPCMap[id].timestamp.epochTime();
+    return RPCMap.count(id) ? RPCMap[id].timestamp.epochTime() : 0;
 }
 
 Account& RPCManager::getAccount(DiscordID id)
@@ -331,10 +331,18 @@ std::shared_ptr<RPCProc> RPCManager::manuallyCreateRPC(const std::string& wallet
     RPCMan->waitForRPCToRespond(0, ret->MyRPC);
 
     // Open Wallet
-    ret->MyRPC.openWallet(walletname);
+    try
+    {
+        ret->MyRPC.openWallet(walletname);
 
-    // Get transactions
-    ret->Transactions = ret->MyRPC.getTransfers();
+        // Get transactions
+        ret->Transactions = ret->MyRPC.getTransfers();
+    }
+    catch (RPCGeneralError & err)
+    {
+        Poco::Process::kill(ret->pid);
+        throw err;
+    }
 
     return ret;
 }
