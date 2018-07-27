@@ -191,6 +191,62 @@
                     {
                         "key": "LOTTERY_USER_WON",
                         "value": "You've won %0.8f %s from the lottery! :money_with_wings:"
+                    },
+                    {
+                        "key": "PROJECTS_HELP",
+                        "value": "Projects Help Menu"
+                    },
+                    {
+                        "key": "PROJECTS_ERROR_EXISTS",
+                        "value": "Error project already exists!"
+                    },
+                    {
+                        "key": "PROJECTS_ERROR_GOAL_ZERO",
+                        "value": "Project goal cannot be zero!"
+                    },
+                    {
+                        "key": "PROJECTS_CREATED_SUCCESS",
+                        "value": "Project created successfully!"
+                    },
+                    {
+                        "key": "PROJECTS_NOT_EXIST",
+                        "value": "Error project doesn't exist!"
+                    },
+                    {
+                        "key": "PROJECTS_DELETE_SUCCESS",
+                        "value": "Project deleted successfully!"
+                    },
+                    {
+                        "key": "PROJECTS_GRANT_SUCCESS",
+                        "value": "Transfering all funds from project %s to user %s with tx hash %s"
+                    },
+                    {
+                        "key": "PROJECTS_TOGGLE_STATUS",
+                        "value": "Project Status : %b"
+                    },
+                    {
+                        "key": "PROJECTS_FUND_SUCCESS",
+                        "value": "Sending %0.8f %s to project %s with tx hash %s"
+                    },
+                    {
+                        "key": "PROJECTS_SUSPENDED",
+                        "value": "Project Suspended!"
+                    },
+                    {
+                        "key": "PROJECTS_LIST_HEADER",
+                        "value": "Project, Descrption, Goal, Percentage Funded, Suspended\\n"
+                    },
+                    {
+                        "key": "PROJECTS_VIEW_STATUS_LIST",
+                        "value": "%s:\\n```Description: %s\\nBalance: %0.8f %s\\nUnlocked Balance: %0.8f %s\\nGoal: %0.8f %s\\nPercentage Complete: %0.2f%%```"
+                    },
+                    {
+                        "key": "PROJECTS_DIRECT_ADDRESS",
+                        "value": "Project Direct Address: %s"
+                    },
+                    {
+                        "key": "PROJECTS_NO_PROJECTS",
+                        "value": "No Projects!"
                     }
                 ]
             },
