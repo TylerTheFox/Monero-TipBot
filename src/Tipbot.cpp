@@ -55,6 +55,7 @@ TIPBOT::~TIPBOT()
 {
     GlobalConfig.General.Shutdown = true;
     while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); }
+    init = false;
 }
 
 void TIPBOT::shutdown()
@@ -105,6 +106,8 @@ void TIPBOT::tipbot_init()
                 AppSave();
                 SaveStats();
             }
+
+            init = true;
         }
     }
     catch (AppGeneralException & exp)
