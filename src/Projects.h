@@ -125,6 +125,7 @@ public:
     void                                ProjectAddress(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 
 private:
+    unsigned short                      PortCount;
     std::map<std::string, Project>      ProjectMap;
     TIPBOT *                            DiscordPtr;
     Poco::Logger*                       PLog;
