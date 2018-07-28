@@ -38,7 +38,7 @@ std::string DayOfWeek[]
 };
 
 #define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(false), prevWinner(0), PLog(nullptr)
+Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(true), prevWinner(0), PLog(nullptr)
 {
     Commands =
     {

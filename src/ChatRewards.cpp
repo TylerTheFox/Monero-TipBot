@@ -29,7 +29,7 @@ GNU General Public License for more details.
 
 #define CHATREWARDS_SAVE_FILE "ChatRewards.json"
 #define CLASS_RESOLUTION(x) std::bind(&ChatRewards::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-ChatRewards::ChatRewards(TIPBOT * DP) : DiscordPtr(DP), lastTimePaymentWasSent(0), channel(0), lastTimeUserDrawn(0), enabled(true), PLog(nullptr)
+ChatRewards::ChatRewards(TIPBOT * DP) : DiscordPtr(DP), lastTimePaymentWasSent(0), channel(0), lastTimeUserDrawn(0), enabled(false), PLog(nullptr)
 {
     PLog = &Poco::Logger::get("ChatRewards");
 

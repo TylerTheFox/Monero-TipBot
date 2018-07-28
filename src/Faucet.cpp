@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #include <Poco/StringTokenizer.h>
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Faucet::Faucet() : enabled(true), PLog(nullptr)
+Faucet::Faucet() : enabled(false), PLog(nullptr)
 {
     Commands =
     {
