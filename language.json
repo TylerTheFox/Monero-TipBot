@@ -242,7 +242,7 @@
                     },
                     {
                         "key": "PROJECTS_DIRECT_ADDRESS",
-                        "value": "Project Direct Address: %s"
+                        "value": "%s's Direct Address: %s"
                     },
                     {
                         "key": "PROJECTS_NO_PROJECTS",

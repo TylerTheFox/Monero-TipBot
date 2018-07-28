@@ -94,7 +94,7 @@ LanguageSelect::LanguageSelect()
                     LANGPAIR("PROJECTS_SUSPENDED","Project Suspended!"),
                     LANGPAIR("PROJECTS_LIST_HEADER","Project, Descrption, Goal, Percentage Funded, Suspended\\n"),
                     LANGPAIR("PROJECTS_VIEW_STATUS_LIST","%s:\\n```Description: %s\\nBalance: %0.8f %s\\nUnlocked Balance: %0.8f %s\\nGoal: %0.8f %s\\nPercentage Complete: %0.2f%%```"),
-                    LANGPAIR("PROJECTS_DIRECT_ADDRESS","Project Direct Address: %s"),
+                    LANGPAIR("PROJECTS_DIRECT_ADDRESS","%s's Direct Address: %s"),
                     LANGPAIR("PROJECTS_NO_PROJECTS","No Projects!"),
                 }
             }

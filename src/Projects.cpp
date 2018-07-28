@@ -386,7 +386,7 @@ void Projects::ProjectAddress(TIPBOT * DiscordPtr, const UserMessage & message, 
 
             proj.RPC->MyAccount.resyncAccount();
 
-            DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_DIRECT_ADDRESS"), proj.RPC->MyAccount.getMyAddress()));
+            DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_DIRECT_ADDRESS"), name, proj.RPC->MyAccount.getMyAddress()));
         }
         else DiscordPtr->CommandParseError(message, me);
     }
