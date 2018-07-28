@@ -25,6 +25,7 @@ struct Settings
     bool withdrawAllowed;
 };
 
+#define TIPBOT_SAVE_FILE "TIPBOT.json"
 class Tip : public AppBaseClass
 {
 public:
@@ -70,6 +71,7 @@ public:
     void                            PerformanceData(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            Executing(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            UpTime(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                            ToggleTipbot(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 
     private:
     Poco::Timestamp                 start;

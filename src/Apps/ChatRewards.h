@@ -65,7 +65,6 @@ private:
 
     void                                ProcessPendingTransfers();
     bool                                isUserDisallowed(const DiscordID & id);
-    bool                                enabled;
     Poco::Logger*                       PLog;
     std::vector<struct Command>         Commands;
 };

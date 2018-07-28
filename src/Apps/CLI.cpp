@@ -20,6 +20,7 @@ GNU General Public License for more details.
 
 CLI::CLI(TIPBOT * dptr) : PLog(nullptr)
 {
+    setName("CLI");
     PLog = &Poco::Logger::get("CLI");
 
     DiscordPtr = dptr;

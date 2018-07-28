@@ -37,8 +37,9 @@ std::string DayOfWeek[]
 };
 
 #define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(true), prevWinner(0), PLog(nullptr)
+Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), prevWinner(0), PLog(nullptr)
 {
+    setName("Lottery");
     Commands =
     {
         // User Commands 
@@ -50,9 +51,10 @@ Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), lotterySuspended(true), prevWinn
         { "!buytickets",                CLASS_RESOLUTION(BuyTicket),                  "[amount]",       true,   false,  AllowChannelTypes::Any        },
         { "!waslotterywon",             CLASS_RESOLUTION(LotteryWon),                 "",               false,  false,  AllowChannelTypes::Any        },
 
-        { "!togglelotterysuspend",      CLASS_RESOLUTION(ToggleLotterySuspend),       "",               false,  true,   AllowChannelTypes::Private    },
+        { "!togglelottery",             CLASS_RESOLUTION(ToggleLotterySuspend),       "",               false,  true,   AllowChannelTypes::Private    },
         { "!lastwinner",                CLASS_RESOLUTION(lastWinner),                 "",               false,  true,   AllowChannelTypes::Private    },
     };
+    setHelpCommand(Commands[0]);
     LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, GlobalConfig.RPCManager.starting_port_number - 1);
     PLog = &Poco::Logger::get("Lottery");
 }
@@ -78,7 +80,7 @@ void Lottery::save()
         PLog->information("Saving lottery data to disk...");
         {
             cereal::JSONOutputArchive ar(out);
-            ar(CEREAL_NVP(lastWinningTopBlock), CEREAL_NVP(prevWinner), CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner), CEREAL_NVP(lotterySuspended));
+            ar(CEREAL_NVP(lastWinningTopBlock), CEREAL_NVP(prevWinner), CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner), CEREAL_NVP(enabled));
         }
         out.close();
     }
@@ -101,7 +103,7 @@ void Lottery::load()
 
             if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 4)
             {
-                ar(CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner), CEREAL_NVP(lotterySuspended));
+                ar(CEREAL_NVP(rewardGivenout), CEREAL_NVP(sweepComplete), CEREAL_NVP(noWinner), CEREAL_NVP(enabled));
             }
         }
         in.close();
@@ -155,7 +157,7 @@ void Lottery::run()
 
     while (!GlobalConfig.General.Shutdown)
     {
-        if (!lotterySuspended)
+        if (!enabled)
         {
             Poco::DateTime curr;
             if (!noWinner && !rewardGivenout && curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() == GlobalConfig.Lottery.pick)
@@ -234,12 +236,12 @@ void Lottery::run()
                 catch (AppGeneralException & exp)
                 {
                     PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
-                    lotterySuspended = true;
+                    enabled = true;
                 }
                 catch (...)
                 {
                     PLog->error("There was an unknown error while in the lottery drawing. Lottery is suspended!");
-                    lotterySuspended = true;
+                    enabled = true;
                 }
             }
             else if (!sweepComplete && curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() == GlobalConfig.Lottery.faucet)
@@ -315,7 +317,7 @@ void Lottery::BuyTicket(TIPBOT* DiscordPtr, const UserMessage& message, const Co
     Poco::DateTime curr;
     if (curr.dayOfWeek() != GlobalConfig.Lottery.day || (curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() < GlobalConfig.Lottery.close))
     {
-        if (!lotterySuspended)
+        if (!enabled)
         {
             Poco::StringTokenizer cmd(message.Message, " ");
 
@@ -366,8 +368,8 @@ void Lottery::lastWinner(TIPBOT * DiscordPtr, const UserMessage& message, const 
 
 void Lottery::ToggleLotterySuspend(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me)
 {
-    lotterySuspended = !lotterySuspended;    
-    PLog->information("Lottery Status: %b", lotterySuspended);
+    enabled = !enabled;
+    PLog->information("Lottery Status: %b", enabled);
     save();
-    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_SUSPEND_TOGGLE"), lotterySuspended));
+    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_SUSPEND_TOGGLE"), enabled));
 }

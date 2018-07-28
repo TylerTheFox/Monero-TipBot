@@ -13,14 +13,14 @@ GNU General Public License for more details.
 */
 #pragma once
 #include "Tipbot.h"
-
+#include <string>
 class Account;
 
 class AppBaseClass
 {
 public:
+    AppBaseClass() : AppName("Unknown App"), HelpCommand(nullptr), enabled(false) {};
     virtual ~AppBaseClass() = default;
-    AppBaseClass() = default;
 
     virtual void            setAccount(Account *) = 0;
     virtual void            save() = 0;
@@ -35,4 +35,14 @@ public:
     virtual const_iterator  cend() const = 0;
 
     virtual void            run(const UserMessage & message) { };
+    
+    void                    setName(const std::string & name) { AppName = name; }
+    const std::string &     getName() { return AppName; }
+    void                    setHelpCommand(const Command & cmd) { HelpCommand = &cmd; }
+    const Command *         getHelpCommand() { return HelpCommand; }
+    bool                    isEnabled() { return enabled; }
+protected:
+    std::string             AppName;
+    bool                    enabled;
+    const struct Command *  HelpCommand;
 };

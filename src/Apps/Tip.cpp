@@ -20,10 +20,12 @@ GNU General Public License for more details.
 #include "../Core/Language.h"
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/Timespan.h"
+#include <fstream>
 
 #define CLASS_RESOLUTION(x) std::bind(&Tip::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Tip::Tip() : MyAccount(nullptr)
 {
+    setName("Tip");
     globalSettings = {
         true,
         true
@@ -33,7 +35,7 @@ Tip::Tip() : MyAccount(nullptr)
         // User Commands 
         // Command            Function                                       Params                              Wallet  Admin   Allowed Channel
         { "!about",           CLASS_RESOLUTION(About),                       "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!help",            CLASS_RESOLUTION(Help),                        "",                                 false,  false,  AllowChannelTypes::Any },
+        { "!tipbot",          CLASS_RESOLUTION(Help),                        "",                                 false,  false,  AllowChannelTypes::Any },
         { "!listlanguage",    CLASS_RESOLUTION(ListLanguages),               "",                                 false,  false,  AllowChannelTypes::Any },
         { "!selectlanguage",  CLASS_RESOLUTION(SelectLanguage),              "",                                 false,  false,  AllowChannelTypes::Any },
         { "!myaddress",       CLASS_RESOLUTION(MyAddress),                   "",                                 false,  false,  AllowChannelTypes::Private },
@@ -63,16 +65,38 @@ Tip::Tip() : MyAccount(nullptr)
         { "!whois",           CLASS_RESOLUTION(WhoIs),                      "[DiscordID]",                       false,  true,   AllowChannelTypes::Private },
         { "!performance",     CLASS_RESOLUTION(PerformanceData),            "",                                  false,  true,   AllowChannelTypes::Private },
         { "!executing",       CLASS_RESOLUTION(Executing),                  "",                                  false,  true,   AllowChannelTypes::Private },
+        { "!toggletipbot",    CLASS_RESOLUTION(ToggleTipbot),               "",                                  false,  true,   AllowChannelTypes::Private },
 
     };
+    setHelpCommand(Commands[1]);
 }
 
 void Tip::save()
 {
+    std::ofstream out(TIPBOT_SAVE_FILE, std::ios::trunc);
+    if (out.is_open())
+    {
+        //PLog->information("Saving Tipbot data to disk...");
+        {
+            cereal::JSONOutputArchive ar(out);
+            ar(CEREAL_NVP(enabled));
+        }
+        out.close();
+    }
 }
 
 void Tip::load()
 {
+    std::ifstream in(TIPBOT_SAVE_FILE);
+    if (in.is_open())
+    {
+        //PLog->information("Saving Tipbot data to disk...");
+        {
+            cereal::JSONInputArchive ar(in);
+            ar(CEREAL_NVP(enabled));
+        }
+        in.close();
+    }
 }
 
 void Tip::Help(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me)
@@ -369,6 +393,13 @@ void Tip::Executing(TIPBOT * DiscordPtr, const UserMessage & message, const Comm
 void Tip::UpTime(TIPBOT * DiscordPtr, const UserMessage & message, const Command & me)
 {
     DiscordPtr->SendMsg(message, Poco::format("Total uptime: %?i hours", Poco::Timespan(Poco::Timestamp() - start).totalHours()));
+}
+
+void Tip::ToggleTipbot(TIPBOT * DiscordPtr, const UserMessage & message, const Command & me)
+{
+    enabled = !enabled;
+    DiscordPtr->SendMsg(message, Poco::format("Tipbot Enabled: %b", enabled));
+    save();
 }
 
 void Tip::ListLanguages(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)

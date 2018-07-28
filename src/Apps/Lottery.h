@@ -61,7 +61,6 @@ public:
 private:
     Poco::Logger*                   PLog;
     TIPBOT *                        DiscordPtr;
-    bool                            lotterySuspended;
     std::uint64_t                   lastWinningTopBlock = 0;
     Account*                        currentUsrAccount{};
     std::shared_ptr<RPCProc>        LotteryAccount;

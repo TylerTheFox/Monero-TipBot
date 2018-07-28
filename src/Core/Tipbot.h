@@ -233,6 +233,7 @@ private:
     PerformanceMap                                      AppPerformanceStats;
     Poco::Mutex                                         DispatchMu;
 
+    void                                                globalHelpMenu(const UserMessage& message);
     void                                                SaveStats();
     void                                                LoadStats();
     void                                                dispatcher(const UserMessage& message, const struct Command & me, const std::shared_ptr<AppBaseClass> & ptr);

@@ -45,6 +45,5 @@ public:
     void                                award(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 private:
     Poco::Logger*                   PLog;
-    bool                            enabled;
     std::vector<struct Command>     Commands;
 };

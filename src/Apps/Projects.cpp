@@ -21,8 +21,9 @@ GNU General Public License for more details.
 #include "../Core/Util.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Projects::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Projects::Projects(TIPBOT * DPTR) : enabled(true), PLog(nullptr), DiscordPtr(DPTR), PortCount(GlobalConfig.RPCManager.starting_port_number - 2)
+Projects::Projects(TIPBOT * DPTR) : PLog(nullptr), DiscordPtr(DPTR), PortCount(GlobalConfig.RPCManager.starting_port_number - 2)
 {
+    setName("Projects");
     Commands =
     {
         // User Commands 
@@ -38,7 +39,10 @@ Projects::Projects(TIPBOT * DPTR) : enabled(true), PLog(nullptr), DiscordPtr(DPT
         { "!delete",          CLASS_RESOLUTION(Delete),                       "\\\"[project]\\\"",                              false,  true,   AllowChannelTypes::Private },
         { "!grantuser",       CLASS_RESOLUTION(GrantUser),                    "\\\"[project]\\\" [user]",                       false,  true,   AllowChannelTypes::Any },
         { "!toggleproject",   CLASS_RESOLUTION(ToggleProject),                "\\\"[project]\\\"",                              false,  true,   AllowChannelTypes::Private },
+        { "!toggleprojects",  CLASS_RESOLUTION(ToggleProjects),               "\\\"[project]\\\"",                              false,  true,   AllowChannelTypes::Private },
+
     };
+    setHelpCommand(Commands[0]);
     PLog = &Poco::Logger::get("Projects");
 }
 
@@ -66,7 +70,7 @@ void Projects::save()
         PLog->information("Saving projects data to disk...");
         {
             cereal::JSONOutputArchive ar(out);
-            ar(CEREAL_NVP(ProjectMap));
+            ar(CEREAL_NVP(ProjectMap), CEREAL_NVP(enabled));
         }
         out.close();
     }
@@ -81,6 +85,11 @@ void Projects::load()
         {
             cereal::JSONInputArchive ar(in);
             ar(CEREAL_NVP(ProjectMap));
+
+            if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 6)
+            {
+                ar(CEREAL_NVP(enabled));
+            }
         }
         in.close();
 
@@ -395,4 +404,11 @@ void Projects::ProjectAddress(TIPBOT * DiscordPtr, const UserMessage & message, 
 const std::string Projects::getFilename(const std::string & projectname)
 {
     return Poco::format("PROJECT-%s", projectname);
+}
+
+void Projects::ToggleProjects(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
+{
+    enabled = !enabled;
+    DiscordPtr->SendMsg(message, Poco::format("Projects Enabled: %b", enabled));
+    save();
 }

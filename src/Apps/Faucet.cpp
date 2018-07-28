@@ -28,8 +28,9 @@ GNU General Public License for more details.
 #include <Poco/StringTokenizer.h>
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Faucet::Faucet() : enabled(false), PLog(nullptr)
+Faucet::Faucet() : PLog(nullptr)
 {
+    setName("Faucet");
     Commands =
     {
         // User Commands 
@@ -40,6 +41,7 @@ Faucet::Faucet() : enabled(false), PLog(nullptr)
         { "!togglefaucet",    CLASS_RESOLUTION(ToggleFaucet),               "",                                 false,  true,   AllowChannelTypes::Private },
         { "!award",           CLASS_RESOLUTION(award),                      "[@User]",                          false,  true,   AllowChannelTypes::Any },
     };
+    setHelpCommand(Commands[0]);
     PLog = &Poco::Logger::get("Faucet");
 }
 

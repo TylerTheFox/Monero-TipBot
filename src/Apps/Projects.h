@@ -122,13 +122,13 @@ public:
     void                                ListProjects(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                ViewStatus(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                ProjectAddress(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                ToggleProjects(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 
 private:
     unsigned short                      PortCount;
     std::map<std::string, Project>      ProjectMap;
     TIPBOT *                            DiscordPtr;
     Poco::Logger*                       PLog;
-    bool                                enabled;
     std::vector<struct Command>         Commands;
 
     const std::string                   getFilename(const std::string & projectname);
