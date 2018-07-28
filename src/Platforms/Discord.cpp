@@ -15,7 +15,7 @@ GNU General Public License for more details.
 #include "Poco/JSON/Parser.h"
 #include "Poco/Format.h"
 #include "Poco/Thread.h"
-#include "RPCManager.h"
+#include "../Core/RPCManager.h"
 
 template<typename t>
 DiscordID convertSnowflakeToInt64(t id)

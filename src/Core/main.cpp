@@ -12,7 +12,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #include "Tipbot.h"
-#include "Discord.h"
+#include "../Platforms/Discord.h"
+#include "../Platforms/Dummy.h"
 #include <string>
 #include <iostream>
 #include "Poco/File.h"
@@ -21,8 +22,6 @@ GNU General Public License for more details.
 #include "Poco/Thread.h"
 #include "RPCException.h"
 #include "Config.h"
-#include "Faucet.h"
-#include "Lottery.h"
 #include "Poco/File.h"
 
 #include "Poco/Logger.h"
@@ -33,7 +32,6 @@ GNU General Public License for more details.
 #include "Poco/FormattingChannel.h"
 #include "Poco/PatternFormatter.h"
 #include "Language.h"
-#include "Dummy.h"
 
 #define COIN_CONFIG "Coins/"
 #define LANG_CONFIG "language.json"

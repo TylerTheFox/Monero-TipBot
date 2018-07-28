@@ -23,17 +23,19 @@ GNU General Public License for more details.
 #include "cereal/types/map.hpp"
 #include "cereal/types/set.hpp"
 #include "cereal/types/unordered_map.hpp"
-#include "Tip.h"
-#include "Faucet.h"
+
 #include "RPCException.h"
 #include "Poco/StringTokenizer.h"
-#include "Lottery.h"
 #include "Poco/ThreadTarget.h"
 #include "Poco/Exception.h"
-#include "CLI.h"
 #include <thread>
-#include "ChatRewards.h"
-#include "Projects.h"
+
+#include "../Apps/Tip.h"
+#include "../Apps/CLI.h"
+#include "../Apps/ChatRewards.h"
+#include "../Apps/Projects.h"
+#include "../Apps/Lottery.h"
+#include "../Apps/Faucet.h"
 
 const char *aboutStr =
 "```TipBot v%?i.%?i (Config: v%?i.%?i)\\n"

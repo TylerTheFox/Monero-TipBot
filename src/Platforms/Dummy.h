@@ -11,24 +11,20 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
-#pragma once
-#include "Tipbot.h"
-#include "sleepy_discord/websocketpp_websocket.h"
 
-class Discord : public TIPBOT, public SleepyDiscord::DiscordClient {
+// This is just a dummy service used for memory testing.
+#pragma once
+#include "../Core/Tipbot.h"
+#include <string>
+
+class Dummy : public TIPBOT {
 public:
-    Discord();
-    using                   SleepyDiscord::DiscordClient::DiscordClient;
+    Dummy(const std::string &);
+    ~Dummy();
+
     void                    start();
-    void                    onMessage(SleepyDiscord::Message message);
-    void                    onReady(SleepyDiscord::Ready readyData);
     void                    broadcastMsg(DiscordID channel, std::string message);
     void                    broadcastDirectMsg(DiscordID user, std::string message);
     const DiscordUser &     getUserFromServer(DiscordID user);
     void                    _shutdown();
-    Poco::Logger*           PLog;
-private:
-    void                    refreshUserList();
-    UserMessage             ConvertSleepyDiscordMsg(const SleepyDiscord::Message & message);
-    int                     getDiscordChannelType(SleepyDiscord::Snowflake<SleepyDiscord::Channel> id);
 };

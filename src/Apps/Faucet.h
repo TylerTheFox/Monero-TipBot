@@ -12,22 +12,20 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #pragma once
-#include "Tipbot.h"
-#include "Account.h"
-#include "AppBaseClass.h"
+#include "../Core/Tipbot.h"
+#include "../Core/Account.h"
+#include "../Core/Util.h"
+#include "../Core/AppBaseClass.h"
 #include "Poco/Logger.h"
+#include "Poco/AutoPtr.h"
 
-struct DiscordConversion
-{
-    std::string strold;
-    std::string strnew;
-};
 
-class CLI : public AppBaseClass
+#define    FAUCET_SAVE_FILE       "FAUCET.JSON"
+class Faucet : public AppBaseClass
 {
 public:
-    CLI(TIPBOT * dptr);
-    virtual ~CLI();
+    Faucet();
+    virtual ~Faucet() = default;
 
     void                                save();
     void                                load();
@@ -40,11 +38,13 @@ public:
     const_iterator                      end() const;
     const_iterator                      cend() const;
 
-    void                                cli_main();
-
-    UserMessage                         generateUsrMsg(std::string msg);
+    void                                help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                take(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                status(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
+    void                                ToggleFaucet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
+    void                                award(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 private:
-    TIPBOT*                             DiscordPtr;
-    Poco::Logger*                       PLog;
-    std::vector<struct Command>         Commands;
+    Poco::Logger*                   PLog;
+    bool                            enabled;
+    std::vector<struct Command>     Commands;
 };

@@ -12,12 +12,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #include "Tip.h"
-#include "RPCException.h"
-#include "Tipbot.h"
+#include "../Core/RPCException.h"
+#include "../Core/Tipbot.h"
 #include <Poco/StringTokenizer.h>
-#include "RPCManager.h"
-#include "Config.h"
-#include "Language.h"
+#include "../Core/RPCManager.h"
+#include "../Core/Config.h"
+#include "../Core/Language.h"
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/Timespan.h"
 

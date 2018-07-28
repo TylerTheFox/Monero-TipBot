@@ -11,9 +11,9 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
-#include "Tipbot.h"
-#include "Account.h"
-#include "AppBaseClass.h"
+#include "../Core/Tipbot.h"
+#include "../Core/Account.h"
+#include "../Core/AppBaseClass.h"
 
 /*
     Every message insert snowflake into users (this will keep it unqiue and fair) 

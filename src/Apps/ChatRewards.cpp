@@ -14,9 +14,9 @@ GNU General Public License for more details.
 #include "ChatRewards.h"
 #include <Poco/Timestamp.h>
 #include <Poco/Thread.h>
-#include "Util.h"
+#include "../Core/Util.h"
 #include <thread>
-#include "RPCManager.h"
+#include "../Core/RPCManager.h"
 #include <random>
 #include <algorithm>
 #include <fstream>
@@ -24,7 +24,7 @@ GNU General Public License for more details.
 #include "cereal/archives/json.hpp"
 #include <cereal/types/set.hpp>
 #include <cereal/types/stack.hpp>
-#include "Language.h"
+#include "../Core/Language.h"
 #include <Poco/StringTokenizer.h>
 
 #define CHATREWARDS_SAVE_FILE "ChatRewards.json"

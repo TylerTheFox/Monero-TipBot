@@ -12,16 +12,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #include "Faucet.h"
-#include "Tipbot.h"
+#include "../Core/Tipbot.h"
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/Timestamp.h"
 #include "Poco/Timespan.h"
-#include "RPCManager.h"
+#include "../Core/RPCManager.h"
 #include <utility>
 #include <map>
-#include "Config.h"
-#include "RPCException.h"
-#include "Language.h"
+#include "../Core/Config.h"
+#include "../Core/RPCException.h"
+#include "../Core/Language.h"
 #include <fstream>
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"

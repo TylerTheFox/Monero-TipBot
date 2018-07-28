@@ -13,12 +13,12 @@ GNU General Public License for more details.
 */
 #include "Projects.h"
 #include "Poco/StringTokenizer.h"
-#include "Language.h"
+#include "../Core/Language.h"
 #include <fstream>
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
 #include "cereal/types/map.hpp"
-#include "Util.h"
+#include "../Core/Util.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Projects::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Projects::Projects(TIPBOT * DPTR) : enabled(true), PLog(nullptr), DiscordPtr(DPTR), PortCount(GlobalConfig.RPCManager.starting_port_number - 2)

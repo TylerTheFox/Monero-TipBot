@@ -12,13 +12,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #pragma once
-#include "Tipbot.h"
-#include "Account.h"
-#include "Util.h"
-#include "AppBaseClass.h"
+#include "../Core/Tipbot.h"
+#include "../Core/Account.h"
+#include "../Core/AppBaseClass.h"
 #include "Poco/Logger.h"
 #include "Poco/AutoPtr.h"
-#include "RPCManager.h"
+#include "../Core/RPCManager.h"
 
 ///////////////////// ***************** COMMISSIONED BY: TheOtherGuys (TOGM) ***************** ////////////////////////////
 

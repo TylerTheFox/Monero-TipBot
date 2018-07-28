@@ -21,10 +21,10 @@ GNU General Public License for more details.
  *  
  */
 #pragma once
-#include "Tipbot.h"
-#include "Account.h"
-#include "AppBaseClass.h"
-#include "RPCManager.h"
+#include "../Core/Tipbot.h"
+#include "../Core/Account.h"
+#include "../Core/AppBaseClass.h"
+#include "../Core/RPCManager.h"
 #include "Poco/Logger.h"
 #include "Poco/AutoPtr.h"
 #define    LOTTERY_USER            "LOTTERY" // Wallet

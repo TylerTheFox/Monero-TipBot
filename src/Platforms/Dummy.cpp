@@ -12,9 +12,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #include "Dummy.h"
-#include "Config.h"
+#include "../Core/Config.h"
 #include "Poco/Thread.h"
-#include "RPCManager.h"
+#include "../Core/RPCManager.h"
 
 Dummy::Dummy(const std::string &) {}
 
