@@ -18,12 +18,9 @@ GNU General Public License for more details.
 #include <Poco/StringTokenizer.h>
 #include <thread>
 
-CLI::CLI(TIPBOT * dptr) : PLog(nullptr)
+CLI::CLI(TIPBOT * DPTR) : AppBaseClass(DPTR)
 {
     setName("CLI");
-    PLog = &Poco::Logger::get("CLI");
-
-    DiscordPtr = dptr;
 
     // Create CLI thread
     std::thread t1(&CLI::cli_main, this);
@@ -124,47 +121,4 @@ UserMessage CLI::generateUsrMsg(std::string msg)
     }
 
     return ret;
-}
-
-void CLI::save()
-{
-}
-
-void CLI::load()
-{
-}
-
-void CLI::setAccount(Account* acc)
-{
-
-}
-
-iterator CLI::begin()
-{
-    return Commands.begin();
-}
-
-const_iterator CLI::begin() const
-{
-    return Commands.begin();
-}
-
-const_iterator CLI::cbegin() const
-{
-    return Commands.cbegin();
-}
-
-iterator CLI::end()
-{
-    return Commands.end();
-}
-
-const_iterator CLI::end() const
-{
-    return Commands.end();
-}
-
-const_iterator CLI::cend() const
-{
-    return Commands.cend();
 }

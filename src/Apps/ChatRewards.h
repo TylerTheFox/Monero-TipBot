@@ -32,22 +32,13 @@ GNU General Public License for more details.
 class ChatRewards : public AppBaseClass
 {
 public:
-    ChatRewards(TIPBOT * DP);
+    ChatRewards(TIPBOT * DPTR);
     virtual ~ChatRewards() = default;
 
     void                                run(const UserMessage & message);
     void                                save();
     void                                load();
-    void                                setAccount(Account *);
-    iterator                            begin();
-    const_iterator                      begin() const;
-    const_iterator                      cbegin() const;
-
-    iterator                            end();
-    const_iterator                      end() const;
-    const_iterator                      cend() const;
 private:
-    TIPBOT*                             DiscordPtr;
     std::set<Snowflake>                 Users;
     std::set<DiscordID>                 NotAllowedIDs;
     std::stack<Snowflake>               PendingTransfers;
@@ -65,6 +56,4 @@ private:
 
     void                                ProcessPendingTransfers();
     bool                                isUserDisallowed(const DiscordID & id);
-    Poco::Logger*                       PLog;
-    std::vector<struct Command>         Commands;
 };

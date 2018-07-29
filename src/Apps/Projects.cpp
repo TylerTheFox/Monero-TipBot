@@ -21,7 +21,7 @@ GNU General Public License for more details.
 #include "../Core/Util.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&Projects::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Projects::Projects(TIPBOT * DPTR) : PLog(nullptr), DiscordPtr(DPTR), PortCount(GlobalConfig.RPCManager.starting_port_number - 2)
+Projects::Projects(TIPBOT * DPTR) : PortCount(GlobalConfig.RPCManager.starting_port_number - 2), AppBaseClass(DPTR)
 {
     setName("Projects");
     Commands =
@@ -43,7 +43,6 @@ Projects::Projects(TIPBOT * DPTR) : PLog(nullptr), DiscordPtr(DPTR), PortCount(G
 
     };
     setHelpCommand(Commands[0]);
-    PLog = &Poco::Logger::get("Projects");
 }
 
 Projects::~Projects()
@@ -97,41 +96,6 @@ void Projects::load()
         for (auto & proj : ProjectMap)
             proj.second.RPC = RPCManager::manuallyCreateRPC(getFilename(proj.first), PortCount--);
     }
-}
-
-void Projects::setAccount(Account*)
-{
-    // Do nothing, we construct this parameter since its pure virtual and we dont need it in this class.
-}
-
-iterator Projects::begin()
-{
-    return Commands.begin();
-}
-
-const_iterator Projects::begin() const
-{
-    return Commands.begin();
-}
-
-const_iterator Projects::cbegin() const
-{
-    return Commands.cbegin();
-}
-
-iterator Projects::end()
-{
-    return Commands.end();
-}
-
-const_iterator Projects::end() const
-{
-    return Commands.end();
-}
-
-const_iterator Projects::cend() const
-{
-    return Commands.cend();
 }
 
 void Projects::Help(TIPBOT * DiscordPtr, const UserMessage & message, const Command & me)

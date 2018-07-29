@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #include <Poco/StringTokenizer.h>
 
 #define CLASS_RESOLUTION(x) std::bind(&Faucet::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Faucet::Faucet() : PLog(nullptr)
+Faucet::Faucet(TIPBOT * DPTR) : AppBaseClass(DPTR)
 {
     setName("Faucet");
     Commands =
@@ -42,7 +42,6 @@ Faucet::Faucet() : PLog(nullptr)
         { "!award",           CLASS_RESOLUTION(award),                      "[@User]",                          false,  true,   AllowChannelTypes::Any },
     };
     setHelpCommand(Commands[0]);
-    PLog = &Poco::Logger::get("Faucet");
 }
 
 void Faucet::save()
@@ -71,41 +70,6 @@ void Faucet::load()
         }
         in.close();
     }
-}
-
-void Faucet::setAccount(Account*)
-{
-    // Do nothing, we construct this parameter since its pure virtual and we dont need it in this class.
-}
-
-iterator Faucet::begin()
-{
-    return Commands.begin();
-}
-
-const_iterator Faucet::begin() const
-{
-    return Commands.begin();
-}
-
-const_iterator Faucet::cbegin() const
-{
-    return Commands.cbegin();
-}
-
-iterator Faucet::end()
-{
-    return Commands.end();
-}
-
-const_iterator Faucet::end() const
-{
-    return Commands.end();
-}
-
-const_iterator Faucet::cend() const
-{
-    return Commands.cend();
 }
 
 void Faucet::help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const

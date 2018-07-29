@@ -37,7 +37,7 @@ std::string DayOfWeek[]
 };
 
 #define CLASS_RESOLUTION(x) std::bind(&Lottery::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), prevWinner(0), PLog(nullptr)
+Lottery::Lottery(TIPBOT * DPTR) : prevWinner(0), AppBaseClass(DPTR)
 {
     setName("Lottery");
     Commands =
@@ -56,7 +56,6 @@ Lottery::Lottery(TIPBOT * DP) : DiscordPtr(DP), prevWinner(0), PLog(nullptr)
     };
     setHelpCommand(Commands[0]);
     LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, GlobalConfig.RPCManager.starting_port_number - 1);
-    PLog = &Poco::Logger::get("Lottery");
 }
 
 Lottery::~Lottery()
@@ -117,36 +116,6 @@ void Lottery::load()
 void Lottery::setAccount(Account* acc)
 {
     currentUsrAccount = acc;
-}
-
-iterator Lottery::begin()
-{
-    return Commands.begin();
-}
-
-const_iterator Lottery::begin() const
-{
-    return Commands.begin();
-}
-
-const_iterator Lottery::cbegin() const
-{
-    return Commands.cbegin();
-}
-
-iterator Lottery::end()
-{
-    return Commands.end();
-}
-
-const_iterator Lottery::end() const
-{
-    return Commands.end();
-}
-
-const_iterator Lottery::cend() const
-{
-    return Commands.cend();
 }
 
 void Lottery::run()

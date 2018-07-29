@@ -29,18 +29,11 @@ struct Settings
 class Tip : public AppBaseClass
 {
 public:
-    Tip();
+    Tip(TIPBOT * DPTR);
     ~Tip() = default;
 
     void                            save();
     void                            load();
-    iterator                        begin();
-    const_iterator                  begin() const;
-    const_iterator                  cbegin() const;
-
-    iterator                        end();
-    const_iterator                  end() const;
-    const_iterator                  cend() const;
     void                            setAccount(Account *);
 
     void                            Help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
@@ -76,6 +69,5 @@ public:
     private:
     Poco::Timestamp                 start;
     Settings                        globalSettings{};
-    std::vector<struct Command>     Commands;
     Account*                        MyAccount;
 };

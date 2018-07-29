@@ -104,14 +104,6 @@ public:
 
     void                                save();
     void                                load();
-    void                                setAccount(Account *);
-    iterator                            begin();
-    const_iterator                      begin() const;
-    const_iterator                      cbegin() const;
-
-    iterator                            end();
-    const_iterator                      end() const;
-    const_iterator                      cend() const;
 
     void                                Help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                Create(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
@@ -127,9 +119,5 @@ public:
 private:
     unsigned short                      PortCount;
     std::map<std::string, Project>      ProjectMap;
-    TIPBOT *                            DiscordPtr;
-    Poco::Logger*                       PLog;
-    std::vector<struct Command>         Commands;
-
     const std::string                   getFilename(const std::string & projectname);
 };

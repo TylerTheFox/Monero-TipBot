@@ -19,30 +19,34 @@ class Account;
 class AppBaseClass
 {
 public:
-    AppBaseClass() : AppName("Unknown App"), HelpCommand(nullptr), enabled(false) {};
-    virtual ~AppBaseClass() = default;
+    AppBaseClass(TIPBOT * DPTR) :AppName("Unknown App"), HelpCommand(nullptr), enabled(false), DiscordPtr(DPTR) {};
 
-    virtual void            setAccount(Account *) = 0;
-    virtual void            save() = 0;
-    virtual void            load() = 0;
+    virtual                             ~AppBaseClass() = default;
 
-    virtual iterator        begin() = 0;
-    virtual const_iterator  begin() const = 0;
-    virtual const_iterator  cbegin() const = 0;
+    virtual void                        setAccount(Account *) {}
+    virtual void                        save() {};
+    virtual void                        load() {};
 
-    virtual iterator        end() = 0;
-    virtual const_iterator  end() const = 0;
-    virtual const_iterator  cend() const = 0;
+    iterator                            begin() { return Commands.begin(); };
+    const_iterator                      begin() const { return Commands.begin();  };
+    const_iterator                      cbegin() const { return Commands.cbegin();  };
 
-    virtual void            run(const UserMessage & message) { };
-    
-    void                    setName(const std::string & name) { AppName = name; }
-    const std::string &     getName() { return AppName; }
-    void                    setHelpCommand(const Command & cmd) { HelpCommand = &cmd; }
-    const Command *         getHelpCommand() { return HelpCommand; }
-    bool                    isEnabled() { return enabled; }
+    iterator                            end() { return Commands.end();  };
+    const_iterator                      end() const { return Commands.end();  };
+    const_iterator                      cend() const { return Commands.cend(); };
+
+    virtual void                        run(const UserMessage & message) { };
+
+    void                                setName(const std::string & name) { AppName = name, PLog = &Poco::Logger::get(AppName); }
+    const std::string &                 getName() { return AppName; }
+    void                                setHelpCommand(const Command & cmd) { HelpCommand = &cmd; }
+    const Command *                     getHelpCommand() { return HelpCommand; }
+    bool                                isEnabled() { return enabled; }
 protected:
-    std::string             AppName;
-    bool                    enabled;
-    const struct Command *  HelpCommand;
+    TIPBOT *                            DiscordPtr;
+    std::string                         AppName;
+    bool                                enabled;
+    const struct Command *              HelpCommand;
+    std::vector<struct Command>         Commands;
+    Poco::Logger*                       PLog;
 };

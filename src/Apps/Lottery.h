@@ -33,19 +33,12 @@ GNU General Public License for more details.
 class Lottery : public Poco::Runnable, public AppBaseClass
 {
 public:
-    Lottery(TIPBOT * DiscordPtr);
+    Lottery(TIPBOT * DPTR);
     virtual ~Lottery();
 
     void                                save();
     void                                load();
     void                                setAccount(Account *);
-    iterator                            begin();
-    const_iterator                      begin() const;
-    const_iterator                      cbegin() const;
-
-    iterator                            end();
-    const_iterator                      end() const;
-    const_iterator                      cend() const;
 
     void                                run();
 
@@ -59,12 +52,10 @@ public:
     void                                lastWinner(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
     void                                ToggleLotterySuspend(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 private:
-    Poco::Logger*                   PLog;
     TIPBOT *                        DiscordPtr;
     std::uint64_t                   lastWinningTopBlock = 0;
     Account*                        currentUsrAccount{};
     std::shared_ptr<RPCProc>        LotteryAccount;
-    std::vector<struct Command>     Commands;
     DiscordID                       prevWinner;
     bool rewardGivenout = false;
     bool sweepComplete = false;

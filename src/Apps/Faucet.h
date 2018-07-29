@@ -24,26 +24,15 @@ GNU General Public License for more details.
 class Faucet : public AppBaseClass
 {
 public:
-    Faucet();
+    Faucet(TIPBOT * DPTR);
     virtual ~Faucet() = default;
 
     void                                save();
     void                                load();
-    void                                setAccount(Account *);
-    iterator                            begin();
-    const_iterator                      begin() const;
-    const_iterator                      cbegin() const;
-
-    iterator                            end();
-    const_iterator                      end() const;
-    const_iterator                      cend() const;
 
     void                                help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
     void                                take(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                status(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me) const;
     void                                ToggleFaucet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                award(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
-private:
-    Poco::Logger*                   PLog;
-    std::vector<struct Command>     Commands;
 };

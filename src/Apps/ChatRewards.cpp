@@ -29,11 +29,9 @@ GNU General Public License for more details.
 
 #define CHATREWARDS_SAVE_FILE "ChatRewards.json"
 #define CLASS_RESOLUTION(x) std::bind(&ChatRewards::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-ChatRewards::ChatRewards(TIPBOT * DP) : DiscordPtr(DP), lastTimePaymentWasSent(0), channel(0), lastTimeUserDrawn(0), PLog(nullptr)
+ChatRewards::ChatRewards(TIPBOT * DPTR) : lastTimePaymentWasSent(0), channel(0), lastTimeUserDrawn(0), AppBaseClass(DPTR)
 {
-    setName("Chat Rewards");
-
-    PLog = &Poco::Logger::get("ChatRewards");
+    setName("ChatRewards");
     Commands =
     {
         // User Commands 
@@ -181,40 +179,6 @@ void ChatRewards::load()
         }
         in.close();
     }
-}
-
-void ChatRewards::setAccount(Account *)
-{
-}
-
-iterator ChatRewards::begin()
-{
-    return Commands.begin();
-}
-
-const_iterator ChatRewards::begin() const
-{
-    return Commands.begin();
-}
-
-const_iterator ChatRewards::cbegin() const
-{
-    return Commands.cbegin();
-}
-
-iterator ChatRewards::end()
-{
-    return Commands.end();
-}
-
-const_iterator ChatRewards::end() const
-{
-    return Commands.end();
-}
-
-const_iterator ChatRewards::cend() const
-{
-    return Commands.cend();
 }
 
 void ChatRewards::help(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)

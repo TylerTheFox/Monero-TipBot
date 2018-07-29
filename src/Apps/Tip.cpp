@@ -23,7 +23,7 @@ GNU General Public License for more details.
 #include <fstream>
 
 #define CLASS_RESOLUTION(x) std::bind(&Tip::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-Tip::Tip() : MyAccount(nullptr)
+Tip::Tip(TIPBOT * DPTR) : MyAccount(nullptr), AppBaseClass(DPTR)
 {
     setName("Tip");
     globalSettings = {
@@ -281,36 +281,6 @@ void Tip::RestartFaucetWallet(TIPBOT * DiscordPtr, const UserMessage& message, c
 {
     RPCMan->restartWallet(RPCMan->getBotDiscordID());
     DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_FAUCET_RESTART_SUCCESS"));
-}
-
-iterator Tip::begin()
-{
-    return Commands.begin();
-}
-
-const_iterator Tip::begin() const
-{
-    return Commands.begin();
-}
-
-const_iterator Tip::cbegin() const
-{
-    return Commands.cbegin();
-}
-
-iterator Tip::end()
-{
-    return Commands.end();
-}
-
-const_iterator Tip::end() const
-{
-    return Commands.end();
-}
-
-const_iterator Tip::cend() const
-{
-    return Commands.cend();
 }
 
 void Tip::setAccount(Account* acc)
