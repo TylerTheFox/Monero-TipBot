@@ -32,7 +32,6 @@ GNU General Public License for more details.
 #include "Poco/FormattingChannel.h"
 #include "Poco/PatternFormatter.h"
 #include "Language.h"
-#include "Script.h"
 
 #define COIN_CONFIG "Coins/"
 #define LANG_CONFIG "language.json"
@@ -136,15 +135,6 @@ int main()
     {
         // Enable logging.
         setupLogging();
-
-        /// TEST ///
-
-        // Scripting Engine
-        Script scr;
-
-        scr.add_script("Scripts/test.chai");
-
-        ////////////
 
         auto & logger = Poco::Logger::get("Main");
         logger.information("Tipbot starting up...");

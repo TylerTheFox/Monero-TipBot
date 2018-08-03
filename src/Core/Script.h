@@ -12,10 +12,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #pragma once
-#include "Tipbot.h"
 #include "chaiscript/chaiscript.hpp"
 #include "ScriptDefs.h"
-
+#include "Poco/Logger.h"
 /*
 =================================================================================
 Engine Defs
@@ -43,8 +42,11 @@ Engine Defs
 class ScriptEngine
 {
 public:
-    std::string path;
-    chaiscript::ChaiScript * engine;
+    ScriptEngine() : shutdown(false), shutdown_complete(false) {}
+    std::string                 path;
+    chaiscript::ChaiScript *    engine;
+    bool                        shutdown;
+    bool                        shutdown_complete;
 };
 
 class Script
@@ -61,13 +63,13 @@ public:
     void clearAll();
     size_t count() const;
 private:
+    Poco::Logger*                   PLog;
     std::vector<class ScriptEngine> scripts;
-    class ScriptDefs                tipbotdefs;
+    ScriptDefs                      tipbotdefs;
     chaiscript::ModulePtr           mathscrdata;
 
     bool reinit_engine(class ScriptEngine& sEngine);
 
     void init_engine(class ScriptEngine& sEngine);
-    void init_call_back_functions(class ScriptEngine& sEngine);
     void script_exception(const chaiscript::exception::eval_error & ee);
 };

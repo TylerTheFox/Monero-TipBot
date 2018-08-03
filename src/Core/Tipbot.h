@@ -24,6 +24,7 @@ GNU General Public License for more details.
 #include "Config.h"
 #include <unordered_set>
 #include "Poco/Checksum.h"
+#include "Script.h"
 #define FIND_USER_UNKNOWN_USER "Unknown User"
 
 extern const char *aboutStr;
@@ -232,6 +233,7 @@ private:
     ExecuteCommandType                                  runningCommands;
     PerformanceMap                                      AppPerformanceStats;
     Poco::Mutex                                         DispatchMu;
+    Script                                              ScriptEng;
 
     void                                                globalHelpMenu(const UserMessage& message);
     void                                                SaveStats();

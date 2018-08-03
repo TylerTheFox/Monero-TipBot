@@ -56,6 +56,7 @@ TIPBOT::TIPBOT() : PLog(nullptr)
 TIPBOT::~TIPBOT()
 {
     GlobalConfig.General.Shutdown = true;
+    ScriptEng.clearAll();
     while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); }
     init = false;
 }
@@ -65,6 +66,8 @@ void TIPBOT::shutdown()
     this->AppSave();
 
     PLog->information("Shutting Threads Down...");
+
+    ScriptEng.clearAll();
 
     GlobalConfig.General.Shutdown = true;
     while (GlobalConfig.General.Threads > 1) { Poco::Thread::sleep(1); }
@@ -108,6 +111,9 @@ void TIPBOT::tipbot_init()
                 AppSave();
                 SaveStats();
             }
+
+            // Script Init
+            ScriptEng.add_script("Scripts/test.chai");
 
             init = true;
         }

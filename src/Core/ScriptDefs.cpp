@@ -11,8 +11,10 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
+#include "Tipbot.h"
 #include "ScriptDefs.h"
 #include "Script.h"
+#include "Poco/Thread.h"
 
 ScriptDefs::ScriptDefs()
 {
@@ -46,6 +48,7 @@ void ScriptDefs::core_datatypes_impli() const
 void ScriptDefs::class_functions() const
 {
     MODULE_ADD_LAMBDA(std::function<void(const std::string &)>([&](const std::string & msg) { PLog->information(msg.c_str()); }), "log");
+    MODULE_ADD_LAMBDA(Poco::Thread::sleep, "sleep");
 }
 
 void ScriptDefs::core_functions()

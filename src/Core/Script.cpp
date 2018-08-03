@@ -12,15 +12,19 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #include "Script.h"
+#include "Tipbot.h"
 #include "chaiscript/chaiscript_stdlib.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
 #include "chaiscript/utility/utility.hpp"
 #include "chaiscript/extras/math.hpp"
 #include "Poco/File.h"
 #include "Poco/Path.h"
+#include <thread>
+#include "Poco/Thread.h"
 
 Script::Script()
 {
+    PLog = &Poco::Logger::get("Script Engine");
     preinit_engine();
 }
 
@@ -41,7 +45,7 @@ bool Script::add_script(const std::string& scriptPath)
     {
         if (is_script_loaded(scriptPath))
         {
-            //::trace("Duplicate found, reloading script!\n");
+            PLog->information("Duplicate found, reloading script!\n");
 
             // Delete script to reload.
             remove_script(scriptPath);
@@ -53,25 +57,31 @@ bool Script::add_script(const std::string& scriptPath)
 
         init_engine(newEngine);
 
-        try
+        auto eval = [&]()
         {
-            newEngine.engine->eval_file(scriptPath);
+            GlobalConfig.General.Threads++;
+            PLog->information("Thread Started! Threads: %?i", GlobalConfig.General.Threads);
+            try
+            {
+                newEngine.engine->eval_file(newEngine.path);
+            }
+            catch (const chaiscript::exception::eval_error &ee)
+            {
+                script_exception(ee);
+                remove_script(scriptPath);
+            }
+            GlobalConfig.General.Threads--;
+            PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
+        };
+        std::thread t(eval);
+        t.detach();
 
-            // Get function data
-            init_call_back_functions(newEngine);
-
-            //::trace("Script Loaded successfully!");
-            return true; // Success!
-        }
-        catch (const chaiscript::exception::eval_error &ee)
-        {
-            script_exception(ee);
-            remove_script(scriptPath);
-        }
+        PLog->information("Script Loaded successfully!");
+        return true; // Success!
     }
     else
     {
-        //::trace("Script failed to load -- File not found!");
+        PLog->information("Script failed to load -- File not found!");
     }
     return false; // Fail!
 }
@@ -82,6 +92,8 @@ void Script::remove_script(const std::string& scriptPath)
     {
         if (scripts[i].path == scriptPath)
         {
+            scripts[i].shutdown = true;
+            while (!scripts[i].shutdown_complete) { Poco::Thread::sleep(1); }
             delete scripts[i].engine;
             scripts[i].engine = nullptr;
             scripts.erase(scripts.begin() + i);
@@ -104,6 +116,8 @@ void Script::clearAll()
 {
     for (int i = 0; i < scripts.size(); i++)
     {
+        scripts[i].shutdown = true;
+        while (!scripts[i].shutdown_complete) { Poco::Thread::sleep(1); }
         delete scripts[i].engine;
         scripts[i].engine = nullptr;
     }
@@ -126,20 +140,27 @@ bool Script::reinit_engine(class ScriptEngine& sEngine)
         // Init Core
         init_engine(sEngine);
 
-        try
+        auto eval = [&]()
         {
-            sEngine.engine->eval_file(sEngine.path);
+            GlobalConfig.General.Threads++;
+            PLog->information("Thread Started! Threads: %?i", GlobalConfig.General.Threads);
+            try
+            {
+                sEngine.engine->eval_file(sEngine.path);
 
-            // Get function data
-            init_call_back_functions(sEngine);
+            }
+            catch (const chaiscript::exception::eval_error &ee)
+            {
+                script_exception(ee);
+            }
+            GlobalConfig.General.Threads--;
+            PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
+        };
+        std::thread t(eval);
+        t.detach();
 
-            //::trace("Script Reloaded successfully!");
-            return true;
-        }
-        catch (const chaiscript::exception::eval_error &ee)
-        {
-            script_exception(ee);
-        }
+        PLog->information("Script Reloaded successfully!");
+        return true;
     }
     else
     {
@@ -161,24 +182,18 @@ void Script::init_engine(class ScriptEngine& sEngine)
 
         // Tipbot
         sEngine.engine->add(tipbotdefs.getModule());
+
+        ENGINE_ADD_GLOBAL(sEngine.engine, sEngine.shutdown, "script_shutdown");
+        ENGINE_ADD_GLOBAL(sEngine.engine, sEngine.shutdown_complete, "script_shutdown_complete");
     }
     catch (const chaiscript::exception::eval_error &ee)
     {
-        //::trace(ee.pretty_print().c_str());
+        PLog->information(ee.pretty_print());
     }
 #endif
 }
 
-void Script::init_call_back_functions(class ScriptEngine& sEngine)
-{
-
-}
-
 void Script::script_exception(const chaiscript::exception::eval_error & ee)
 {
-    std::stringstream poperr;
-    Poco::Path scrpth(ee.filename);
-    poperr << "Script Error: " << ee.reason << " in '" << scrpth.getFileName() << "' at (" << ee.start_position.line << ", " << ee.start_position.column << ")";
-    const std::string & poperrstr = poperr.str();
-    //::trace(ee.pretty_print().c_str());
+    PLog->information(ee.pretty_print());
 }
