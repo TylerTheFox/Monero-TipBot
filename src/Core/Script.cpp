@@ -43,6 +43,7 @@ bool Script::add_script(const std::string& scriptPath)
     Poco::File f(scriptPath);
     if (f.exists())
     {
+        PLog->information("Loading %s script!", scriptPath);
         if (is_script_loaded(scriptPath))
         {
             PLog->information("Duplicate found, reloading script!\n");
@@ -92,6 +93,7 @@ void Script::remove_script(const std::string& scriptPath)
     {
         if (scripts[i].path == scriptPath)
         {
+            PLog->information("Removing Script %s", scriptPath);
             scripts[i].shutdown = true;
             while (!scripts[i].shutdown_complete) { Poco::Thread::sleep(1); }
             delete scripts[i].engine;
@@ -134,6 +136,10 @@ bool Script::reinit_engine(class ScriptEngine& sEngine)
     Poco::File f(sEngine.path);
     if (f.exists())
     {
+        PLog->information("Restarting script %s", sEngine.path);
+
+        sEngine.shutdown = true;
+        while (!sEngine.shutdown_complete) { Poco::Thread::sleep(1); }
         delete sEngine.engine;
         sEngine.engine = new chaiscript::ChaiScript;
 
@@ -164,7 +170,7 @@ bool Script::reinit_engine(class ScriptEngine& sEngine)
     }
     else
     {
-        // Load Fail
+        PLog->information("Could not restart script %s", sEngine.path);
     }
 
     // Load failed, destroy engine
@@ -174,7 +180,6 @@ bool Script::reinit_engine(class ScriptEngine& sEngine)
 
 void Script::init_engine(class ScriptEngine& sEngine)
 {
-#if !CM_NO_SCRIP3_OR_SAVE
     try
     {
         // Math
@@ -190,7 +195,6 @@ void Script::init_engine(class ScriptEngine& sEngine)
     {
         PLog->information(ee.pretty_print());
     }
-#endif
 }
 
 void Script::script_exception(const chaiscript::exception::eval_error & ee)
