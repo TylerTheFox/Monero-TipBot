@@ -362,6 +362,9 @@ void ScriptDefs::core_datatypes_impli() const
     ////////////////////////////////////////////////////////////////////////////////////////
     MODULE_ADD(Util::getWalletStrFromIID, "getWalletStrFromIID");
     MODULE_ADD(Util::parseQuotedString, "parseQuotedString");
+    MODULE_ADD(Util::send_http_post, "send_http_post");
+    MODULE_ADD(Util::write_data_to_file, "write_data_to_file");
+    MODULE_ADD(Util::read_data_from_file, "read_data_from_file");
 
     ////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////   RPCProc            /////////////////////////////////
