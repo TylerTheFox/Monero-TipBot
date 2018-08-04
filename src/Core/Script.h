@@ -15,6 +15,7 @@ GNU General Public License for more details.
 #include "chaiscript/chaiscript.hpp"
 #include "ScriptDefs.h"
 #include "Poco/Logger.h"
+
 /*
 =================================================================================
 Engine Defs
@@ -62,6 +63,7 @@ public:
 
     void clearAll();
     size_t count() const;
+    const std::vector<class ScriptEngine> & getScripts();
 private:
     Poco::Logger*                   PLog;
     std::vector<class ScriptEngine> scripts;

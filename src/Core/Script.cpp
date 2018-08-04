@@ -201,3 +201,8 @@ void Script::script_exception(const chaiscript::exception::eval_error & ee)
 {
     PLog->information(ee.pretty_print());
 }
+
+const std::vector<class ScriptEngine> & Script::getScripts()
+{
+    return scripts;
+}
