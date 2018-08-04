@@ -63,6 +63,7 @@ else()
 		debug "pthread"			optimized	"pthread"
 		debug "curl"			optimized	"curl"
 		debug "ssl"				optimized	"ssl"
+		debug "dl"				optimized	"dl"
 		debug "crypto"			optimized	"crypto")
 
 endif()
