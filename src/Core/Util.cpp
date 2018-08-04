@@ -84,7 +84,7 @@ void Util::send_http_post(const std::string & hostname, const std::string & uri,
 
 void Util::write_data_to_file(const std::string & filename, const std::string & data, bool truncate)
 {
-    std::ofstream out(filename, truncate ? std::ios::trunc : std::ios::beg);
+    std::ofstream out(filename, static_cast<std::ios_base::openmode>(truncate ? std::ios::trunc : std::ios::out));
     if (out.is_open())
     {
         out << data;
