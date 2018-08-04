@@ -71,6 +71,7 @@ bool Script::add_script(const std::string& scriptPath)
                 script_exception(ee);
                 remove_script(scriptPath);
             }
+            newEngine.shutdown_complete = true;
             GlobalConfig.General.Threads--;
             PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
         };
@@ -153,12 +154,12 @@ bool Script::reinit_engine(class ScriptEngine& sEngine)
             try
             {
                 sEngine.engine->eval_file(sEngine.path);
-
             }
             catch (const chaiscript::exception::eval_error &ee)
             {
                 script_exception(ee);
             }
+            sEngine.shutdown_complete = true;
             GlobalConfig.General.Threads--;
             PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
         };
@@ -189,7 +190,6 @@ void Script::init_engine(class ScriptEngine& sEngine)
         sEngine.engine->add(tipbotdefs.getModule());
 
         ENGINE_ADD_GLOBAL(sEngine.engine, sEngine.shutdown, "script_shutdown");
-        ENGINE_ADD_GLOBAL(sEngine.engine, sEngine.shutdown_complete, "script_shutdown_complete");
     }
     catch (const chaiscript::exception::eval_error &ee)
     {
