@@ -13,13 +13,15 @@ GNU General Public License for more details.
 */
 #pragma once
 #include "Tipbot.h"
+#include "Script.h"
 #include <string>
+#include <memory>
 class Account;
 
 class AppBaseClass
 {
 public:
-    AppBaseClass(TIPBOT * DPTR) :AppName("Unknown App"), HelpCommand(nullptr), enabled(false), DiscordPtr(DPTR) {};
+    AppBaseClass(TIPBOT * DPTR) :AppName("Unknown App"), HelpCommand(nullptr), enabled(false), DiscordPtr(DPTR), m(std::make_shared<chaiscript::Module>(chaiscript::Module())) {};
 
     virtual                             ~AppBaseClass() = default;
 
@@ -38,12 +40,14 @@ public:
     virtual void                        run(const UserMessage & message) { };
 
     void                                setName(const std::string & name) { AppName = name, PLog = &Poco::Logger::get(AppName); }
-    const std::string &                 getName() { return AppName; }
-    void                                setHelpCommand(const Command & cmd) { HelpCommand = &cmd; }
-    const Command *                     getHelpCommand() { return HelpCommand; }
-    bool                                isEnabled() { return enabled; }
+    const std::string &                 getName() const  { return AppName; }
+    void                                setHelpCommand(const Command & cmd) { HelpCommand = &cmd; } 
+    const Command *                     getHelpCommand()  const { return HelpCommand; }
+    bool                                isEnabled() const  { return enabled; }
+    const chaiscript::ModulePtr &       getScriptModule() const { return m; } 
 protected:
     TIPBOT *                            DiscordPtr;
+    chaiscript::ModulePtr               m;
     std::string                         AppName;
     bool                                enabled;
     const struct Command *              HelpCommand;

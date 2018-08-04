@@ -21,8 +21,12 @@ GNU General Public License for more details.
 #include "Poco/Path.h"
 #include <thread>
 #include "Poco/Thread.h"
+#include "RPCManager.h"
+#include "Language.h"
+#include "Config.h"
+#include "AppBaseClass.h"
 
-Script::Script()
+Script::Script(TIPBOT * DPTR) : DiscordPtr(DPTR)
 {
     PLog = &Poco::Logger::get("Script Engine");
     preinit_engine();
@@ -189,7 +193,22 @@ void Script::init_engine(class ScriptEngine& sEngine)
         // Tipbot
         sEngine.engine->add(tipbotdefs.getModule());
 
+        // App Scripts
+        auto & apps = DiscordPtr->getApps();
+        for (auto & app : apps)
+        {
+            auto mod = app->getScriptModule();
+            if (mod)
+            {
+                sEngine.engine->add(mod);
+            }
+        }
+
         ENGINE_ADD_GLOBAL(sEngine.engine, sEngine.shutdown, "script_shutdown");
+        ENGINE_ADD_GLOBAL(sEngine.engine, DiscordPtr, "DiscordPtr");
+        ENGINE_ADD_GLOBAL(sEngine.engine, *RPCMan, "RPCMan");
+        ENGINE_ADD_GLOBAL_EASY(sEngine.engine, GlobalLanguage);
+        ENGINE_ADD_GLOBAL_EASY(sEngine.engine, GlobalConfig);
     }
     catch (const chaiscript::exception::eval_error &ee)
     {

@@ -40,6 +40,8 @@ Engine Defs
 #define ENGINE_ADD_GLOBAL(engine, obj, name)                engine->add_global(chaiscript::var(std::ref(obj)), name);
 #define ENGINE_ADD_GLOBAL_EASY(engine, obj)                 engine->add_global(chaiscript::var(std::ref(obj)), #obj);
 
+class TIPBOT;
+
 class ScriptEngine
 {
 public:
@@ -53,7 +55,7 @@ public:
 class Script
 {
 public:
-    Script();
+    Script(TIPBOT * DPTR);
     ~Script();
     void preinit_engine();
 
@@ -65,6 +67,7 @@ public:
     size_t count() const;
     const std::vector<class ScriptEngine> & getScripts();
 private:
+    TIPBOT *                        DiscordPtr;
     Poco::Logger*                   PLog;
     std::vector<class ScriptEngine> scripts;
     ScriptDefs                      tipbotdefs;

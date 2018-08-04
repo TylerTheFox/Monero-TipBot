@@ -222,6 +222,7 @@ public:
     virtual const DiscordUser &                         getUserFromServer(DiscordID user) = 0;
     const PerformanceMap&                               getPerformanceStats();
     const ExecuteCommandType&                           getRunningCommands();
+    std::vector<std::shared_ptr<AppBaseClass>>&         getApps();
 protected:
     std::map<std::uint64_t, std::set<DiscordUser> >     UserList;
     void                                                loadUserList();

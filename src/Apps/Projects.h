@@ -115,9 +115,11 @@ public:
     void                                ViewStatus(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                ProjectAddress(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                                ToggleProjects(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
-
 private:
+    void                                script_init();
     unsigned short                      PortCount;
     std::map<std::string, Project>      ProjectMap;
     const std::string                   getFilename(const std::string & projectname);
+
+    std::map<std::string, chaiscript::Boxed_Value> getMap();
 };

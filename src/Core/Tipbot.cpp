@@ -49,7 +49,7 @@ const char *aboutStr =
 
 bool TIPBOT::init = false;
 
-TIPBOT::TIPBOT() : PLog(nullptr)
+TIPBOT::TIPBOT() : PLog(nullptr), ScriptEng(this)
 {
 
 }
@@ -504,4 +504,9 @@ uint8_t TIPBOT::getUserLang(const DiscordID & id)
 void TIPBOT::SendDirectMsg(const DiscordID& usr, std::string message)
 {
     broadcastDirectMsg(usr, message);
+}
+
+std::vector<std::shared_ptr<AppBaseClass>>&   TIPBOT::getApps()
+{
+    return Apps;
 }
