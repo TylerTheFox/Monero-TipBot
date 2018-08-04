@@ -1,0 +1,32 @@
+/*
+Copyright(C) 2018 Brandan Tyler Lasley
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU General Public License for more details.
+*/
+
+var proj = getProjects();
+var proj_maps = proj.getMap();
+
+while (!script_shutdown)
+{
+	proj_maps.for_each(fun(elem) 
+	{
+		var bal = elem.second.RPC.MyRPC.getBalance(0);
+		var txt = (elem.first) + ",";
+		txt += elem.second.Description + ",";
+		txt += (elem.second.Goal / GlobalConfig.RPC.coin_offset).to_string() + " " +  GlobalConfig.RPC.coin_abbv + ",";
+		txt += (bal.UnlockedBalance / GlobalConfig.RPC.coin_offset).to_string() + " " +  GlobalConfig.RPC.coin_abbv + ",";
+		txt += (bal.UnlockedBalance / GlobalConfig.RPC.coin_offset).to_string() + " " +  GlobalConfig.RPC.coin_abbv + ",";
+		txt += elem.second.Suspended.to_string() + "\n";
+		write_data_to_file("test.txt", txt, true);
+	});
+	sleep(10000);
+}
