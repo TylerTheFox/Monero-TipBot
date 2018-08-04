@@ -10,9 +10,9 @@ ScriptCLI::ScriptCLI(TIPBOT * DPTR, Script * scrptr) : AppBaseClass(DPTR), _scrp
         // User Commands 
         // Command                  Function                                      Params                              Wallet  Admin   Allowed Channel
         { "!script_help",           CLASS_RESOLUTION(script_help),                "",                                 false,  true,   AllowChannelTypes::CLI },
-        { "!script_start",          CLASS_RESOLUTION(script_start),               "",                                 false,  true,   AllowChannelTypes::CLI },
-        { "!script_shutdown",       CLASS_RESOLUTION(script_shutdown),            "",                                 false,  true,   AllowChannelTypes::CLI },
-        { "!script_restart",        CLASS_RESOLUTION(script_restart),             "",                                 false,  true,   AllowChannelTypes::CLI },
+        { "!script_start",          CLASS_RESOLUTION(script_start),               "[script]",                         false,  true,   AllowChannelTypes::CLI },
+        { "!script_shutdown",       CLASS_RESOLUTION(script_shutdown),            "[script]",                         false,  true,   AllowChannelTypes::CLI },
+        { "!script_restart",        CLASS_RESOLUTION(script_restart),             "[script]",                         false,  true,   AllowChannelTypes::CLI },
         { "!script_count",          CLASS_RESOLUTION(script_count),               "",                                 false,  true,   AllowChannelTypes::CLI },
         { "!script_list",           CLASS_RESOLUTION(script_list),                "",                                 false,  true,   AllowChannelTypes::CLI },
         { "!script_shutdown_all",   CLASS_RESOLUTION(script_shutdown_all),        "",                                 false,  true,   AllowChannelTypes::CLI },

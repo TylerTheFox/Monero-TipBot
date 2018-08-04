@@ -82,6 +82,7 @@ class RPCManager : public Poco::Runnable
 public:
     RPCManager();
     ~RPCManager();
+    RPCManager(const RPCManager &);
 
     void                                    setBotUser(DiscordID id);
     void                                    setDiscordPtr(TIPBOT* ptr);
