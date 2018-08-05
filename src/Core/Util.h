@@ -31,4 +31,7 @@ public:
 
     static std::string getWalletStrFromIID(DiscordID DIS_ID);
     static bool parseQuotedString(const Poco::StringTokenizer & cmd, unsigned int start_idx, std::string & str, unsigned int & ret_idx);
+    static void send_http_post(const std::string & hostname, const std::string & uri, unsigned short port, const std::string & body, const std::string & ContentType);
+    static void write_data_to_file(const std::string & filename, const std::string & data, bool truncate);
+    static std::string read_data_from_file(const std::string & filename);
 };

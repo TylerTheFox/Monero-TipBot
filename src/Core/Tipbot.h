@@ -24,6 +24,7 @@ GNU General Public License for more details.
 #include "Config.h"
 #include <unordered_set>
 #include "Poco/Checksum.h"
+#include "Script.h"
 #define FIND_USER_UNKNOWN_USER "Unknown User"
 
 extern const char *aboutStr;
@@ -221,6 +222,7 @@ public:
     virtual const DiscordUser &                         getUserFromServer(DiscordID user) = 0;
     const PerformanceMap&                               getPerformanceStats();
     const ExecuteCommandType&                           getRunningCommands();
+    std::vector<std::shared_ptr<AppBaseClass>>&         getApps();
 protected:
     std::map<std::uint64_t, std::set<DiscordUser> >     UserList;
     void                                                loadUserList();
@@ -232,6 +234,7 @@ private:
     ExecuteCommandType                                  runningCommands;
     PerformanceMap                                      AppPerformanceStats;
     Poco::Mutex                                         DispatchMu;
+    Script                                              ScriptEng;
 
     void                                                globalHelpMenu(const UserMessage& message);
     void                                                SaveStats();

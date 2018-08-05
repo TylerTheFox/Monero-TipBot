@@ -15,7 +15,6 @@ GNU General Public License for more details.
 #include <unordered_map>
 #include <string>
 #include <vector>
-
 #include "cereal/types/unordered_map.hpp"
 
 struct Lang

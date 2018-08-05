@@ -10,24 +10,25 @@ include_directories(
 	extern/poco-1.9.0/JSON/include
 	extern/poco-1.9.0/Net/include
 	extern/poco-1.9.0/Util/include
-	extern/cereal-1.2.2/include
+	extern/cereal-1.2.2/include 
+    extern/ChaiScript-6.1.0/include 
     )
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+  set(CMAKE_BUILD_TYPE Release) 
 endif()
 
 if(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPOCO_NO_UNWINDOWS /Zi")
 else()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
     set(CMAKE_CXX_FLAGS_MINSIZEREL, "-Os -DNDEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE, "-O4 -DNDEBUG")
-endif()
+endif() 
 	
 if (MSVC) 
-  link_directories(
+  link_directories( 
 	extern/sleepy-discord/lib/win32
 	extern/poco-1.9.0/lib/win32
     )
@@ -62,6 +63,7 @@ else()
 		debug "pthread"			optimized	"pthread"
 		debug "curl"			optimized	"curl"
 		debug "ssl"				optimized	"ssl"
+		debug "dl"				optimized	"dl"
 		debug "crypto"			optimized	"crypto")
 
 endif()

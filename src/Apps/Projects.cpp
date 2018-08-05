@@ -43,6 +43,9 @@ Projects::Projects(TIPBOT * DPTR) : PortCount(GlobalConfig.RPCManager.starting_p
 
     };
     setHelpCommand(Commands[0]);
+#ifndef NO_CHAISCRIPT
+    script_init();
+#endif
 }
 
 Projects::~Projects()
@@ -376,3 +379,41 @@ void Projects::ToggleProjects(TIPBOT * DiscordPtr, const UserMessage& message, c
     DiscordPtr->SendMsg(message, Poco::format("Projects Enabled: %b", enabled));
     save();
 }
+
+#ifndef NO_CHAISCRIPT
+std::map<std::string, chaiscript::Boxed_Value> Projects::getMap()
+{
+    auto chai_map = std::map<std::string, chaiscript::Boxed_Value>{};
+    for (auto&& entry : ProjectMap)
+        chai_map.emplace(entry.first, chaiscript::var(entry.second));
+    return chai_map;
+}
+
+void Projects::script_init()
+{
+    MODULE_ADD_TYPE_FULL_EASY(Project);
+    MODULE_ADD_TYPE_BASIC_EASY(Projects);
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////   Project            /////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////
+    MODULE_ADD(Project::Description, "Description");
+    MODULE_ADD(Project::Goal, "Goal");
+    MODULE_ADD(Project::RPC, "RPC");
+    MODULE_ADD(Project::Suspended, "Suspended");
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////   Projects            ////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////
+    chaiscript::utility::add_class<Projects>(*m,
+        "Projects",
+        {
+        },
+            {
+                { chaiscript::fun(&Projects::getMap), "getMap" }
+            }
+        );
+
+    MODULE_ADD_LAMBDA(std::function<Projects*()>([&]() { return this; }), "getProjects");
+}
+#endif

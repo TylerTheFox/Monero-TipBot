@@ -43,6 +43,15 @@ RPCManager::RPCManager() : currPortNum(GlobalConfig.RPCManager.starting_port_num
         throw RPCGeneralError("-1", "RPC Binary Not Found!");
 }
 
+RPCManager::RPCManager(const RPCManager & rhs)
+{
+    PLog = rhs.PLog;
+    currPortNum = rhs.currPortNum;
+    RPCMap = rhs.RPCMap;
+    BotID = rhs.BotID;
+    DiscordPtr = rhs.DiscordPtr;
+}
+
 RPCManager::~RPCManager()
 {
     save();

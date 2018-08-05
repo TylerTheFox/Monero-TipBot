@@ -135,6 +135,7 @@ int main()
     {
         // Enable logging.
         setupLogging();
+
         auto & logger = Poco::Logger::get("Main");
         logger.information("Tipbot starting up...");
 
@@ -176,7 +177,7 @@ int main()
         // Ensure all threads are exited.
         while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); }
 
-        RPCMan.reset(nullptr);
+        RPCMan.reset();
 
         logger.information("Tipbot shutdown complete...");
 

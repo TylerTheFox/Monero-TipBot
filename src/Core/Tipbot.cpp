@@ -36,6 +36,9 @@ GNU General Public License for more details.
 #include "../Apps/Projects.h"
 #include "../Apps/Lottery.h"
 #include "../Apps/Faucet.h"
+#ifndef NO_CHAISCRIPT
+#include "../Apps/ScriptCLI.h"
+#endif
 
 const char *aboutStr =
 "```TipBot v%?i.%?i (Config: v%?i.%?i)\\n"
@@ -44,11 +47,11 @@ const char *aboutStr =
 "BTC: 1KsX66J98WMgtSbFA5UZhVDn1iuhN5B6Hm\\n"
 "ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf\\n"
 "XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS\\n"
-"MSR: 5h9GZz5bbvUK5TPb1KB8J7FnbQHyEd1z93scwhu3WZ9m3YJwCAUVyz3FoKh4JiTTWPKcGmJkxBWS2YkmzJoXTimqTbCKFKm\\n```";;
+"MSR: 5h9GZz5bbvUK5TPb1KB8J7FnbQHyEd1z93scwhu3WZ9m3YJwCAUVyz3FoKh4JiTTWPKcGmJkxBWS2YkmzJoXTimqTbCKFKm\\n```";
 
 bool TIPBOT::init = false;
 
-TIPBOT::TIPBOT() : PLog(nullptr)
+TIPBOT::TIPBOT() : PLog(nullptr), ScriptEng(this)
 {
 
 }
@@ -56,6 +59,9 @@ TIPBOT::TIPBOT() : PLog(nullptr)
 TIPBOT::~TIPBOT()
 {
     GlobalConfig.General.Shutdown = true;
+#ifndef NO_CHAISCRIPT
+    ScriptEng.clearAll();
+#endif
     while (GlobalConfig.General.Threads) { Poco::Thread::sleep(1); }
     init = false;
 }
@@ -65,6 +71,10 @@ void TIPBOT::shutdown()
     this->AppSave();
 
     PLog->information("Shutting Threads Down...");
+
+#ifndef NO_CHAISCRIPT
+    ScriptEng.clearAll();
+#endif
 
     GlobalConfig.General.Shutdown = true;
     while (GlobalConfig.General.Threads > 1) { Poco::Thread::sleep(1); }
@@ -91,6 +101,9 @@ void TIPBOT::tipbot_init()
                 { (std::shared_ptr<AppBaseClass>(std::make_unique<ChatRewards>(this))) },
                 { (std::shared_ptr<AppBaseClass>(std::make_unique<Projects>(this))) },
                 { (std::shared_ptr<AppBaseClass>(std::make_unique<Lottery>(this))) },
+#ifndef NO_CHAISCRIPT
+                { (std::shared_ptr<AppBaseClass>(std::make_unique<ScriptCLI>(this, &ScriptEng))) },
+#endif
             };
             for (auto & app : Apps)
                 app->load();
@@ -289,6 +302,11 @@ void TIPBOT::dispatcher(const UserMessage& message, const struct Command & me, c
 
 void TIPBOT::ProcessCommand(const UserMessage & message)
 {
+#ifndef NO_CHAISCRIPT
+    // Script Hook. 
+    ScriptEng.call_back(ecallback::OnMessage, { reinterpret_cast<const void*>(&message) });
+#endif
+
     // Global help menu hook.
     if (message.Message == "!help") 
     {
@@ -496,4 +514,9 @@ uint8_t TIPBOT::getUserLang(const DiscordID & id)
 void TIPBOT::SendDirectMsg(const DiscordID& usr, std::string message)
 {
     broadcastDirectMsg(usr, message);
+}
+
+std::vector<std::shared_ptr<AppBaseClass>>&   TIPBOT::getApps()
+{
+    return Apps;
 }
