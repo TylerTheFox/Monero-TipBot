@@ -114,9 +114,6 @@ void TIPBOT::tipbot_init()
                 SaveStats();
             }
 
-            // Script Init
-            ScriptEng.add_script("Scripts/test.chai");
-
             init = true;
         }
     }
