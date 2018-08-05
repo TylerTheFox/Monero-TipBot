@@ -278,7 +278,7 @@ void Script::call_back(ecallback type, const std::vector<const void*>& data)
                 }
                 break;
             default:
-                assert(0, "Uknown script hook function");
+                assert(0);
             }
         }
         catch (const chaiscript::exception::eval_error &ee)
