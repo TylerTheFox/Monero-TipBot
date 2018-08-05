@@ -171,7 +171,6 @@ bool Script::reinit_engine(class ScriptEngine& sEngine)
             {
                 sEngine.engine->eval_file(sEngine.path);
 
-
                 // Get function data
                 init_call_back_functions(sEngine);
 
