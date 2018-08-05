@@ -25,7 +25,7 @@ else()
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
     set(CMAKE_CXX_FLAGS_MINSIZEREL, "-Os -DNDEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE, "-O4 -DNDEBUG")
-endif()
+endif() 
 	
 if (MSVC) 
   link_directories( 

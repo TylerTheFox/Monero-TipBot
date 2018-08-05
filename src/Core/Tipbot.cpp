@@ -297,6 +297,10 @@ void TIPBOT::dispatcher(const UserMessage& message, const struct Command & me, c
 
 void TIPBOT::ProcessCommand(const UserMessage & message)
 {
+    // Script Hook. 
+    ScriptEng.call_back(ecallback::OnMessage, { reinterpret_cast<const void*>(&message) });
+
+
     // Global help menu hook.
     if (message.Message == "!help") 
     {

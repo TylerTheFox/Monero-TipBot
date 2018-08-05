@@ -21,6 +21,10 @@ GNU General Public License for more details.
 #include "Config.h"
 #include "Language.h"
 #include "Util.h"
+#include "Poco/StringTokenizer.h"
+#include "Poco/URI.h"
+#include <vector>
+#include <string>
 
 ScriptDefs::ScriptDefs()
 {
@@ -215,7 +219,7 @@ void ScriptDefs::core_datatypes_impli() const
     MODULE_ADD(RPCManager::getGlobalBotAccount, "getGlobalBotAccount");
 
     ////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////   LanguageSelect         /////////////////////////////////
+    /////////////////////////////////   LanguageSelect         /////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
     chaiscript::utility::add_class<LanguageSelect>(*m,
         "LanguageSelect",
@@ -385,6 +389,20 @@ void ScriptDefs::core_functions()
 {
     MODULE_ADD_LAMBDA(std::function<void(const std::string &)>([&](const std::string & msg) { PLog->information(msg.c_str()); }), "log");
     MODULE_ADD_LAMBDA(Poco::Thread::sleep, "sleep");
+    MODULE_ADD_LAMBDA(Poco::URI::encode, "uri_encode");
+    MODULE_ADD_LAMBDA(Poco::URI::decode, "uri_decode");
+    MODULE_ADD_LAMBDA(std::function<std::vector<chaiscript::Boxed_Value>(const std::string &, const std::string &, int)>(
+        [](const std::string & str, const std::string & separators, int options)
+        {
+            auto chai_vect = std::vector<chaiscript::Boxed_Value>{};
+
+            Poco::StringTokenizer st(str, separators, options);
+            for (auto&& entry : st)
+                chai_vect.emplace_back(chaiscript::var(entry));
+
+            return chai_vect;
+        }
+    ), "stringTokenizer");
 }
 
 void ScriptDefs::modern_vars() const

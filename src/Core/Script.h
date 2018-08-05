@@ -41,15 +41,24 @@ Engine Defs
 #define ENGINE_ADD_GLOBAL_EASY(engine, obj)                 engine->add_global(chaiscript::var(std::ref(obj)), #obj);
 
 class TIPBOT;
+struct UserMessage;
+enum class ecallback
+{
+    OnMessage
+};
 
 class ScriptEngine
 {
 public:
     ScriptEngine() : shutdown(false), shutdown_complete(false) {}
-    std::string                 path;
-    chaiscript::ChaiScript *    engine;
-    bool                        shutdown;
-    bool                        shutdown_complete;
+    std::string                                 path;
+    chaiscript::ChaiScript *                    engine;
+
+    std::function<void()>                       main;
+    std::function<void(const UserMessage*)>     OnMessage;
+
+    bool                                        shutdown;
+    bool                                        shutdown_complete;
 };
 
 class Script
@@ -62,7 +71,8 @@ public:
     bool add_script(const std::string& scriptPath);
     void remove_script(const std::string& scriptPath);
     bool is_script_loaded(const std::string& scriptPath);
-
+    void call_back(enum class ecallback type, const std::vector<const void*>& data);
+    void init_call_back_functions(class ScriptEngine& sEngine);
     void clearAll();
     size_t count() const;
     const std::vector<class ScriptEngine> & getScripts();

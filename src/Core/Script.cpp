@@ -69,6 +69,12 @@ bool Script::add_script(const std::string& scriptPath)
             try
             {
                 newEngine.engine->eval_file(newEngine.path);
+
+                // Get function data
+                init_call_back_functions(newEngine);
+
+                // Enter Main!
+                newEngine.main();
             }
             catch (const chaiscript::exception::eval_error &ee)
             {
@@ -158,6 +164,13 @@ bool Script::reinit_engine(class ScriptEngine& sEngine)
             try
             {
                 sEngine.engine->eval_file(sEngine.path);
+
+
+                // Get function data
+                init_call_back_functions(sEngine);
+
+                // Enter Main!
+                sEngine.main();
             }
             catch (const chaiscript::exception::eval_error &ee)
             {
@@ -224,4 +237,57 @@ void Script::script_exception(const chaiscript::exception::eval_error & ee)
 const std::vector<class ScriptEngine> & Script::getScripts()
 {
     return scripts;
+}
+
+void Script::init_call_back_functions(class ScriptEngine& sEngine)
+{
+    auto funcs = sEngine.engine->get_state().engine_state.m_functions;
+
+    for (const auto & func : funcs)
+    {
+        if (func.first == "main")
+        {
+            sEngine.main = sEngine.engine->eval<std::function<void()>>("main");
+        }
+        else if (func.first == "onMessage")
+        {
+            sEngine.OnMessage = sEngine.engine->eval<std::function<void(const UserMessage*)>>("onMessage");
+        }
+    }
+
+    // Core Functions.
+    if (!sEngine.main)
+    {
+        PLog->information("Could not find/load main! main is required!");
+        remove_script(sEngine.path);
+    }
+}
+
+void Script::call_back(enum class ecallback type, const std::vector<const void*>& data)
+{
+    for (auto & scr : scripts)
+    {
+        try
+        {
+            switch (type)
+            {
+            case ecallback::OnMessage:
+                if (scr.OnMessage)
+                {
+                    scr.OnMessage(static_cast<const UserMessage*>(data[0]));
+                }
+                break;
+            default:
+                assert(0, "Uknown script hook function");
+            }
+        }
+        catch (const chaiscript::exception::eval_error &ee)
+        {
+            script_exception(ee);
+            remove_script(scr.path);
+
+            // An error occred and we need to exit the loop.
+            break;
+        }
+    }
 }
