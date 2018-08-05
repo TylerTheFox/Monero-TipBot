@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include "Language.h"
 #include "Config.h"
 #include "AppBaseClass.h"
+#include <cassert>
 
 Script::Script(TIPBOT * DPTR) : DiscordPtr(DPTR)
 {

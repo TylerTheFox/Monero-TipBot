@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include "Poco/URI.h"
 #include <vector>
 #include <string>
+#include "Poco/NumberParser.h"
 
 ScriptDefs::ScriptDefs()
 {
@@ -391,6 +392,16 @@ void ScriptDefs::core_functions()
     MODULE_ADD_LAMBDA(Poco::Thread::sleep, "sleep");
     MODULE_ADD_LAMBDA(Poco::URI::encode, "uri_encode");
     MODULE_ADD_LAMBDA(Poco::URI::decode, "uri_decode");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParse, "tryParse");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParse64, "tryParse64");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseBool, "tryParseBool");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseFloat, "tryParseFloat");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseHex, "tryParseHex");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseHex64, "tryParseHex64");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseOct, "tryParseOct");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseOct64, "tryParseOct64");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseUnsigned, "tryParseUnsigned");
+    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseUnsigned64, "tryParseUnsigned64");
     MODULE_ADD_LAMBDA(std::function<std::vector<chaiscript::Boxed_Value>(const std::string &, const std::string &, int)>(
         [](const std::string & str, const std::string & separators, int options)
         {
