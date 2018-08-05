@@ -13,6 +13,7 @@ GNU General Public License for more details.
 */
 #include "Script.h"
 #include "Tipbot.h"
+#ifndef NO_CHAISCRIPT
 #include "chaiscript/chaiscript_stdlib.hpp"
 #include "chaiscript/dispatchkit/bootstrap_stl.hpp"
 #include "chaiscript/utility/utility.hpp"
@@ -26,13 +27,17 @@ GNU General Public License for more details.
 #include "Config.h"
 #include "AppBaseClass.h"
 #include <cassert>
+#endif
 
 Script::Script(TIPBOT * DPTR) : DiscordPtr(DPTR)
 {
+#ifndef NO_CHAISCRIPT
     PLog = &Poco::Logger::get("Script Engine");
     preinit_engine();
+#endif
 }
 
+#ifndef NO_CHAISCRIPT
 Script::~Script()
 {
     clearAll();
@@ -292,3 +297,4 @@ void Script::call_back(ecallback type, const std::vector<const void*>& data)
         }
     }
 }
+#endif

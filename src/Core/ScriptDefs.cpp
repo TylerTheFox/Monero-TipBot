@@ -11,6 +11,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
+#ifndef NO_CHAISCRIPT
 #include "Tipbot.h"
 #include "ScriptDefs.h"
 #include "Script.h"
@@ -388,20 +389,20 @@ void ScriptDefs::class_functions() const
 
 void ScriptDefs::core_functions()
 {
+    MODULE_ADD(Poco::Thread::sleep, "sleep");
+    MODULE_ADD(Poco::URI::encode, "uri_encode");
+    MODULE_ADD(Poco::URI::decode, "uri_decode");
+    MODULE_ADD(Poco::NumberParser::tryParse, "tryParse");
+    MODULE_ADD(Poco::NumberParser::tryParse64, "tryParse64");
+    MODULE_ADD(Poco::NumberParser::tryParseBool, "tryParseBool");
+    MODULE_ADD(Poco::NumberParser::tryParseFloat, "tryParseFloat");
+    MODULE_ADD(Poco::NumberParser::tryParseHex, "tryParseHex");
+    MODULE_ADD(Poco::NumberParser::tryParseHex64, "tryParseHex64");
+    MODULE_ADD(Poco::NumberParser::tryParseOct, "tryParseOct");
+    MODULE_ADD(Poco::NumberParser::tryParseOct64, "tryParseOct64");
+    MODULE_ADD(Poco::NumberParser::tryParseUnsigned, "tryParseUnsigned");
+    MODULE_ADD(Poco::NumberParser::tryParseUnsigned64, "tryParseUnsigned64");
     MODULE_ADD_LAMBDA(std::function<void(const std::string &)>([&](const std::string & msg) { PLog->information(msg.c_str()); }), "log");
-    MODULE_ADD_LAMBDA(Poco::Thread::sleep, "sleep");
-    MODULE_ADD_LAMBDA(Poco::URI::encode, "uri_encode");
-    MODULE_ADD_LAMBDA(Poco::URI::decode, "uri_decode");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParse, "tryParse");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParse64, "tryParse64");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseBool, "tryParseBool");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseFloat, "tryParseFloat");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseHex, "tryParseHex");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseHex64, "tryParseHex64");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseOct, "tryParseOct");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseOct64, "tryParseOct64");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseUnsigned, "tryParseUnsigned");
-    MODULE_ADD_LAMBDA(Poco::NumberParser::tryParseUnsigned64, "tryParseUnsigned64");
     MODULE_ADD_LAMBDA(std::function<std::vector<chaiscript::Boxed_Value>(const std::string &, const std::string &, int)>(
         [](const std::string & str, const std::string & separators, int options)
         {
@@ -439,3 +440,4 @@ void ScriptDefs::modern_vars() const
     MODULE_ADD_GLOBAL_CONST_EASY(VERSION_MAJOR);
     MODULE_ADD_GLOBAL_CONST_EASY(VERSION_MINOR);
 }
+#endif

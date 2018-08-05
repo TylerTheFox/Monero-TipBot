@@ -43,7 +43,9 @@ Projects::Projects(TIPBOT * DPTR) : PortCount(GlobalConfig.RPCManager.starting_p
 
     };
     setHelpCommand(Commands[0]);
+#ifndef NO_CHAISCRIPT
     script_init();
+#endif
 }
 
 Projects::~Projects()
@@ -378,7 +380,7 @@ void Projects::ToggleProjects(TIPBOT * DiscordPtr, const UserMessage& message, c
     save();
 }
 
-
+#ifndef NO_CHAISCRIPT
 std::map<std::string, chaiscript::Boxed_Value> Projects::getMap()
 {
     auto chai_map = std::map<std::string, chaiscript::Boxed_Value>{};
@@ -414,3 +416,4 @@ void Projects::script_init()
 
     MODULE_ADD_LAMBDA(std::function<Projects*()>([&]() { return this; }), "getProjects");
 }
+#endif

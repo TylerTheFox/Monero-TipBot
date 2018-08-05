@@ -12,6 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #pragma once
+#ifndef NO_CHAISCRIPT
 #include "chaiscript/chaiscript.hpp"
 #include "ScriptDefs.h"
 #include "Poco/Logger.h"
@@ -40,7 +41,6 @@ Engine Defs
 #define ENGINE_ADD_GLOBAL(engine, obj, name)                engine->add_global(chaiscript::var(std::ref(obj)), name);
 #define ENGINE_ADD_GLOBAL_EASY(engine, obj)                 engine->add_global(chaiscript::var(std::ref(obj)), #obj);
 
-class TIPBOT;
 struct UserMessage;
 enum class ecallback
 {
@@ -60,11 +60,14 @@ public:
     bool                                        shutdown;
     bool                                        shutdown_complete;
 };
+#endif
+class TIPBOT;
 
 class Script
 {
 public:
     Script(TIPBOT * DPTR);
+#ifndef NO_CHAISCRIPT
     ~Script();
     void preinit_engine();
 
@@ -76,8 +79,10 @@ public:
     void clearAll();
     size_t count() const;
     const std::vector<class ScriptEngine> & getScripts();
+#endif
 private:
     TIPBOT *                        DiscordPtr;
+#ifndef NO_CHAISCRIPT
     Poco::Logger*                   PLog;
     std::vector<class ScriptEngine> scripts;
     ScriptDefs                      tipbotdefs;
@@ -87,4 +92,5 @@ private:
 
     void init_engine(class ScriptEngine& sEngine);
     void script_exception(const chaiscript::exception::eval_error & ee);
+#endif
 };

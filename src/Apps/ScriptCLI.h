@@ -12,6 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #pragma once
+#ifndef NO_CHAISCRIPT
 #include "../Core/Tipbot.h"
 #include "../Core/AppBaseClass.h"
 #include "../Core/Script.h"
@@ -32,3 +33,4 @@ public:
 private:
     Script * _scrptr;
 };
+#endif

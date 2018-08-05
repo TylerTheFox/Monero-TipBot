@@ -1,4 +1,5 @@
 #include "ScriptCLI.h"
+#ifndef NO_CHAISCRIPT
 #include "Poco/StringTokenizer.h"
 
 #define CLASS_RESOLUTION(x) std::bind(&ScriptCLI::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
@@ -92,3 +93,4 @@ void ScriptCLI::script_shutdown_all(TIPBOT * DiscordPtr, const UserMessage& mess
     _scrptr->clearAll();
     DiscordPtr->SendMsg(message, "All scripts shutdown!");
 }
+#endif

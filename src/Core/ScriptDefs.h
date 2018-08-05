@@ -12,6 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 #pragma once
+#ifndef NO_CHAISCRIPT
 #include "chaiscript/chaiscript.hpp"
 #include "Poco/Logger.h"
 
@@ -30,3 +31,4 @@ private:
     void core_functions();
     void modern_vars() const;
 };
+#endif
