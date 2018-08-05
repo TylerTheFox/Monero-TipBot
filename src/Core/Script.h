@@ -71,7 +71,7 @@ public:
     bool add_script(const std::string& scriptPath);
     void remove_script(const std::string& scriptPath);
     bool is_script_loaded(const std::string& scriptPath);
-    void call_back(enum class ecallback type, const std::vector<const void*>& data);
+    void call_back(ecallback type, const std::vector<const void*>& data);
     void init_call_back_functions(class ScriptEngine& sEngine);
     void clearAll();
     size_t count() const;

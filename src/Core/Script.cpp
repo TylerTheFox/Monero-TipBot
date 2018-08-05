@@ -263,7 +263,7 @@ void Script::init_call_back_functions(class ScriptEngine& sEngine)
     }
 }
 
-void Script::call_back(enum class ecallback type, const std::vector<const void*>& data)
+void Script::call_back(ecallback type, const std::vector<const void*>& data)
 {
     for (auto & scr : scripts)
     {
