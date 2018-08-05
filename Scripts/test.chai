@@ -12,26 +12,51 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
 */
 
-var proj = getProjects();
-var proj_maps = proj.getMap();
+// Global / Loading stuff can be put here. Outside of the script is only executed 
+// Once on start up.
 
-while (!script_shutdown)
+// This is a script hook (not required) this will be invoked everytime Tipbot 
+// recieves a message on Discord in DM or in a public channel.
+def onMessage(UserMessage message)
 {
-	var txt = string();
-	var range = range(proj_maps);
-	// Looping through the map.
-	while (!range.empty())
+	// This will split a string with a space into a vector.
+	// For example: "Helo my name is Brandan" will be split 
+	// into { "Hello", "my", "name", "is", "Brandan" } in the returned vector.		
+	var vect = stringTokenizer(message.Message, " ", 0);
+	vect.for_each(fun(elem)
 	{
-		var elem = range.front();
-		var bal = elem.second.RPC.MyRPC.getBalance(0);
-		txt += elem.first + ",";
-		txt += elem.second.Description + ",";
-		txt += (elem.second.Goal / GlobalConfig.RPC.coin_offset).to_string() + " " +  GlobalConfig.RPC.coin_abbv + ",";
-		txt += (bal.UnlockedBalance / GlobalConfig.RPC.coin_offset).to_string() + " " +  GlobalConfig.RPC.coin_abbv + ",";
-		txt += (bal.UnlockedBalance / GlobalConfig.RPC.coin_offset).to_string() + " " +  GlobalConfig.RPC.coin_abbv + ",";
-		txt += elem.second.Suspended.to_string() + "\n";
-		range.pop_front();
+		log(elem);
+	});
+}
+
+// This is the main entry point of the script. This is required.
+def main()
+{
+	log("Entering Main!");
+	var proj = getProjects();
+	var proj_maps = proj.getMap();
+
+	// Infinite loops should have a 'script_shutdown' flag so 
+	// Tipbot can tell them to exit when closing the script.
+	while(!script_shutdown)
+	{
+		var txt = string();
+		var range = range(proj_maps);
+		// Looping through the map.
+		while (!range.empty())
+		{
+			var elem = range.front();
+			var bal = elem.second.RPC.MyRPC.getBalance(0);
+			txt += elem.first + ",";
+			txt += elem.second.Description + ",";
+			txt += (elem.second.Goal / GlobalConfig.RPC.coin_offset).to_string() + " " +  GlobalConfig.RPC.coin_abbv + ",";
+			txt += (bal.UnlockedBalance / GlobalConfig.RPC.coin_offset).to_string() + " " +  GlobalConfig.RPC.coin_abbv + ",";
+			txt += (bal.UnlockedBalance / GlobalConfig.RPC.coin_offset).to_string() + " " +  GlobalConfig.RPC.coin_abbv + ",";
+			txt += elem.second.Suspended.to_string() + "\n";
+			range.pop_front();
+		}
+		log(txt);
+		write_data_to_file("test.txt", txt, true);
+		sleep(10000);
 	}
-	write_data_to_file("test.txt", txt, true);
-	sleep(10000);
 }
