@@ -1,6 +1,8 @@
 # Monero-TipBot
 Discord Tipbot built in C++ for Monero/IntenseCoin
 
+Discord: https://discord.gg/rpTU2T
+
 ## Compile
 
 ### Windows
