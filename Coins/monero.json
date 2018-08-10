@@ -24,7 +24,7 @@
             "address_length": 95,
             "filename": "monero-wallet-rpc",
             "hostname": "127.0.0.1",
-            "daemon_hostname": "127.0.0.1:48782"
+            "daemon_hostname": "127.0.0.1:18081"
         },
         "RPCManager": {
             "starting_port_number": 11000,
