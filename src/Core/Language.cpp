@@ -66,7 +66,7 @@ LanguageSelect::LanguageSelect()
                     LANGPAIR("LOTTERY_WON_WITH_WINNER","There was a winner last lottery!"),
                     LANGPAIR("LOTTERY_WON_WITHOUT_WINNER","There was no winner last lottery!"),
                     LANGPAIR("LOTTERY_LAST_WINNER","The last winner was: %?i"),
-                    LANGPAIR("LOTTERY_SUSPEND_TOGGLE","Lottery Suspended: %b"),
+                    LANGPAIR("LOTTERY_SUSPEND_TOGGLE","Lottery Enabled: %b"),
                     LANGPAIR("LOTTERY_USER_WON", "You've won %0.8f %s from the lottery! :money_with_wings:"),
 
                     // Faucet

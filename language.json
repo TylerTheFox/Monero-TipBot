@@ -118,7 +118,7 @@
                     },
                     {
                         "key": "LOTTERY_SUSPEND_TOGGLE",
-                        "value": "Lottery Suspended: %b"
+                        "value": "Lottery Enabled: %b"
                     },
                     {
                         "key": "TIP_LIST_LANGUAGE_FORMAT",

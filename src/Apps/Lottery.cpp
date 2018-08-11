@@ -60,7 +60,7 @@ Lottery::Lottery(TIPBOT * DPTR) : prevWinner(0), AppBaseClass(DPTR)
 
 Lottery::~Lottery()
 {
-    try 
+    try
     {
         LotteryAccount->MyRPC.store();
         LotteryAccount->MyRPC.stopWallet();
@@ -126,7 +126,7 @@ void Lottery::run()
 
     while (!GlobalConfig.General.Shutdown)
     {
-        if (!enabled)
+        if (enabled)
         {
             Poco::DateTime curr;
             if (!noWinner && !rewardGivenout && curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() == GlobalConfig.Lottery.pick)
@@ -174,7 +174,7 @@ void Lottery::run()
                                 lastWinningTopBlock = txs.tx_in.begin()->block_height;
                                 const std::uint64_t reward = bal - (bal * GlobalConfig.Lottery.donation_percent);
                                 auto WinnerAccount = RPCMan->getAccount(winner);
-                                
+
                                 // TODO: Add this to language file!
                                 DiscordPtr->SendDirectMsg(winner, Poco::format(GETSTR(DiscordPtr->getUserLang(winner), "LOTTERY_USER_WON"), reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
 
@@ -198,19 +198,20 @@ void Lottery::run()
                             }
                             save();
                             rewardGivenout = true;
-                        } else PLog->information("No Active Tickets!");
+                        }
+                        else PLog->information("No Active Tickets!");
                     }
                     else PLog->error("Error transaction list is empty!");
                 }
                 catch (AppGeneralException & exp)
                 {
                     PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
-                    enabled = true;
+                    enabled = false;
                 }
                 catch (...)
                 {
                     PLog->error("There was an unknown error while in the lottery drawing. Lottery is suspended!");
-                    enabled = true;
+                    enabled = false;
                 }
             }
             else if (!sweepComplete && curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() == GlobalConfig.Lottery.faucet)
@@ -231,7 +232,8 @@ void Lottery::run()
                     }
                     noWinner = false;
                     sweepComplete = true;
-                } catch (...)
+                }
+                catch (...)
                 {
                     // Don't care, try again in 30 seconds (29 + the sleep at the end of the loop).
                     Poco::Thread::sleep(29000);
@@ -257,7 +259,7 @@ void Lottery::run()
 
 void Lottery::gameInfo(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
 {
-    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_GAME_INFO"), GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, GlobalConfig.Lottery.donation_percent * 100, GlobalConfig.Lottery.no_winner_chance * 100, DayOfWeek[(GlobalConfig.Lottery.day + 1) % (sizeof(DayOfWeek) / sizeof(DayOfWeek[0]))],  DayOfWeek[GlobalConfig.Lottery.day], GlobalConfig.Lottery.close, DayOfWeek[GlobalConfig.Lottery.day], GlobalConfig.Lottery.pick));
+    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_GAME_INFO"), GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, GlobalConfig.Lottery.donation_percent * 100, GlobalConfig.Lottery.no_winner_chance * 100, DayOfWeek[(GlobalConfig.Lottery.day + 1) % (sizeof(DayOfWeek) / sizeof(DayOfWeek[0]))], DayOfWeek[GlobalConfig.Lottery.day], GlobalConfig.Lottery.close, DayOfWeek[GlobalConfig.Lottery.day], GlobalConfig.Lottery.pick));
 }
 
 void Lottery::LotteryHelp(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
@@ -286,21 +288,17 @@ void Lottery::BuyTicket(TIPBOT* DiscordPtr, const UserMessage& message, const Co
     Poco::DateTime curr;
     if (curr.dayOfWeek() != GlobalConfig.Lottery.day || (curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() < GlobalConfig.Lottery.close))
     {
-        if (!enabled)
-        {
-            Poco::StringTokenizer cmd(message.Message, " ");
+        Poco::StringTokenizer cmd(message.Message, " ");
 
-            if (cmd.count() != 2)
-                DiscordPtr->CommandParseError(message, me);
-            else
-            {
-                LotteryAccount->MyAccount.resyncAccount();
-                const auto tickets = Poco::NumberParser::parseUnsigned(cmd[1]);
-                const auto tx = currentUsrAccount->transferMoneyToAddress((tickets * GlobalConfig.Lottery.ticket_cost) * GlobalConfig.RPC.coin_offset, LotteryAccount->MyAccount.getMyAddress());
-                DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_BUY_TICKET_SUCCESS"), message.User.username, message.User.discriminator, tickets, tickets * GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
-            }
+        if (cmd.count() != 2)
+            DiscordPtr->CommandParseError(message, me);
+        else
+        {
+            LotteryAccount->MyAccount.resyncAccount();
+            const auto tickets = Poco::NumberParser::parseUnsigned(cmd[1]);
+            const auto tx = currentUsrAccount->transferMoneyToAddress((tickets * GlobalConfig.Lottery.ticket_cost) * GlobalConfig.RPC.coin_offset, LotteryAccount->MyAccount.getMyAddress());
+            DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_BUY_TICKET_SUCCESS"), message.User.username, message.User.discriminator, tickets, tickets * GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
         }
-        else DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_SUSPENDED"));
     }
     else DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_CLOSED"));
 }
@@ -326,7 +324,7 @@ void Lottery::LotteryWon(TIPBOT * DiscordPtr, const UserMessage& message, const 
 {
     if (prevWinner)
         DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_WON_WITH_WINNER"));
-    else 
+    else
         DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_WON_WITHOUT_WINNER"));
 }
 
