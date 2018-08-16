@@ -1,5 +1,5 @@
 # Monero-TipBot
-Discord Tipbot built in C++ for Monero/IntenseCoin
+Discord Tipbot built in C++ for Monero/Lethean
 
 Discord: https://discord.gg/rpTU2T
 
@@ -102,8 +102,8 @@ Tipbot has 4 major applications that are disabled by default. The first applicai
 * !toggleprojects "[project]" -- Direct Message Only -- ADMIN ONLY
 
 ## Requirements
-* IntenseCon/Monero Daemon
-* IntenseCoin/Monero RPC
+* Lethean/Monero Daemon
+* Lethean/Monero RPC
 * Discord Token 
 * TCP Port 11000 to 11100 free to bind (can be redefined in config)
 
@@ -118,10 +118,10 @@ Tipbot has 4 major applications that are disabled by default. The first applicai
 * libssl-dev
 
 ## RPC Setup
-You need to download the RPC for the coin you want to setup the bot with, for example, IntenseCoin (https://github.com/valiant1x/intensecoin/releases). Unzip it to whereever you built the TIPBOT.
+You need to download the RPC for the coin you want to setup the bot with, for example, Lethean (https://github.com/valiant1x/intensecoin/releases). Unzip it to whereever you built the TIPBOT.
 
 ## Deamon setup
-Next you'll need to open the daemon for the coin, for example, `intensecoind` for IntenseCoin.
+Next you'll need to open the daemon for the coin, for example, `intensecoind` for Lethean.
 
 The file structure should look like this:
 * intensecoind/monerocoind
@@ -141,6 +141,6 @@ The bot should now be ready to run. Launch it, enter the token, and type `!balan
 
 Author: Brandan Tyler Lasley
 * BTC: 1KsX66J98WMgtSbFA5UZhVDn1iuhN5B6Hm
-* ITNS: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf
+* LTHN: iz5ZrkSjiYiCMMzPKY8JANbHuyChEHh8aEVHNCcRa2nFaSKPqKwGCGuUMUMNWRyTNKewpk9vHFTVsHu32X3P8QJD21mfWJogf
 * XMR: 44DudyMoSZ5as1Q9MTV6ydh4BYT6BMCvxNZ8HAgeZo9SatDVixVjZzvRiq9fiTneykievrWjrUvsy2dKciwwoUv15B9MzWS
 * MSR: 5h9GZz5bbvUK5TPb1KB8J7FnbQHyEd1z93scwhu3WZ9m3YJwCAUVyz3FoKh4JiTTWPKcGmJkxBWS2YkmzJoXTimqTbCKFKm

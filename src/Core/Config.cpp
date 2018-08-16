@@ -28,7 +28,7 @@ AppConfig GlobalConfig;
 #define WALLET_PATH                             "Wallets/"
 #define COIN_OFFSET                             100000000.0 // 1 x 10^8
 #define DEFAULT_MIXIN                           4
-#define COIN_ABBV                               "ITNS";
+#define COIN_ABBV                               "LTHN";
 #define STARTING_PORT_NUMBER                    11000
 #define MAX_RPC_LIMIT                           200
 #define RPC_ERROR_GIVEUP                        3

@@ -20,7 +20,7 @@
             "wallet_path": "Wallets/",
             "coin_offset": 100000000.0,
             "mixin": 4,
-            "coin_abbv": "ITNS",
+            "coin_abbv": "LTHN",
             "address_length": 97,
             "filename": "intense-wallet-rpc",
             "hostname": "127.0.0.1",
