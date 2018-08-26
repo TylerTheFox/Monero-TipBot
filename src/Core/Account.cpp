@@ -100,7 +100,9 @@ TransferRet Account::transferMoneytoAnotherDiscordUser(std::uint64_t amount, Dis
     if (DiscordUserAddress == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
-    if (DiscordUserAddress.length() != GlobalConfig.RPC.address_length)
+    if (DiscordUserAddress.length() != GlobalConfig.RPC.address_length &&
+        DiscordUserAddress.length() != GlobalConfig.RPC.sub_address_length &&
+        DiscordUserAddress.length() != GlobalConfig.RPC.integrated_address_length)
         throw GeneralAccountError("Invalid Address.");
 
 
@@ -140,7 +142,9 @@ TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
     if (DiscordUserAddress == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
-    if (DiscordUserAddress.length() != GlobalConfig.RPC.address_length)
+    if (DiscordUserAddress.length() != GlobalConfig.RPC.address_length &&
+        DiscordUserAddress.length() != GlobalConfig.RPC.sub_address_length &&
+        DiscordUserAddress.length() != GlobalConfig.RPC.integrated_address_length)
         throw GeneralAccountError("Invalid Address.");
 
     auto ret = RPCPtr->sweepAll(Discord_ID, DiscordUserAddress);
@@ -152,7 +156,7 @@ TransferRet Account::transferAllMoneytoAnotherDiscordUser(DiscordID DIS_ID)
     return ret;
 }
 
-TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::string & address)
+TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::string & address, const std::string payment_id)
 {
     Poco::Mutex::ScopedLock lock(mu);
     assert(RPCPtr);
@@ -160,7 +164,9 @@ TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::str
     // Resync account.
     resyncAccount();
 
-    if (address.length() != GlobalConfig.RPC.address_length)
+    if (address.length() != GlobalConfig.RPC.address_length &&
+        address.length() != GlobalConfig.RPC.sub_address_length &&
+        address.length() != GlobalConfig.RPC.integrated_address_length)
         throw GeneralAccountError("Invalid Address.");
 
     if (amount == UnlockedBalance)
@@ -178,7 +184,15 @@ TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::str
     if (address == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
-    auto ret = RPCPtr->tranfer(Discord_ID, amount, address);
+    TransferRet ret;
+    if (payment_id.empty())
+    {
+        ret = RPCPtr->tranfer(Discord_ID, amount, address);
+    }
+    else
+    {
+        ret = RPCPtr->tranfer(payment_id, amount, address);
+    }
 
     // Set Outgoing TX Note
     RPCPtr->setTXNote({ ret.tx_hash }, { "-1" });
@@ -187,7 +201,7 @@ TransferRet Account::transferMoneyToAddress(std::uint64_t amount, const std::str
     return ret;
 }
 
-TransferRet Account::transferAllMoneyToAddress(const std::string& address)
+TransferRet Account::transferAllMoneyToAddress(const std::string& address, const std::string payment_id)
 {
     Poco::Mutex::ScopedLock lock(mu);
     assert(RPCPtr);
@@ -195,7 +209,9 @@ TransferRet Account::transferAllMoneyToAddress(const std::string& address)
     // Resync account.
     resyncAccount();
 
-    if (address.length() != GlobalConfig.RPC.address_length)
+    if (address.length() != GlobalConfig.RPC.address_length &&
+        address.length() != GlobalConfig.RPC.sub_address_length &&
+        address.length() != GlobalConfig.RPC.integrated_address_length)
         throw GeneralAccountError("Invalid Address.");
 
     if (UnlockedBalance == 0)
@@ -207,7 +223,15 @@ TransferRet Account::transferAllMoneyToAddress(const std::string& address)
     if (address == MyAddress)
         throw GeneralAccountError("Don't transfer money to yourself.");
 
-    auto ret = RPCPtr->sweepAll(Discord_ID, address);
+    TransferRet ret;
+    if (payment_id.empty())
+    {
+        ret = RPCPtr->sweepAll(Discord_ID, address);
+    }
+    else
+    {
+        ret = RPCPtr->sweepAll(payment_id, address);
+    }
 
     // Set Outgoing TX Note
     RPCPtr->setTXNote({ ret.tx_hash }, { "-1" });

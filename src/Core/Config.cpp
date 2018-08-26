@@ -40,6 +40,7 @@ AppConfig GlobalConfig;
 #define MIN_DISCORD_ACCOUNT_IN_DAYS             (7.0*MICROSECOND_DAY)   // Days
 #define FAUCET_TIMEOUT                          (16.0*MICROSECOND_HOUR) // Hours
 #define VALID_ADDRESS_LENGTH                    97
+#define INTEGRATED_ADDRESS_LENGTH               108
 #define TICKET_COST                             100 // Coins
 #define FACUET_DONATION_PERCENT                 0.20
 #define NO_WINNER_CHANCE                        0.20
@@ -83,6 +84,8 @@ AppConfig::AppConfig()
     RPC.mixin = DEFAULT_MIXIN;
     RPC.wallet_path = WALLET_PATH;
     RPC.address_length = VALID_ADDRESS_LENGTH;
+    RPC.sub_address_length = VALID_ADDRESS_LENGTH;
+    RPC.integrated_address_length = INTEGRATED_ADDRESS_LENGTH;
     RPC.use_test_net = USE_TEST_NET;
 
     // RPCManager

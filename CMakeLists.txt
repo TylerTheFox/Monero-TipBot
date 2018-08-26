@@ -12,6 +12,7 @@ include_directories(
 	extern/poco-1.9.0/Util/include
 	extern/cereal-1.2.2/include 
     extern/ChaiScript-6.1.0/include 
+    extern/sleepy-discord/include/sleepy_discord/IncludeNonexistent
     )
 
 if(NOT CMAKE_BUILD_TYPE)

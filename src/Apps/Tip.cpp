@@ -33,39 +33,39 @@ Tip::Tip(TIPBOT * DPTR) : MyAccount(nullptr), AppBaseClass(DPTR)
     Commands =
     {
         // User Commands 
-        // Command            Function                                       Params                              Wallet  Admin   Allowed Channel
-        { "!about",           CLASS_RESOLUTION(About),                       "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!tipbot",          CLASS_RESOLUTION(Help),                        "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!listlanguage",    CLASS_RESOLUTION(ListLanguages),               "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!selectlanguage",  CLASS_RESOLUTION(SelectLanguage),              "",                                 false,  false,  AllowChannelTypes::Any },
-        { "!myaddress",       CLASS_RESOLUTION(MyAddress),                   "",                                 false,  false,  AllowChannelTypes::Private },
-        { "!blockheight",     CLASS_RESOLUTION(BlockHeight),                 "",                                 true,   false,  AllowChannelTypes::Any },
-        { "!balance",         CLASS_RESOLUTION(Balance),                     "",                                 true,   false,  AllowChannelTypes::Any },
-        { "!history",         CLASS_RESOLUTION(History),                     "",                                 true,   false,  AllowChannelTypes::Private },
-        { "!withdraw",        CLASS_RESOLUTION(Withdraw),                    "[amount] [address]",               true,   false,  AllowChannelTypes::Private },
-        { "!withdrawall",     CLASS_RESOLUTION(WithdrawAll),                 "[address]"    ,                    true,   false,  AllowChannelTypes::Private },
-        { "!give",            CLASS_RESOLUTION(Give),                        "[amount] [@User1 @User2...]",      true,   false,  AllowChannelTypes::Public },
-        { "!giveall",         CLASS_RESOLUTION(GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public },
-        { "!tip",             CLASS_RESOLUTION(Give),                        "[amount] [@User1 @User2...]",      true,   false,  AllowChannelTypes::Public },
-        { "!tipall",          CLASS_RESOLUTION(GiveAll),                     "[@User]",                          true,   false,  AllowChannelTypes::Public },
-        { "!restartwallet",   CLASS_RESOLUTION(RestartWallet),               "",                                 true,   false,  AllowChannelTypes::Any },
-        { "!uptime",          CLASS_RESOLUTION(UpTime),                      "",                                 true,   false,  AllowChannelTypes::Any },
+        // Command            Function                                       Params                                 Wallet  Admin   Allowed Channel
+        { "!about",           CLASS_RESOLUTION(About),                       "",                                    false,  false,  AllowChannelTypes::Any },
+        { "!tipbot",          CLASS_RESOLUTION(Help),                        "",                                    false,  false,  AllowChannelTypes::Any },
+        { "!listlanguage",    CLASS_RESOLUTION(ListLanguages),               "",                                    false,  false,  AllowChannelTypes::Any },
+        { "!selectlanguage",  CLASS_RESOLUTION(SelectLanguage),              "",                                    false,  false,  AllowChannelTypes::Any },
+        { "!myaddress",       CLASS_RESOLUTION(MyAddress),                   "",                                    false,  false,  AllowChannelTypes::Private },
+        { "!blockheight",     CLASS_RESOLUTION(BlockHeight),                 "",                                    true,   false,  AllowChannelTypes::Any },
+        { "!balance",         CLASS_RESOLUTION(Balance),                     "",                                    true,   false,  AllowChannelTypes::Any },
+        { "!history",         CLASS_RESOLUTION(History),                     "",                                    true,   false,  AllowChannelTypes::Private },
+        { "!withdraw",        CLASS_RESOLUTION(Withdraw),                    "[amount] [address] opt:[paymentid]",  true,   false,  AllowChannelTypes::Private },
+        { "!withdrawall",     CLASS_RESOLUTION(WithdrawAll),                 "[address] opt:[paymentid]"    ,       true,   false,  AllowChannelTypes::Private },
+        { "!give",            CLASS_RESOLUTION(Give),                        "[amount] [@User1 @User2...]",         true,   false,  AllowChannelTypes::Public },
+        { "!giveall",         CLASS_RESOLUTION(GiveAll),                     "[@User]",                             true,   false,  AllowChannelTypes::Public },
+        { "!tip",             CLASS_RESOLUTION(Give),                        "[amount] [@User1 @User2...]",         true,   false,  AllowChannelTypes::Public },
+        { "!tipall",          CLASS_RESOLUTION(GiveAll),                     "[@User]",                             true,   false,  AllowChannelTypes::Public },
+        { "!restartwallet",   CLASS_RESOLUTION(RestartWallet),               "",                                    true,   false,  AllowChannelTypes::Any },
+        { "!uptime",          CLASS_RESOLUTION(UpTime),                      "",                                    true,   false,  AllowChannelTypes::Any },
 
         // Admin
-        // Command            Function                                       Params                              Wallet  Admin   Allowed Channel
-        { "!togglewithdraw",  CLASS_RESOLUTION(ToggleWithdraw),              "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!togglegive",      CLASS_RESOLUTION(ToggleGive),                  "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!rescanallwallets",CLASS_RESOLUTION(RescanAllWallets),            "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!totalbalance",    CLASS_RESOLUTION(TotalBalance),                "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!savewallets",     CLASS_RESOLUTION(SaveWallets),                 "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!restartfaucet",   CLASS_RESOLUTION(RestartFaucetWallet),         "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!softrestart",     CLASS_RESOLUTION(SoftRestartBot),              "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!shutdown",        CLASS_RESOLUTION(Shutdown),                    "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!rpcstatus",       CLASS_RESOLUTION(RPCStatus),                   "",                                 false,  true,   AllowChannelTypes::Private },
-        { "!whois",           CLASS_RESOLUTION(WhoIs),                      "[DiscordID]",                       false,  true,   AllowChannelTypes::Private },
-        { "!performance",     CLASS_RESOLUTION(PerformanceData),            "",                                  false,  true,   AllowChannelTypes::Private },
-        { "!executing",       CLASS_RESOLUTION(Executing),                  "",                                  false,  true,   AllowChannelTypes::Private },
-        { "!toggletipbot",    CLASS_RESOLUTION(ToggleTipbot),               "",                                  false,  true,   AllowChannelTypes::Private },
+        // Command            Function                                       Params                                 Wallet  Admin   Allowed Channel
+        { "!togglewithdraw",  CLASS_RESOLUTION(ToggleWithdraw),              "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!togglegive",      CLASS_RESOLUTION(ToggleGive),                  "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!rescanallwallets",CLASS_RESOLUTION(RescanAllWallets),            "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!totalbalance",    CLASS_RESOLUTION(TotalBalance),                "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!savewallets",     CLASS_RESOLUTION(SaveWallets),                 "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!restartfaucet",   CLASS_RESOLUTION(RestartFaucetWallet),         "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!softrestart",     CLASS_RESOLUTION(SoftRestartBot),              "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!shutdown",        CLASS_RESOLUTION(Shutdown),                    "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!rpcstatus",       CLASS_RESOLUTION(RPCStatus),                   "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!whois",           CLASS_RESOLUTION(WhoIs),                       "[DiscordID]",                         false,  true,   AllowChannelTypes::Private },
+        { "!performance",     CLASS_RESOLUTION(PerformanceData),             "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!executing",       CLASS_RESOLUTION(Executing),                   "",                                    false,  true,   AllowChannelTypes::Private },
+        { "!toggletipbot",    CLASS_RESOLUTION(ToggleTipbot),                "",                                    false,  true,   AllowChannelTypes::Private },
 
     };
     setHelpCommand(Commands[1]);
@@ -150,13 +150,18 @@ void Tip::Withdraw(TIPBOT * DiscordPtr, const UserMessage& message, const struct
     {
         Poco::StringTokenizer cmd(message.Message, " ");
 
-        if (cmd.count() != 3)
+        if (cmd.count() != 3 && cmd.count() != 4)
             DiscordPtr->CommandParseError(message, me);
         else
         {
             const auto amount = Poco::NumberParser::parseFloat(cmd[1]);
             const auto& address = cmd[2];
-            const auto tx = MyAccount->transferMoneyToAddress(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), address);
+            std::string payment_id;
+
+            if (cmd.count() == 4)
+                payment_id = cmd[3];
+
+            const TransferRet tx = MyAccount->transferMoneyToAddress(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), address, payment_id);
             DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_WITHDRAW_SUCCESS"), message.User.username, message.User.discriminator, amount, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
         }
     }
@@ -172,12 +177,17 @@ void Tip::WithdrawAll(TIPBOT * DiscordPtr, const UserMessage& message, const str
     {
         Poco::StringTokenizer cmd(message.Message, " ");
 
-        if (cmd.count() != 2)
+        if (cmd.count() != 2 && cmd.count() != 3)
             DiscordPtr->CommandParseError(message, me);
         else
         {
             const auto& address = cmd[1];
-            const auto tx = MyAccount->transferAllMoneyToAddress(address);
+            std::string payment_id;
+
+            if (cmd.count() == 4)
+                payment_id = cmd[2];
+
+            const auto tx = MyAccount->transferAllMoneyToAddress(address, payment_id);
             DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_WITHDRAW_SUCCESS"), message.User.username, message.User.discriminator, MyAccount->getUnlockedBalance() / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
         }
     }

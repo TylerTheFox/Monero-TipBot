@@ -87,6 +87,8 @@ public:
     unsigned int                    getBlockHeight(int id = 0) const;
     TransferRet                     tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id = 0) const;
     TransferRet                     sweepAll(std::uint64_t payment_id, const std::string & address, int id = 0) const;
+    TransferRet                     tranfer(const std::string & payment_id, std::uint64_t amount, const std::string & address, int id = 0) const;
+    TransferRet                     sweepAll(const std::string & payment_id, const std::string & address, int id = 0) const;
     TransferList                    getTransfers(int id = 0) const;
     bool                            createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0) const;
     bool                            openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;

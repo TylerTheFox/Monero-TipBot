@@ -61,9 +61,10 @@ namespace SleepyDiscord {
 
 	enum AudioSourceType {
 		AUDIO_BASE_TYPE,
-		AUDIO_VECTOR,
-		AUDIO_POINTER,
+		AUDIO_CONTAINER,
 	};
+
+	struct AudioTransmissionDetails;
 
 	struct BaseAudioSource {
 		BaseAudioSource() : type(AUDIO_BASE_TYPE) {}
@@ -71,6 +72,8 @@ namespace SleepyDiscord {
 		virtual inline bool isOpusEncoded() { return false; }
 		const AudioSourceType type;
 		virtual ~BaseAudioSource() {}
+		//This function below is here in case the user uses this class
+		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
 	};
 
 	class VoiceConnection : public GenericMessageReceiver {
@@ -78,7 +81,7 @@ namespace SleepyDiscord {
 		VoiceConnection(BaseDiscordClient* client, VoiceContext& _context);
 		VoiceConnection(VoiceConnection&&) = default;
 
-		~VoiceConnection();
+		~VoiceConnection() = default;
 
 		inline bool operator==(const VoiceConnection& right) {
 			return this == &right;
@@ -92,8 +95,8 @@ namespace SleepyDiscord {
 			audioSource = std::unique_ptr<BaseAudioSource>(source);
 		}
 
-		inline BaseAudioSource*const& getAudioSource() {
-			return audioSource.get();
+		inline BaseAudioSource& getAudioSource() {
+			return *(audioSource.get());
 		}
 
 		//=== startSpeaking functions ===
@@ -129,6 +132,7 @@ namespace SleepyDiscord {
 	private:
 		friend BaseDiscordClient;
 
+		void initialize() override;
 		void processMessage(const std::string &message) override;
 		void processCloseCode(const int16_t code) override;
 
@@ -159,8 +163,12 @@ namespace SleepyDiscord {
 			ABLE          = CONNECTED | OPEN | AUDIO_ENABLED,
 		};
 
+#ifdef NONEXISTENT_OPUS
+		using OpusEncoder = void;
+#endif
+
 		UDPClient UDP;
-		int heartbeatInterval = 0;
+		time_t heartbeatInterval = 0;
 		uint32_t sSRC;
 		uint16_t port;
 		BaseDiscordClient* origin;
@@ -172,9 +180,7 @@ namespace SleepyDiscord {
 		time_t previousTime;
 		time_t nextTime;
 		VoiceContext& context;
-#if !defined(NONEXISTENT_OPUS)
 		OpusEncoder *encoder;
-#endif
 		uint16_t sequence = 0;
 		uint32_t timestamp = 0;
 
@@ -229,22 +235,37 @@ namespace SleepyDiscord {
 		const std::size_t _amountSentSinceLastTime;
 	};
 
-	template<AudioSourceType Type>
-	struct AudioSource : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(Type) {}
+	struct BasicAudioSourceForContainers : public BaseAudioSource {
+		BasicAudioSourceForContainers() : BaseAudioSource(AUDIO_CONTAINER) {}
+		void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) override {}
+		virtual void speak(
+			VoiceConnection& connection,
+			AudioTransmissionDetails& details,
+			std::size_t& length
+		) = 0;
 	};
 
-	template<>
-	struct AudioSource<AUDIO_VECTOR> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_VECTOR) {}
-		virtual std::vector<int16_t> read(AudioTransmissionDetails& details) {
-			return std::vector<int16_t>();
+	template<class Container>
+	struct AudioSource : public BasicAudioSourceForContainers {
+	public:
+		AudioSource() : BasicAudioSourceForContainers() {}
+		virtual Container read(AudioTransmissionDetails& details) {
+			return Container();
 		};
+	private:
+		friend VoiceConnection;
+		void speak(
+			VoiceConnection& connection,
+			AudioTransmissionDetails& details,
+			std::size_t& length
+		) override {
+			Container audioData = read(details);
+			int16_t* audioBuffer = audioData.data();
+			length = audioData.size();
+			connection.speak(audioBuffer, length);
+		}
 	};
 
-	template<>
-	struct AudioSource<AUDIO_POINTER> : public BaseAudioSource {
-		AudioSource() : BaseAudioSource(AUDIO_POINTER) {}
-		virtual void read(AudioTransmissionDetails& details, int16_t*& buffer, std::size_t& length) {};
-	};
+	using AudioPointerSource = BaseAudioSource;
+	using AudioVectorSource = AudioSource<std::vector<int16_t>>;
 }

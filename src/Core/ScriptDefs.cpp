@@ -27,6 +27,7 @@ GNU General Public License for more details.
 #include <vector>
 #include <string>
 #include "Poco/NumberParser.h"
+#include "Server.h"
 
 ScriptDefs::ScriptDefs()
 {
@@ -72,6 +73,8 @@ void ScriptDefs::core_datatypes() const
     MODULE_ADD_TYPE_FULL_EASY(Lang);            // Done
     MODULE_ADD_TYPE_FULL_EASY(LanguageSelect);  // Done
     MODULE_ADD_TYPE_FULL_EASY(RPCProc);         // Done
+    MODULE_ADD_TYPE_BASIC_EASY(Server);         // Done
+    m->add(chaiscript::user_type<Poco::Net::SocketStream>(), "SocketStream");
 }
 
 void ScriptDefs::core_datatypes_impli() const
@@ -117,8 +120,8 @@ void ScriptDefs::core_datatypes_impli() const
             { chaiscript::fun(&RPC::getBalance), "getBalance" },
             { chaiscript::fun(&RPC::getAddress), "getAddress" },
             { chaiscript::fun(&RPC::getBlockHeight), "getBlockHeight" },
-            { chaiscript::fun(&RPC::tranfer), "tranfer" },
-            { chaiscript::fun(&RPC::sweepAll), "sweepAll" },
+            { chaiscript::fun(static_cast<TransferRet(RPC::*)(const std::string &, std::uint64_t, const std::string &, int) const>(&RPC::tranfer)), "tranfer" },
+            { chaiscript::fun(static_cast<TransferRet(RPC::*)(const std::string &, const std::string &, int) const>(&RPC::sweepAll)), "sweepAll" },
             { chaiscript::fun(&RPC::getTransfers), "getTransfers" },
             { chaiscript::fun(&RPC::createWallet), "createWallet" },
             { chaiscript::fun(&RPC::openWallet), "openWallet" },
@@ -381,6 +384,22 @@ void ScriptDefs::core_datatypes_impli() const
     MODULE_ADD(RPCProc::RPCFail, "RPCFail");
     MODULE_ADD(RPCProc::timestamp, "timestamp");
     MODULE_ADD(RPCProc::Transactions, "Transactions");
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////   Server         /////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////
+    chaiscript::utility::add_class<Server>(*m,
+        "Server",
+        {
+            chaiscript::constructor<Server(unsigned short port)>(),
+        },
+        {
+            { chaiscript::fun(&Server::start), "start" },
+            { chaiscript::fun(&Server::stop), "stop" },
+            { chaiscript::fun(&Server::setOnConnectFunc), "setOnConnectFunc" },
+            { chaiscript::fun(&Server::write), "write" }
+        }
+        );
 }
 
 void ScriptDefs::class_functions() const

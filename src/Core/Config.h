@@ -20,7 +20,7 @@ GNU General Public License for more details.
 #include "types.h"
 
 #define VERSION_MAJOR                           2
-#define VERSION_MINOR                           7
+#define VERSION_MINOR                           8
 
 struct AboutConfig
 {
@@ -63,6 +63,8 @@ struct RPCConfig
     unsigned char           mixin;
     std::string             coin_abbv;
     unsigned short          address_length;
+    unsigned short          sub_address_length;
+    unsigned short          integrated_address_length;
     std::string             filename;
     std::string             hostname;
     std::string             daemon_hostname;
@@ -78,6 +80,8 @@ struct RPCConfig
             CEREAL_NVP(mixin),
             CEREAL_NVP(coin_abbv),
             CEREAL_NVP(address_length),
+            CEREAL_NVP(sub_address_length),
+            CEREAL_NVP(integrated_address_length),
             CEREAL_NVP(filename),
             CEREAL_NVP(hostname),
             CEREAL_NVP(daemon_hostname),
@@ -239,7 +243,15 @@ void RPCConfig::load(Archive & ar)
         CEREAL_NVP(coin_offset),
         CEREAL_NVP(mixin),
         CEREAL_NVP(coin_abbv),
-        CEREAL_NVP(address_length),
+        CEREAL_NVP(address_length)
+    );
+
+    if (GlobalConfig.About.major > 2 || GlobalConfig.About.major >= 2 && GlobalConfig.About.minor > 7)
+    {
+        ar(CEREAL_NVP(sub_address_length), CEREAL_NVP(integrated_address_length));
+    }
+
+    ar(
         CEREAL_NVP(filename),
         CEREAL_NVP(hostname),
         CEREAL_NVP(daemon_hostname)
