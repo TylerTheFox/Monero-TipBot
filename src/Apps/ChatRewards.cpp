@@ -138,6 +138,10 @@ void ChatRewards::ProcessPendingTransfers()
                 save();
             }
         }
+        else
+            if (!Users.empty())
+                Users.clear();
+
         // Sleep for some long amount of time.
         Poco::Thread::sleep(100);
     }
