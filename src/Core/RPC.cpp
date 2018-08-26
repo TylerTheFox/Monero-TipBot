@@ -243,7 +243,7 @@ TransferRet  RPC::sweepAll(const std::string & payment_id, const std::string & a
 
     ret.fee = 0;
     ret.tx_hash = tx_hash_list[0].toString();
-    ret.tx_key = tx_hash_list[0].toString();
+    ret.tx_key = tx_key_list[0].toString();
 
     return ret;
 }
