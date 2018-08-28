@@ -116,6 +116,7 @@ void Script::remove_script(const std::string& scriptPath)
             delete scripts[i].engine;
             scripts[i].engine = nullptr;
             scripts.erase(scripts.begin() + i);
+            _save();
             break;
         }
     }
