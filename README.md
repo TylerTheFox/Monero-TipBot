@@ -1,7 +1,7 @@
 # Monero-TipBot
 Discord Tipbot built in C++ for Monero/Lethean
 
-Discord: https://discord.gg/rpTU2T
+Discord: https://discord.gg/TyD4jfU
 
 ## Compile
 
