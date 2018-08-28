@@ -16,6 +16,7 @@ GNU General Public License for more details.
 #include "chaiscript/chaiscript.hpp"
 #include "ScriptDefs.h"
 #include "Poco/Logger.h"
+#include "cereal/cereal.hpp"
 
 /*
 =================================================================================
@@ -40,7 +41,7 @@ Engine Defs
 #define ENGINE_ADD_VECTOR_STL(engine, type, name)           engine->add(chaiscript::bootstrap::standard_library::vector_type<type>(name));
 #define ENGINE_ADD_GLOBAL(engine, obj, name)                engine->add_global(chaiscript::var(std::ref(obj)), name);
 #define ENGINE_ADD_GLOBAL_EASY(engine, obj)                 engine->add_global(chaiscript::var(std::ref(obj)), #obj);
-
+#define SCRIPT_ENGINE_SAVE_FILENAME                         "Scripts.json"
 struct UserMessage;
 enum class ecallback
 {
@@ -50,7 +51,7 @@ enum class ecallback
 class ScriptEngine
 {
 public:
-    ScriptEngine() : shutdown(false), shutdown_complete(false) {}
+    ScriptEngine() : shutdown(false), shutdown_complete(false), engine(nullptr) {}
     std::string                                 path;
     chaiscript::ChaiScript *                    engine;
 
@@ -59,6 +60,14 @@ public:
 
     bool                                        shutdown;
     bool                                        shutdown_complete;
+
+    template <class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(
+            CEREAL_NVP(path)
+        );
+    }
 };
 #endif
 class TIPBOT;
@@ -79,7 +88,33 @@ public:
     void clearAll();
     size_t count() const;
     const std::vector<class ScriptEngine> & getScripts();
+    void _load();
 #endif
+    template <class Archive>
+    void save(Archive & ar) const
+    {
+#ifndef NO_CHAISCRIPT
+        ar(
+            CEREAL_NVP(scripts)
+        );
+#endif
+    }
+
+    template <class Archive>
+    void load(Archive & ar)
+    {
+#ifndef NO_CHAISCRIPT
+        ar(
+            CEREAL_NVP(scripts)
+        );
+
+        for (auto & scr : scripts)
+        {
+            scr.shutdown_complete = true;
+            reinit_engine(scr);
+        }
+#endif
+    }
 private:
     TIPBOT *                        DiscordPtr;
 #ifndef NO_CHAISCRIPT
@@ -92,5 +127,7 @@ private:
 
     void init_engine(class ScriptEngine& sEngine);
     void script_exception(const chaiscript::exception::eval_error & ee);
+
+    void _save();
 #endif
 };

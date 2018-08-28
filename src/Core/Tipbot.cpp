@@ -122,6 +122,8 @@ void TIPBOT::tipbot_init()
                 SaveStats();
             }
 
+            ScriptEng._load();
+
             init = true;
         }
     }

@@ -93,7 +93,7 @@ bool Script::add_script(const std::string& scriptPath)
         };
         std::thread t(eval);
         t.detach();
-
+        _save();
         PLog->information("Script Loaded successfully!");
         return true; // Success!
     }
@@ -157,6 +157,8 @@ bool Script::reinit_engine(class ScriptEngine& sEngine)
 
         sEngine.shutdown = true;
         while (!sEngine.shutdown_complete) { Poco::Thread::sleep(1); }
+        sEngine.shutdown_complete = false;
+        sEngine.shutdown = false;
         delete sEngine.engine;
         sEngine.engine = new chaiscript::ChaiScript;
 
@@ -237,6 +239,34 @@ void Script::init_engine(class ScriptEngine& sEngine)
 void Script::script_exception(const chaiscript::exception::eval_error & ee)
 {
     PLog->information(ee.pretty_print());
+}
+
+void Script::_save()
+{
+    std::ofstream out(SCRIPT_ENGINE_SAVE_FILENAME, std::ios::trunc);
+    if (out.is_open())
+    {
+        PLog->information("Saving loaded scripts to disk...");
+        {
+            cereal::JSONOutputArchive ar(out);
+            ar(::cereal::make_nvp("Script", *this));
+        }
+        out.close();
+    }
+}
+
+void Script::_load()
+{
+    std::ifstream in(SCRIPT_ENGINE_SAVE_FILENAME);
+    if (in.is_open())
+    {
+        PLog->information("Loading saved scripts from disk...");
+        {
+            cereal::JSONInputArchive ar(in);
+            ar(::cereal::make_nvp("Script", *this));
+        }
+        in.close();
+    }
 }
 
 const std::vector<class ScriptEngine> & Script::getScripts()
