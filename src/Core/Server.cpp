@@ -20,6 +20,7 @@ GNU General Public License for more details.
 #include "Poco/RunnableAdapter.h"
 #include "Poco/StreamCopier.h"
 #include <sstream>
+#include <thread>
 
 Server::Server(unsigned short port) : serv(port), exit_server(false), shutdown_complete(true)
 {
