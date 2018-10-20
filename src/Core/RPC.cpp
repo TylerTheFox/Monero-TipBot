@@ -280,7 +280,15 @@ TransferList RPC::getTransfers(int id) const
             for (auto it : result)
             {
                 ts.tx_hash = it["txid"].toString();
-                ts.payment_id = it["payment_id"].convert<std::uint64_t>();
+                // ** Bug fix: If the user sent a non numeric payment id the RPCManager would fail processing new txs.
+                try
+                {
+                    ts.payment_id = it["payment_id"].convert<std::uint64_t>();
+                }
+                catch (const Poco::Exception & exp)
+                {
+                    ts.payment_id = 0;
+                }
                 ts.block_height = it["height"].convert<unsigned int>();
                 if (it["amount"].isInteger())
                 {
