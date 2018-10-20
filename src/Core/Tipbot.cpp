@@ -121,9 +121,9 @@ void TIPBOT::tipbot_init()
                 AppSave();
                 SaveStats();
             }
-
+#ifndef NO_CHAISCRIPT
             ScriptEng._load();
-
+#endif
             init = true;
         }
     }
