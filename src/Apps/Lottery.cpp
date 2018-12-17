@@ -55,15 +55,28 @@ Lottery::Lottery(TIPBOT * DPTR) : prevWinner(0), AppBaseClass(DPTR)
         { "!lastwinner",                CLASS_RESOLUTION(lastWinner),                 "",               false,  true,   AllowChannelTypes::Private    },
     };
     setHelpCommand(Commands[0]);
-    LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, GlobalConfig.RPCManager.starting_port_number - 1);
+
+    try
+    {
+        LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, GlobalConfig.RPCManager.starting_port_number - 1);
+    }
+    catch (RPCGeneralError & err)
+    {
+        LotteryAccount = nullptr;
+        PLog->error("Error creating RPC -- %s", err.getGeneralError());
+    }
+
 }
 
 Lottery::~Lottery()
 {
     try
     {
-        LotteryAccount->MyRPC.store();
-        LotteryAccount->MyRPC.stopWallet();
+        if (LotteryAccount)
+        {
+            LotteryAccount->MyRPC.store();
+            LotteryAccount->MyRPC.stopWallet();
+        }
     }
     catch (...)
     {
@@ -124,135 +137,137 @@ void Lottery::run()
 
     PLog->information("Thread Started! Threads: %?i", GlobalConfig.General.Threads);
 
-    while (!GlobalConfig.General.Shutdown)
+    if (LotteryAccount)
     {
-        if (enabled)
+        while (!GlobalConfig.General.Shutdown)
         {
-            Poco::DateTime curr;
-            if (!noWinner && !rewardGivenout && curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() == GlobalConfig.Lottery.pick)
+            if (enabled)
             {
-                PLog->information("Choosing Winners");
-                try
+                Poco::DateTime curr;
+                if (!noWinner && !rewardGivenout && curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() == GlobalConfig.Lottery.pick)
                 {
-                    LotteryAccount->MyAccount.resyncAccount();
-
-                    // Calcualte jackpot.
-                    std::vector<DiscordID> enteries;
-                    auto txs = LotteryAccount->MyRPC.getTransfers();
-                    if (!txs.tx_in.empty())
-                    {
-                        std::uint64_t bal = 0;
-                        unsigned int tickets;
-
-                        // Add tickets to entry list
-                        for (auto tx : txs.tx_in)
-                        {
-                            if (tx.block_height > lastWinningTopBlock)
-                            {
-                                tickets = (tx.amount / GlobalConfig.RPC.coin_offset) / GlobalConfig.Lottery.ticket_cost;
-                                for (int i = 0; i < tickets; i++)
-                                    enteries.emplace_back(tx.payment_id);
-                                bal += tx.amount;
-                            }
-                        }
-
-                        if (!enteries.empty())
-                        {
-                            // Add 20% empty tickets.
-                            const auto amountOfBlankTickets = enteries.size() * GlobalConfig.Lottery.no_winner_chance;
-                            for (auto i = 0; i < amountOfBlankTickets; i++)
-                                enteries.emplace_back(0);
-
-                            // Randomly shuffle list.
-                            std::shuffle(enteries.begin(), enteries.end(), std::mt19937(std::random_device()()));
-
-                            DiscordID winner = *enteries.begin();
-
-                            if (winner)
-                            {
-                                PLog->information(GETSTR(DiscordPtr->getUserLang(winner), "LOTTERY_WINNER"), winner);
-                                lastWinningTopBlock = txs.tx_in.begin()->block_height;
-                                const std::uint64_t reward = bal - (bal * GlobalConfig.Lottery.donation_percent);
-                                auto WinnerAccount = RPCMan->getAccount(winner);
-
-                                // TODO: Add this to language file!
-                                DiscordPtr->SendDirectMsg(winner, Poco::format(GETSTR(DiscordPtr->getUserLang(winner), "LOTTERY_USER_WON"), reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
-
-                                if (GlobalConfig.Lottery.donation_percent)
-                                {
-                                    // Likely has funds left to pay the fee.
-                                    LotteryAccount->MyAccount.transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
-                                }
-                                else
-                                {
-                                    // Won't have any funds left to pay the fee.
-                                    LotteryAccount->MyAccount.transferAllMoneyToAddress(WinnerAccount.getMyAddress());
-                                }
-                                prevWinner = winner;
-                            }
-                            else
-                            {
-                                PLog->information("No Winner!");
-                                prevWinner = 0;
-                                noWinner = true;
-                            }
-                            save();
-                            rewardGivenout = true;
-                        }
-                        else PLog->information("No Active Tickets!");
-                    }
-                    else PLog->error("Error transaction list is empty!");
-                }
-                catch (AppGeneralException & exp)
-                {
-                    PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
-                    enabled = false;
-                }
-                catch (...)
-                {
-                    PLog->error("There was an unknown error while in the lottery drawing. Lottery is suspended!");
-                    enabled = false;
-                }
-            }
-            else if (!sweepComplete && curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() == GlobalConfig.Lottery.faucet)
-            {
-                try
-                {
-                    if (GlobalConfig.Lottery.donation_percent)
+                    PLog->information("Choosing Winners");
+                    try
                     {
                         LotteryAccount->MyAccount.resyncAccount();
 
-                        // Donate Remaining to faucet.
-                        if (!noWinner)
+                        // Calcualte jackpot.
+                        std::vector<DiscordID> enteries;
+                        auto txs = LotteryAccount->MyRPC.getTransfers();
+                        if (!txs.tx_in.empty())
                         {
-                            PLog->information("Donating remaining balance to the faucet!");
-                            LotteryAccount->MyAccount.transferAllMoneyToAddress(RPCManager::getGlobalBotAccount().getMyAddress());
-                        }
-                        PLog->information("Sweep Complete!");
-                    }
-                    noWinner = false;
-                    sweepComplete = true;
-                }
-                catch (...)
-                {
-                    // Don't care, try again in 30 seconds (29 + the sleep at the end of the loop).
-                    Poco::Thread::sleep(29000);
-                }
-            }
-            else
-            {
-                if ((rewardGivenout && sweepComplete) || (rewardGivenout && noWinner && curr.hour() < GlobalConfig.Lottery.close))
-                {
-                    PLog->information("Lottery complete! Resetting local data.");
-                    sweepComplete = false;
-                    rewardGivenout = false;
-                    save();
-                }
-            }
-        }
-        Poco::Thread::sleep(1000);
-    }
+                            std::uint64_t bal = 0;
+                            unsigned int tickets;
 
+                            // Add tickets to entry list
+                            for (auto tx : txs.tx_in)
+                            {
+                                if (tx.block_height > lastWinningTopBlock)
+                                {
+                                    tickets = (tx.amount / GlobalConfig.RPC.coin_offset) / GlobalConfig.Lottery.ticket_cost;
+                                    for (int i = 0; i < tickets; i++)
+                                        enteries.emplace_back(tx.payment_id);
+                                    bal += tx.amount;
+                                }
+                            }
+
+                            if (!enteries.empty())
+                            {
+                                // Add 20% empty tickets.
+                                const auto amountOfBlankTickets = enteries.size() * GlobalConfig.Lottery.no_winner_chance;
+                                for (auto i = 0; i < amountOfBlankTickets; i++)
+                                    enteries.emplace_back(0);
+
+                                // Randomly shuffle list.
+                                std::shuffle(enteries.begin(), enteries.end(), std::mt19937(std::random_device()()));
+
+                                DiscordID winner = *enteries.begin();
+
+                                if (winner)
+                                {
+                                    PLog->information(GETSTR(DiscordPtr->getUserLang(winner), "LOTTERY_WINNER"), winner);
+                                    lastWinningTopBlock = txs.tx_in.begin()->block_height;
+                                    const std::uint64_t reward = bal - (bal * GlobalConfig.Lottery.donation_percent);
+                                    auto WinnerAccount = RPCMan->getAccount(winner);
+
+                                    // TODO: Add this to language file!
+                                    DiscordPtr->SendDirectMsg(winner, Poco::format(GETSTR(DiscordPtr->getUserLang(winner), "LOTTERY_USER_WON"), reward / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
+
+                                    if (GlobalConfig.Lottery.donation_percent)
+                                    {
+                                        // Likely has funds left to pay the fee.
+                                        LotteryAccount->MyAccount.transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
+                                    }
+                                    else
+                                    {
+                                        // Won't have any funds left to pay the fee.
+                                        LotteryAccount->MyAccount.transferAllMoneyToAddress(WinnerAccount.getMyAddress());
+                                    }
+                                    prevWinner = winner;
+                                }
+                                else
+                                {
+                                    PLog->information("No Winner!");
+                                    prevWinner = 0;
+                                    noWinner = true;
+                                }
+                                save();
+                                rewardGivenout = true;
+                            }
+                            else PLog->information("No Active Tickets!");
+                        }
+                        else PLog->error("Error transaction list is empty!");
+                    }
+                    catch (AppGeneralException & exp)
+                    {
+                        PLog->error("There was an error while in the lottery drawing. Lottery is suspended! Error: %s", exp.getGeneralError());
+                        enabled = false;
+                    }
+                    catch (...)
+                    {
+                        PLog->error("There was an unknown error while in the lottery drawing. Lottery is suspended!");
+                        enabled = false;
+                    }
+                }
+                else if (!sweepComplete && curr.dayOfWeek() == GlobalConfig.Lottery.day && curr.hour() == GlobalConfig.Lottery.faucet)
+                {
+                    try
+                    {
+                        if (GlobalConfig.Lottery.donation_percent)
+                        {
+                            LotteryAccount->MyAccount.resyncAccount();
+
+                            // Donate Remaining to faucet.
+                            if (!noWinner)
+                            {
+                                PLog->information("Donating remaining balance to the faucet!");
+                                LotteryAccount->MyAccount.transferAllMoneyToAddress(RPCManager::getGlobalBotAccount().getMyAddress());
+                            }
+                            PLog->information("Sweep Complete!");
+                        }
+                        noWinner = false;
+                        sweepComplete = true;
+                    }
+                    catch (...)
+                    {
+                        // Don't care, try again in 30 seconds (29 + the sleep at the end of the loop).
+                        Poco::Thread::sleep(29000);
+                    }
+                }
+                else
+                {
+                    if ((rewardGivenout && sweepComplete) || (rewardGivenout && noWinner && curr.hour() < GlobalConfig.Lottery.close))
+                    {
+                        PLog->information("Lottery complete! Resetting local data.");
+                        sweepComplete = false;
+                        rewardGivenout = false;
+                        save();
+                    }
+                }
+            }
+            Poco::Thread::sleep(1000);
+        }
+    }
     GlobalConfig.General.Threads--;
     PLog->information("Thread Stopped! Threads: %?i", GlobalConfig.General.Threads);
 }

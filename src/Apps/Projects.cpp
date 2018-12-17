@@ -19,7 +19,7 @@ GNU General Public License for more details.
 #include "cereal/archives/json.hpp"
 #include "cereal/types/map.hpp"
 #include "../Core/Util.h"
-
+#include "../Core/RPCException.h"
 #define CLASS_RESOLUTION(x) std::bind(&Projects::x, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
 Projects::Projects(TIPBOT * DPTR) : PortCount(GlobalConfig.RPCManager.starting_port_number - 2), AppBaseClass(DPTR)
 {
@@ -54,8 +54,11 @@ Projects::~Projects()
     {
         try
         {
-            proj.second.RPC->MyRPC.store();
-            proj.second.RPC->MyRPC.stopWallet();
+            if (proj.second.RPC)
+            {
+                proj.second.RPC->MyRPC.store();
+                proj.second.RPC->MyRPC.stopWallet();
+            }
         }
         catch (...)
         {
@@ -96,8 +99,15 @@ void Projects::load()
         in.close();
 
         PortCount = GlobalConfig.RPCManager.starting_port_number - 2;
-        for (auto & proj : ProjectMap)
-            proj.second.RPC = RPCManager::manuallyCreateRPC(getFilename(proj.first), PortCount--);
+        try
+        {
+            for (auto & proj : ProjectMap)
+                proj.second.RPC = RPCManager::manuallyCreateRPC(getFilename(proj.first), PortCount--);
+        }
+        catch (RPCGeneralError & err)
+        {
+            PLog->error("Error creating RPC -- %s", err.getGeneralError());
+        }
     }
 }
 
@@ -289,8 +299,11 @@ void Projects::ListProjects(TIPBOT * DiscordPtr, const UserMessage & message, co
     {
         for (const auto & proj : ProjectMap)
         {
-            proj.second.RPC->MyAccount.resyncAccount();
-            ss << "\\\"" << proj.first << "\\\", \\\"" << proj.second.Description << "\\\", " << proj.second.Goal / GlobalConfig.RPC.coin_offset << " " << GlobalConfig.RPC.coin_abbv << ", " << (proj.second.RPC->MyAccount.getBalance() / static_cast<double>(proj.second.Goal)) * 100.0 << "%, " << (proj.second.Suspended ? "Yes" : "No") << "\\n";
+            if (proj.second.RPC)
+            {
+                proj.second.RPC->MyAccount.resyncAccount();
+                ss << "\\\"" << proj.first << "\\\", \\\"" << proj.second.Description << "\\\", " << proj.second.Goal / GlobalConfig.RPC.coin_offset << " " << GlobalConfig.RPC.coin_abbv << ", " << (proj.second.RPC->MyAccount.getBalance() / static_cast<double>(proj.second.Goal)) * 100.0 << "%, " << (proj.second.Suspended ? "Yes" : "No") << "\\n";
+            }
         }
     }
     else ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_NO_PROJECTS");
@@ -412,7 +425,7 @@ void Projects::script_init()
             {
                 { chaiscript::fun(&Projects::getMap), "getMap" }
             }
-        );
+            );
 
     MODULE_ADD_LAMBDA(std::function<Projects*()>([&]() { return this; }), "getProjects");
 }

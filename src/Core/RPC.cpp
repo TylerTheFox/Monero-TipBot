@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include "Poco/Net/HTTPClientSession.h"
 #include "Poco/Net/HTTPRequest.h"
 #include <Poco/Net/HTTPResponse.h>
+#include <Poco/Net/NetException.h>
 #include <cassert>
 #include "Config.h"
 #include <fstream>
@@ -71,6 +72,14 @@ Poco::DynamicStruct RPC::getDataFromRPC(const std::string & method, const Poco::
         auto JSONResult = parser.parse(ss.str());
         Poco::JSON::Object::Ptr object = JSONResult.extract<Poco::JSON::Object::Ptr>();
         return Poco::DynamicStruct(*object);
+    }
+    catch (const Poco::Net::NetException & exp)
+    {
+        handleNetworkError(exp.what());
+    }
+    catch (const Poco::Net::ConnectionRefusedException & exp)
+    {
+        handleNetworkError(exp.what());
     }
     catch (const Poco::Exception & exp)
     {
@@ -365,6 +374,7 @@ bool RPC::openWallet(const std::string & name, const std::string & password, int
 
     data["filename"] = name;
     data["password"] = password;
+    data["language"] = "English";
 
     auto json = getDataFromRPC(RPC_METHOD_OPEN_WALLET, data, id);
 
