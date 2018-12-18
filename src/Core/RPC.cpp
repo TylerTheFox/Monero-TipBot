@@ -103,11 +103,14 @@ void RPC::open(unsigned short _port)
     port = _port;
 }
 
-BalanceRet RPC::getBalance(int id) const
+BalanceRet RPC::getBalance(int id, int account) const
 /* Global Wallet Balance */
 {
     BalanceRet ret;
-    auto json = getDataFromRPC(RPC_METHOD_GET_BALANCE, {}, id);
+    Poco::DynamicStruct params;
+    if (account != ACCOUNT_NONE)
+        params["account_index"] = account;
+    auto json = getDataFromRPC(RPC_METHOD_GET_BALANCE, params, id);
 
     // Ensure RPC is happy.
     if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
@@ -129,9 +132,12 @@ BalanceRet RPC::getBalance(int id) const
     return ret;
 }
 
-std::string RPC::getAddress(int id) const
+std::string RPC::getAddress(int id, int account) const
 {
-    auto json = getDataFromRPC(RPC_METHOD_GET_ADDRESS, {}, id);
+    Poco::DynamicStruct params;
+    if (account != ACCOUNT_NONE)
+        params["account_index"] = account;
+    auto json = getDataFromRPC(RPC_METHOD_GET_ADDRESS, params, id);
 
     // Ensure RPC is happy.
     if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
@@ -169,17 +175,17 @@ unsigned int RPC::getBlockHeight(int id) const
     return result["height"].convert<unsigned int>();
 }
 
-TransferRet RPC::tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id)  const
+TransferRet RPC::tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id, int account)  const
 {
-    return tranfer(Poco::format("%064Lu", payment_id), amount, address, id);
+    return tranfer(Poco::format("%064Lu", payment_id), amount, address, id, account);
 }
 
-TransferRet RPC::sweepAll(std::uint64_t payment_id, const std::string & address, int id) const
+TransferRet RPC::sweepAll(std::uint64_t payment_id, const std::string & address, int id, int account) const
 {
-    return sweepAll(Poco::format("%064Lu", payment_id), address, id);
+    return sweepAll(Poco::format("%064Lu", payment_id), address, id, account);
 }
 
-TransferRet  RPC::tranfer(const std::string & payment_id, std::uint64_t amount, const std::string & address, int id) const
+TransferRet  RPC::tranfer(const std::string & payment_id, std::uint64_t amount, const std::string & address, int id, int account) const
 {
     TransferRet ret;
 
@@ -190,6 +196,8 @@ TransferRet  RPC::tranfer(const std::string & payment_id, std::uint64_t amount, 
     Poco::DynamicStruct object;
     object["amount"] = amount;
     object["address"] = address;
+    if (account != ACCOUNT_NONE)
+        params["account_index"] = account;
     destinations.push_back(object);
 
     if (address.length() != GlobalConfig.RPC.integrated_address_length)
@@ -219,7 +227,7 @@ TransferRet  RPC::tranfer(const std::string & payment_id, std::uint64_t amount, 
     return ret;
 }
 
-TransferRet  RPC::sweepAll(const std::string & payment_id, const std::string & address, int id) const
+TransferRet  RPC::sweepAll(const std::string & payment_id, const std::string & address, int id, int account) const
 {
     TransferRet ret;
 
@@ -227,7 +235,8 @@ TransferRet  RPC::sweepAll(const std::string & payment_id, const std::string & a
     Poco::DynamicStruct params;
 
     params["address"] = address;
-
+    if (account != ACCOUNT_NONE)
+        params["account_index"] = account;
     if (address.length() != GlobalConfig.RPC.integrated_address_length)
         params["payment_id"] = payment_id;
 
@@ -257,13 +266,15 @@ TransferRet  RPC::sweepAll(const std::string & payment_id, const std::string & a
     return ret;
 }
 
-TransferList RPC::getTransfers(int id) const
+TransferList RPC::getTransfers(int id, int account) const
 {
     struct TransferList incomingTransactions;
 
     Poco::DynamicStruct params;
     params["in"] = true;
     params["out"] = true;
+    if (account != ACCOUNT_NONE)
+        params["account_index"] = account;
     auto json = getDataFromRPC(RPC_METHOD_GET_TRANSFERS, params, id);
 
     // Ensure RPC is happy.
@@ -472,4 +483,33 @@ RPC& RPC::operator=(const RPC &rhs)
         this->port = rhs.port;
     }
     return *this;
+}
+
+void RPC::closeWallet(int id) const
+{
+    auto json = getDataFromRPC(RPC_METHOD_CLOSE_WALLET, {}, id);
+
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
+    if (!json["error"].isEmpty())
+    {
+        handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+    }
+}
+
+void RPC::changeWalletPassword(const std::string & oldPassword, const std::string & newPassword, int id) const
+{
+    Poco::DynamicStruct params;
+
+    if (!oldPassword.empty())
+        params["old_password"] = oldPassword;
+    if (!newPassword.empty())
+        params["new_password"] = newPassword;
+
+    auto json = getDataFromRPC(RPC_METHOD_CHANGE_WALLET_PASSWORD, params, id);
+
+    if (!json.size()) throw RPCGeneralError("-1", "JSON Result is size 0");
+    if (!json["error"].isEmpty())
+    {
+        handleRPCError(json["error"].extract<Poco::DynamicStruct>());
+    }
 }

@@ -34,6 +34,11 @@ GNU General Public License for more details.
 #define RPC_METHOD_RESCAN_SPENT             "rescan_spent"
 #define RPC_METHOD_GET_TX_NOTE              "get_tx_notes"
 #define RPC_METHOD_SET_TX_NOTE              "set_tx_notes"
+#define RPC_METHOD_CLOSE_WALLET             "close_wallet"
+#define RPC_METHOD_CHANGE_WALLET_PASSWORD   "change_wallet_password"
+
+#define ACCOUNT_NONE                        -1
+#define ID_NONE                             0
 
 struct BalanceRet
 {
@@ -81,22 +86,23 @@ public:
     RPC(const RPC & obj);
     void                            open(unsigned short _port);
 
-
-    struct BalanceRet               getBalance(int id = 0) const;
-    std::string                     getAddress(int id = 0) const;
-    unsigned int                    getBlockHeight(int id = 0) const;
-    TransferRet                     tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id = 0) const;
-    TransferRet                     sweepAll(std::uint64_t payment_id, const std::string & address, int id = 0) const;
-    TransferRet                     tranfer(const std::string & payment_id, std::uint64_t amount, const std::string & address, int id = 0) const;
-    TransferRet                     sweepAll(const std::string & payment_id, const std::string & address, int id = 0) const;
-    TransferList                    getTransfers(int id = 0) const;
-    bool                            createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = 0) const;
-    bool                            openWallet(const std::string & name, const std::string & password = {}, int id = 0) const;
-    void                            stopWallet(int id = 0) const;
-    void                            store(int id = 0) const;
-    void                            rescanSpent(int id = 0) const;
-    void                            setTXNote(const std::vector<std::string> & txVect, const std::vector<std::string> & noteVect, int id = 0) const;
-    std::vector<std::string>        getTXNote(const std::vector<std::string> & txVect, int id = 0) const;
+    struct BalanceRet               getBalance(int id = ID_NONE, int account = ACCOUNT_NONE) const;
+    std::string                     getAddress(int id = ID_NONE, int account = ACCOUNT_NONE) const;
+    unsigned int                    getBlockHeight(int id = ID_NONE) const;
+    TransferRet                     tranfer(std::uint64_t payment_id, std::uint64_t amount, const std::string & address, int id = ID_NONE, int account = ACCOUNT_NONE) const;
+    TransferRet                     sweepAll(std::uint64_t payment_id, const std::string & address, int id = ID_NONE, int account = ACCOUNT_NONE) const;
+    TransferRet                     tranfer(const std::string & payment_id, std::uint64_t amount, const std::string & address, int id = ID_NONE, int account = ACCOUNT_NONE) const;
+    TransferRet                     sweepAll(const std::string & payment_id, const std::string & address, int id = ID_NONE, int account = ACCOUNT_NONE) const;
+    TransferList                    getTransfers(int id = ID_NONE, int account = ACCOUNT_NONE) const;
+    bool                            createWallet(const std::string & name, const std::string & password = {}, const std::string & language = "English", int id = ID_NONE) const;
+    bool                            openWallet(const std::string & name, const std::string & password = {}, int id = ID_NONE) const;
+    void                            stopWallet(int id = ID_NONE) const;
+    void                            store(int id = ID_NONE) const;
+    void                            rescanSpent(int id = ID_NONE) const;
+    void                            setTXNote(const std::vector<std::string> & txVect, const std::vector<std::string> & noteVect, int id = ID_NONE) const;
+    std::vector<std::string>        getTXNote(const std::vector<std::string> & txVect, int id = ID_NONE) const;
+    void                            closeWallet(int id = ID_NONE) const;
+    void                            changeWalletPassword(const std::string & oldPassword, const std::string & newPassword, int id = ID_NONE) const;
 
     unsigned short                  getPort() const;
 
@@ -112,5 +118,5 @@ private:
 
     void                            handleNetworkError(const std::string & msg) const;
     void                            handleRPCError(Poco::DynamicStruct error) const;
-    Poco::DynamicStruct             getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = 0) const;
+    Poco::DynamicStruct             getDataFromRPC(const std::string & method, const Poco::DynamicStruct & args, int id = ID_NONE) const;
 };
