@@ -385,7 +385,7 @@ bool RPC::openWallet(const std::string & name, const std::string & password, int
         // New Monero RPC auto opens wallet after creation.
         // I don't know what version this was changed so I hope
         // ya forks keep up to date with Monero.
-        return;
+        return true;
     }
 
     Poco::DynamicStruct data;
