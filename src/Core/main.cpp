@@ -147,9 +147,6 @@ int main()
             // Init RPCMan
             RPCMan.reset(new RPCManager);
 
-            // Load RPCs
-            RPCMan->load();
-
             // Run bot with token.
             Discord Dbot(GlobalConfig.General.discordToken);
             TIPBOT & Tbot = Dbot;

@@ -58,7 +58,7 @@ Lottery::Lottery(TIPBOT * DPTR) : prevWinner(0), AppBaseClass(DPTR)
 
     try
     {
-        LotteryAccount = RPCManager::manuallyCreateRPC(LOTTERY_USER, GlobalConfig.RPCManager.starting_port_number - 1);
+        LotteryAccount = &RPCMan->getAccount("LOTTERY");
     }
     catch (RPCGeneralError & err)
     {
@@ -70,18 +70,7 @@ Lottery::Lottery(TIPBOT * DPTR) : prevWinner(0), AppBaseClass(DPTR)
 
 Lottery::~Lottery()
 {
-    try
-    {
-        if (LotteryAccount)
-        {
-            LotteryAccount->MyRPC.store();
-            LotteryAccount->MyRPC.stopWallet();
-        }
-    }
-    catch (...)
-    {
 
-    }
 }
 
 void Lottery::save()
@@ -149,11 +138,9 @@ void Lottery::run()
                     PLog->information("Choosing Winners");
                     try
                     {
-                        LotteryAccount->MyAccount.resyncAccount();
-
                         // Calcualte jackpot.
                         std::vector<DiscordID> enteries;
-                        auto txs = LotteryAccount->MyRPC.getTransfers();
+                        auto txs = LotteryAccount->getTransactions();
                         if (!txs.tx_in.empty())
                         {
                             std::uint64_t bal = 0;
@@ -196,12 +183,12 @@ void Lottery::run()
                                     if (GlobalConfig.Lottery.donation_percent)
                                     {
                                         // Likely has funds left to pay the fee.
-                                        LotteryAccount->MyAccount.transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
+                                        LotteryAccount->transferMoneyToAddress(reward, WinnerAccount.getMyAddress());
                                     }
                                     else
                                     {
                                         // Won't have any funds left to pay the fee.
-                                        LotteryAccount->MyAccount.transferAllMoneyToAddress(WinnerAccount.getMyAddress());
+                                        LotteryAccount->transferAllMoneyToAddress(WinnerAccount.getMyAddress());
                                     }
                                     prevWinner = winner;
                                 }
@@ -235,13 +222,11 @@ void Lottery::run()
                     {
                         if (GlobalConfig.Lottery.donation_percent)
                         {
-                            LotteryAccount->MyAccount.resyncAccount();
-
                             // Donate Remaining to faucet.
                             if (!noWinner)
                             {
                                 PLog->information("Donating remaining balance to the faucet!");
-                                LotteryAccount->MyAccount.transferAllMoneyToAddress(RPCManager::getGlobalBotAccount().getMyAddress());
+                                LotteryAccount->transferAllMoneyToAddress(RPCManager::getGlobalBotAccount().getMyAddress());
                             }
                             PLog->information("Sweep Complete!");
                         }
@@ -287,7 +272,7 @@ void Lottery::Jackpot(TIPBOT* DiscordPtr, const UserMessage& message, const Comm
 {
     // Calcualte jackpot.
     std::uint64_t bal = 0;
-    auto txs = LotteryAccount->MyRPC.getTransfers();
+    auto txs = LotteryAccount->getTransactions();
     for (auto tx : txs.tx_in)
     {
         if (tx.block_height > lastWinningTopBlock)
@@ -309,9 +294,8 @@ void Lottery::BuyTicket(TIPBOT* DiscordPtr, const UserMessage& message, const Co
             DiscordPtr->CommandParseError(message, me);
         else
         {
-            LotteryAccount->MyAccount.resyncAccount();
             const auto tickets = Poco::NumberParser::parseUnsigned(cmd[1]);
-            const auto tx = currentUsrAccount->transferMoneyToAddress((tickets * GlobalConfig.Lottery.ticket_cost) * GlobalConfig.RPC.coin_offset, LotteryAccount->MyAccount.getMyAddress());
+            const auto tx = currentUsrAccount->transferMoneyToAddress((tickets * GlobalConfig.Lottery.ticket_cost) * GlobalConfig.RPC.coin_offset, LotteryAccount->getMyAddress());
             DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "LOTTERY_BUY_TICKET_SUCCESS"), message.User.username, message.User.discriminator, tickets, tickets * GlobalConfig.Lottery.ticket_cost, GlobalConfig.RPC.coin_abbv, tx.tx_hash));
         }
     }
@@ -320,11 +304,9 @@ void Lottery::BuyTicket(TIPBOT* DiscordPtr, const UserMessage& message, const Co
 
 void Lottery::MyTickets(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me) const
 {
-    LotteryAccount->MyAccount.resyncAccount();
-
     // Calcualte jackpot.
     std::uint64_t bal = 0;
-    auto txs = LotteryAccount->MyRPC.getTransfers();
+    auto txs = LotteryAccount->getTransactions();
     for (auto tx : txs.tx_in)
     {
         if (tx.block_height > lastWinningTopBlock && tx.payment_id == message.User.id)

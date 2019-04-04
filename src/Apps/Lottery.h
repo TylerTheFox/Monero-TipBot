@@ -55,7 +55,7 @@ private:
     TIPBOT *                        DiscordPtr;
     std::uint64_t                   lastWinningTopBlock = 0;
     Account*                        currentUsrAccount{};
-    std::shared_ptr<RPCProc>        LotteryAccount;
+    Account*                        LotteryAccount;
     DiscordID                       prevWinner;
     bool rewardGivenout = false;
     bool sweepComplete = false;

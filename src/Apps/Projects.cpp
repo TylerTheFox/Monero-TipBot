@@ -50,21 +50,7 @@ Projects::Projects(TIPBOT * DPTR) : PortCount(GlobalConfig.RPCManager.starting_p
 
 Projects::~Projects()
 {
-    for (auto & proj : ProjectMap)
-    {
-        try
-        {
-            if (proj.second.RPC)
-            {
-                proj.second.RPC->MyRPC.store();
-                proj.second.RPC->MyRPC.stopWallet();
-            }
-        }
-        catch (...)
-        {
 
-        }
-    }
 }
 
 void Projects::save()
@@ -102,7 +88,7 @@ void Projects::load()
         try
         {
             for (auto & proj : ProjectMap)
-                proj.second.RPC = RPCManager::manuallyCreateRPC(getFilename(proj.first), PortCount--);
+                proj.second.AccountPtr = &RPCMan->getAccount(proj.first);
         }
         catch (RPCGeneralError & err)
         {
@@ -153,7 +139,7 @@ void Projects::Create(TIPBOT * DiscordPtr, const UserMessage & message, const Co
                 }
 
                 PLog->information("Creating project %s with goal %?i %s on RPC port %?i", name, goal, GlobalConfig.RPC.coin_abbv, GlobalConfig.RPCManager.starting_port_number - 2 - PortCount);
-                ProjectMap[name] = { description, goal, false, RPCManager::manuallyCreateRPC(getFilename(name), GlobalConfig.RPCManager.starting_port_number - 2 - PortCount--) };
+                ProjectMap[name] = { description, goal, false, &RPCMan->getAccount(name) };
                 save();
                 DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_CREATED_SUCCESS"));
             }
@@ -184,10 +170,6 @@ void Projects::Delete(TIPBOT * DiscordPtr, const UserMessage & message, const Co
             }
 
             const auto & proj = ProjectMap[name];
-
-            proj.RPC->MyRPC.store();
-            proj.RPC->MyRPC.stopWallet();
-
             ProjectMap.erase(name);
             save();
             DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_DELETE_SUCCESS"));
@@ -216,7 +198,7 @@ void Projects::GrantUser(TIPBOT * DiscordPtr, const UserMessage & message, const
             }
 
             const auto & proj = ProjectMap[name];
-            const auto tx = proj.RPC->MyAccount.transferAllMoneytoAnotherDiscordUser(message.Mentions[0].id);
+            const auto tx = proj.AccountPtr->transferAllMoneytoAnotherDiscordUser(message.Mentions[0].id);
 
             DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_GRANT_SUCCESS"), name, message.Mentions[0].username, tx.tx_hash));
         }
@@ -279,7 +261,7 @@ void Projects::FundProject(TIPBOT * DiscordPtr, const UserMessage & message, con
             if (!proj.Suspended)
             {
                 auto & usr = RPCMan->getAccount(message.User.id);
-                const auto tx = usr.transferMoneyToAddress(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), proj.RPC->MyRPC.getAddress());
+                const auto tx = usr.transferMoneyToAddress(static_cast<std::uint64_t>(amount * GlobalConfig.RPC.coin_offset), proj.AccountPtr->getMyAddress());
 
                 DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_FUND_SUCCESS"), amount, GlobalConfig.RPC.coin_abbv, name, tx.tx_hash));
             }
@@ -299,11 +281,7 @@ void Projects::ListProjects(TIPBOT * DiscordPtr, const UserMessage & message, co
     {
         for (const auto & proj : ProjectMap)
         {
-            if (proj.second.RPC)
-            {
-                proj.second.RPC->MyAccount.resyncAccount();
-                ss << "\\\"" << proj.first << "\\\", \\\"" << proj.second.Description << "\\\", " << proj.second.Goal / GlobalConfig.RPC.coin_offset << " " << GlobalConfig.RPC.coin_abbv << ", " << (proj.second.RPC->MyAccount.getBalance() / static_cast<double>(proj.second.Goal)) * 100.0 << "%, " << (proj.second.Suspended ? "Yes" : "No") << "\\n";
-            }
+            ss << "\\\"" << proj.first << "\\\", \\\"" << proj.second.Description << "\\\", " << proj.second.Goal / GlobalConfig.RPC.coin_offset << " " << GlobalConfig.RPC.coin_abbv << ", " << (proj.second.AccountPtr->getBalance() / static_cast<double>(proj.second.Goal)) * 100.0 << "%, " << (proj.second.Suspended ? "Yes" : "No") << "\\n";
         }
     }
     else ss << GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_NO_PROJECTS");
@@ -332,18 +310,16 @@ void Projects::ViewStatus(TIPBOT * DiscordPtr, const UserMessage & message, cons
             }
             const auto & proj = ProjectMap[name];
 
-            proj.RPC->MyAccount.resyncAccount();
-
             DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_VIEW_STATUS_LIST"),
                 name,
                 proj.Description,
-                proj.RPC->MyAccount.getBalance() / GlobalConfig.RPC.coin_offset,
+                proj.AccountPtr->getBalance() / GlobalConfig.RPC.coin_offset,
                 GlobalConfig.RPC.coin_abbv,
-                proj.RPC->MyAccount.getUnlockedBalance() / GlobalConfig.RPC.coin_offset,
+                proj.AccountPtr->getUnlockedBalance() / GlobalConfig.RPC.coin_offset,
                 GlobalConfig.RPC.coin_abbv,
                 proj.Goal / GlobalConfig.RPC.coin_offset,
                 GlobalConfig.RPC.coin_abbv,
-                (proj.RPC->MyAccount.getBalance() / static_cast<double>(proj.Goal)) * 100.0)
+                (proj.AccountPtr->getBalance() / static_cast<double>(proj.Goal)) * 100.0)
             );
         }
         else DiscordPtr->CommandParseError(message, me);
@@ -372,10 +348,7 @@ void Projects::ProjectAddress(TIPBOT * DiscordPtr, const UserMessage & message, 
                 return;
             }
             const auto & proj = ProjectMap[name];
-
-            proj.RPC->MyAccount.resyncAccount();
-
-            DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_DIRECT_ADDRESS"), name, proj.RPC->MyAccount.getMyAddress()));
+            DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "PROJECTS_DIRECT_ADDRESS"), name, proj.AccountPtr->getMyAddress()));
         }
         else DiscordPtr->CommandParseError(message, me);
     }
@@ -412,7 +385,7 @@ void Projects::script_init()
     ////////////////////////////////////////////////////////////////////////////////////////
     MODULE_ADD(Project::Description, "Description");
     MODULE_ADD(Project::Goal, "Goal");
-    MODULE_ADD(Project::RPC, "RPC");
+    MODULE_ADD(Project::AccountPtr, "AccountPtr");
     MODULE_ADD(Project::Suspended, "Suspended");
 
     ////////////////////////////////////////////////////////////////////////////////////////

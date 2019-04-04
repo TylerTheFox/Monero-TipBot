@@ -203,25 +203,12 @@ void ScriptDefs::core_datatypes_impli() const
         {
         },
         {
-            { chaiscript::fun(&RPCManager::getAccount), "getAccount" },
             { chaiscript::fun(&RPCManager::getBotDiscordID), "getBotDiscordID" },
-            { chaiscript::fun(&RPCManager::getRPC), "getRPC" },
-            { chaiscript::fun(&RPCManager::getTimeStarted), "getTimeStarted" },
-            { chaiscript::fun(&RPCManager::getTotalBalance), "getTotalBalance" },
             { chaiscript::fun(&RPCManager::getTransfers), "getTransfers" },
-            { chaiscript::fun(&RPCManager::load), "load" },
-            { chaiscript::fun(&RPCManager::rescanAll), "rescanAll" },
             { chaiscript::fun(&RPCManager::setBotUser), "setBotUser" },
             { chaiscript::fun(&RPCManager::setDiscordPtr), "setDiscordPtr" },
-            { chaiscript::fun(&RPCManager::status), "status" },
-            { chaiscript::fun(&RPCManager::waitForRPCToRespond), "waitForRPCToRespond" }
         }
         );
-
-    // Static
-    MODULE_ADD(RPCManager::manuallyCreateRPC, "manuallyCreateRPC");
-    MODULE_ADD(RPCManager::getGlobalBotRPC, "getGlobalBotRPC");
-    MODULE_ADD(RPCManager::getGlobalBotAccount, "getGlobalBotAccount");
 
     ////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////   LanguageSelect         /////////////////////////////
@@ -378,12 +365,9 @@ void ScriptDefs::core_datatypes_impli() const
     ////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////   RPCProc            /////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
-    MODULE_ADD(RPCProc::MyAccount, "MyAccount");
     MODULE_ADD(RPCProc::MyRPC, "MyRPC");
     MODULE_ADD(RPCProc::pid, "pid");
-    MODULE_ADD(RPCProc::RPCFail, "RPCFail");
     MODULE_ADD(RPCProc::timestamp, "timestamp");
-    MODULE_ADD(RPCProc::Transactions, "Transactions");
 
     ////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////   Server         /////////////////////////////////////

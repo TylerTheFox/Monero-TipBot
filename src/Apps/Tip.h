@@ -46,20 +46,15 @@ public:
     void                            GiveAll(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            About(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            BlockHeight(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
-    void                            RestartWallet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            ListLanguages(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            SelectLanguage(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
 
     // Admin
     void                            ToggleWithdraw(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            ToggleGive(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
-    void                            RescanAllWallets(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            TotalBalance(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
-    void                            SaveWallets(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
-    void                            RestartFaucetWallet(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            SoftRestartBot(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            Shutdown(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
-    void                            RPCStatus(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            WhoIs(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            PerformanceData(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);
     void                            Executing(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me);

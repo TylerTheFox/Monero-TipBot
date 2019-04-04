@@ -48,20 +48,15 @@ Tip::Tip(TIPBOT * DPTR) : MyAccount(nullptr), AppBaseClass(DPTR)
         { "!giveall",         CLASS_RESOLUTION(GiveAll),                     "[@User]",                             true,   false,  AllowChannelTypes::Public },
         { "!tip",             CLASS_RESOLUTION(Give),                        "[amount] [@User1 @User2...]",         true,   false,  AllowChannelTypes::Public },
         { "!tipall",          CLASS_RESOLUTION(GiveAll),                     "[@User]",                             true,   false,  AllowChannelTypes::Public },
-        { "!restartwallet",   CLASS_RESOLUTION(RestartWallet),               "",                                    true,   false,  AllowChannelTypes::Any },
         { "!uptime",          CLASS_RESOLUTION(UpTime),                      "",                                    true,   false,  AllowChannelTypes::Any },
 
         // Admin
         // Command            Function                                       Params                                 Wallet  Admin   Allowed Channel
         { "!togglewithdraw",  CLASS_RESOLUTION(ToggleWithdraw),              "",                                    false,  true,   AllowChannelTypes::Private },
         { "!togglegive",      CLASS_RESOLUTION(ToggleGive),                  "",                                    false,  true,   AllowChannelTypes::Private },
-        { "!rescanallwallets",CLASS_RESOLUTION(RescanAllWallets),            "",                                    false,  true,   AllowChannelTypes::Private },
         { "!totalbalance",    CLASS_RESOLUTION(TotalBalance),                "",                                    false,  true,   AllowChannelTypes::Private },
-        { "!savewallets",     CLASS_RESOLUTION(SaveWallets),                 "",                                    false,  true,   AllowChannelTypes::Private },
-        { "!restartfaucet",   CLASS_RESOLUTION(RestartFaucetWallet),         "",                                    false,  true,   AllowChannelTypes::Private },
         { "!softrestart",     CLASS_RESOLUTION(SoftRestartBot),              "",                                    false,  true,   AllowChannelTypes::Private },
         { "!shutdown",        CLASS_RESOLUTION(Shutdown),                    "",                                    false,  true,   AllowChannelTypes::Private },
-        { "!rpcstatus",       CLASS_RESOLUTION(RPCStatus),                   "",                                    false,  true,   AllowChannelTypes::Private },
         { "!whois",           CLASS_RESOLUTION(WhoIs),                       "[DiscordID]",                         false,  true,   AllowChannelTypes::Private },
         { "!performance",     CLASS_RESOLUTION(PerformanceData),             "",                                    false,  true,   AllowChannelTypes::Private },
         { "!executing",       CLASS_RESOLUTION(Executing),                   "",                                    false,  true,   AllowChannelTypes::Private },
@@ -251,12 +246,6 @@ void Tip::BlockHeight(TIPBOT* DiscordPtr, const UserMessage& message, const Comm
     DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_BLOCK_HEIGHT"), MyAccount->getBlockHeight()));
 }
 
-void Tip::RestartWallet(TIPBOT * DiscordPtr, const UserMessage& message, const Command & me)
-{
-    RPCMan->restartWallet(MyAccount->getDiscordID());
-    DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_WALLET_RESTART_SUCCESS"));
-}
-
 void Tip::ToggleWithdraw(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me)
 {
     globalSettings.withdrawAllowed = !globalSettings.withdrawAllowed;
@@ -269,28 +258,10 @@ void Tip::ToggleGive(TIPBOT* DiscordPtr, const UserMessage& message, const Comma
     DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_GIVE_TOGGLE"), globalSettings.giveAllowed));
 }
 
-void Tip::RescanAllWallets(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me)
-{
-    RPCMan->rescanAll();
-    DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_RESCAN_SUCCESS"));
-}
-
 void Tip::TotalBalance(TIPBOT* DiscordPtr, const UserMessage& message, const Command& me)
 {
-    const auto bal = RPCMan->getTotalBalance();
-    DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_TOTAL_BALANCE"), bal.Balance / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, bal.UnlockedBalance / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
-}
-
-void Tip::SaveWallets(TIPBOT * DiscordPtr, const UserMessage& message, const Command & me)
-{
-    RPCMan->saveallWallets();
-    DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_WALLET_SAVE_SUCCESS"));
-}
-
-void Tip::RestartFaucetWallet(TIPBOT * DiscordPtr, const UserMessage& message, const Command & me)
-{
-    RPCMan->restartWallet(RPCMan->getBotDiscordID());
-    DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_FAUCET_RESTART_SUCCESS"));
+    //const auto bal = RPCMan->getTotalBalance();
+    //DiscordPtr->SendMsg(message, Poco::format(GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_TOTAL_BALANCE"), bal.Balance / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv, bal.UnlockedBalance / GlobalConfig.RPC.coin_offset, GlobalConfig.RPC.coin_abbv));
 }
 
 void Tip::setAccount(Account* acc)
@@ -310,11 +281,6 @@ void Tip::Shutdown(TIPBOT * DiscordPtr, const UserMessage& message, const struct
     DiscordPtr->SendMsg(message, GETSTR(DiscordPtr->getUserLang(message.User.id), "TIP_SHUTDOWN_SUCCESSS"));
     GlobalConfig.General.Quitting = true;
     DiscordPtr->shutdown();
-}
-
-void Tip::RPCStatus(TIPBOT * DiscordPtr, const UserMessage& message, const struct Command & me)
-{
-    DiscordPtr->SendMsg(message, RPCMan->status());
 }
 
 void Tip::WhoIs(TIPBOT * DiscordPtr, const UserMessage& message, const Command & me)

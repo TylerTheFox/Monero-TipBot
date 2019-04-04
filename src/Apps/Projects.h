@@ -82,7 +82,7 @@ struct Project
     std::string                     Description;
     std::uint64_t                   Goal;
     bool                            Suspended;
-    std::shared_ptr<RPCProc>        RPC;
+    Account*                        AccountPtr;
 
     template <class Archive>
     void serialize(Archive & ar)
