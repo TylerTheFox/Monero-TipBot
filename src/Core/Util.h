@@ -19,6 +19,7 @@ GNU General Public License for more details.
 #define MICROSECOND_HOUR            3600000000
 #define MICROSECOND_DAY             (MICROSECOND_HOUR*24.0)
 #define DISCORD_WALLET_MASK         "Discord-User-%Lu"
+#define WALLET_KEYS_EXTENSION       ".keys"
 
 class Util
 {

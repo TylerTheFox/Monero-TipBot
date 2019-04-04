@@ -28,7 +28,7 @@ GNU General Public License for more details.
 
 bool Util::doesWalletExist(const std::string & name)
 {
-    return Poco::File(name).exists();
+    return Poco::File(name + WALLET_KEYS_EXTENSION).exists();
 }
 
 bool Util::doesWalletExist(DiscordID DIS_ID)
